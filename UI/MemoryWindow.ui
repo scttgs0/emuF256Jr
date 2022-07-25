@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.2 -->
+<interface>
+  <requires lib="gtk+" version="3.18"/>
+  <object class="GtkListStore" id="liststoreAddress">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Bank $00</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Bank $18</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Bank $19</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Bank $AF (Vicky)</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Bank $B0 (Video)</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkTextBuffer" id="textbufferMemory">
+    <property name="text" translatable="yes">&gt;00:1000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:1010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:1020  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:1030  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:1040  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:1050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:1060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:1070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:1080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:1090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:10A0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:10B0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:10C0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:10D0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:10E0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........
+&gt;00:10F0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ........ ........</property>
+  </object>
+  <object class="GtkWindow" id="MemoryWindow">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Emulator Memory</property>
+    <property name="resizable">False</property>
+    <signal name="key-release-event" handler="on_MemoryWindow_key_release_event" swapped="no"/>
+    <signal name="map" handler="on_MemoryWindow_map" swapped="no"/>
+    <signal name="map" handler="on_MemoryWindow_unmap" swapped="no"/>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkFixed" id="fixMain">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkHeaderBar">
+            <property name="width_request">800</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">False</property>
+            <property name="has_subtitle">False</property>
+            <child>
+              <object class="GtkEntry" id="txtStartAddress">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="max_length">7</property>
+                <property name="width_chars">7</property>
+                <property name="max_width_chars">7</property>
+                <property name="input_purpose">digits</property>
+                <signal name="activate" handler="on_txtStartAddress_activate" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="txtEndAddress">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="editable">False</property>
+                <property name="max_length">7</property>
+                <property name="width_chars">7</property>
+                <property name="max_width_chars">7</property>
+                <property name="caps_lock_warning">False</property>
+                <property name="input_purpose">digits</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="btnRefresh">
+                <property name="label">gtk-refresh</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
+                <signal name="clicked" handler="on_btnRefresh_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="btnBack">
+                <property name="label">gtk-go-back</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Previous Page</property>
+                <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
+                <signal name="clicked" handler="on_btnBack_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="btnForward">
+                <property name="label">gtk-go-forward</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Next Page</property>
+                <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
+                <signal name="clicked" handler="on_btnForward_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="cboAddress">
+                <property name="height_request">20</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <items>
+                  <item id="000000" translatable="yes">Bank $00</item>
+                  <item id="180000" translatable="yes">Bank $18</item>
+                  <item id="190000" translatable="yes">Bank $19</item>
+                  <item id="AF0000" translatable="yes">Bank $AF (Vicky)</item>
+                  <item id="B00000" translatable="yes">Bank $B0 (Video)</item>
+                  <item id="AF0100" translatable="yes">Address $AF:0100 (Bitmap Registers)</item>
+                  <item id="AF0200" translatable="yes">Address $AF:0200 (Tile Registers)</item>
+                  <item id="AF0C00" translatable="yes">Address $AF:0C00 (Sprite Registers)</item>
+                  <item id="AF1F40" translatable="yes">Address $AF:1F40 (Text Color Palette Foreground)</item>
+                  <item id="AF1F80" translatable="yes">Address $AF:1F80 (Text Color Palette Background)</item>
+                  <item id="AF2000" translatable="yes">Address $AF:2000 (LUT 0)</item>
+                  <item id="AF2400" translatable="yes">Address $AF:2400 (LUT 1)</item>
+                  <item id="AF2800" translatable="yes">Address $AF:2800 (LUT 2)</item>
+                  <item id="AF2C00" translatable="yes">Address $AF:2C00 (LUT 3)</item>
+                  <item id="AF8000" translatable="yes">Address $AF:8000 (Font Memory Bank 0)</item>
+                  <item id="AF8800" translatable="yes">Address $AF:8800 (Font Memory Bank 1)</item>
+                  <item id="AFA000" translatable="yes">Address $AF:A000 (Text Memory)</item>
+                  <item id="AFC000" translatable="yes">Address $AF:C000 (Text Colors)</item>
+                  <item id="AFE000" translatable="yes">Address $AF:E000 (Gabe)</item>
+                  <item id="FFFFFF" translatable="yes">Unspecified Page</item>
+                </items>
+                <signal name="changed" handler="on_cboAddress_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="position">5</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkActionBar" id="pnlFooter">
+            <property name="width_request">800</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <child>
+              <object class="GtkLabel" id="lblMCR">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xpad">4</property>
+                <property name="ypad">4</property>
+                <property name="label" translatable="yes">Master Control Reg</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButtonBox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="layout_style">expand</property>
+                <child>
+                  <object class="GtkToggleButton" id="btnMCRBit9">
+                    <property name="label" translatable="yes">Dp</property>
+                    <property name="width_request">26</property>
+                    <property name="height_request">26</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Double Pixels</property>
+                    <signal name="clicked" handler="on_btnMCR_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="btnMCRBit8">
+                    <property name="label" translatable="yes">Hr</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">High-Res</property>
+                    <signal name="clicked" handler="on_btnMCR_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButtonBox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="layout_style">expand</property>
+                <child>
+                  <object class="GtkToggleButton" id="btnMCRBit7">
+                    <property name="label" translatable="yes">Vi</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Disable Video</property>
+                    <signal name="clicked" handler="on_btnMCR_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="btnMCRBit6">
+                    <property name="label" translatable="yes">Ga</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Enable Gamma</property>
+                    <signal name="clicked" handler="on_btnMCR_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="btnMCRBit5">
+                    <property name="label" translatable="yes">Sp</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Enable Sprites</property>
+                    <signal name="clicked" handler="on_btnMCR_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="btnMCRBit4">
+                    <property name="label" translatable="yes">Ti</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Enable Tilemap</property>
+                    <signal name="clicked" handler="on_btnMCR_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButtonBox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="layout_style">expand</property>
+                <child>
+                  <object class="GtkToggleButton" id="btnMCRBit3">
+                    <property name="label" translatable="yes">Bm</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Enable Bitmap</property>
+                    <signal name="clicked" handler="on_btnMCR_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="btnMCRBit2">
+                    <property name="label" translatable="yes">Gr</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Enable Graphics Mode</property>
+                    <signal name="clicked" handler="on_btnMCR_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="btnMCRBit1">
+                    <property name="label" translatable="yes">Ov</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Enable Text Overlay</property>
+                    <signal name="clicked" handler="on_btnMCR_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="btnMCRBit0">
+                    <property name="label" translatable="yes">Tx</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Enable Text</property>
+                    <signal name="clicked" handler="on_btnMCR_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">4</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="y">338</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkTextView" id="tvwMemory">
+            <property name="width_request">800</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="margin_left">10</property>
+            <property name="margin_right">10</property>
+            <property name="margin_top">10</property>
+            <property name="margin_bottom">10</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="buffer">textbufferMemory</property>
+            <property name="monospace">True</property>
+            <signal name="leave-notify-event" handler="on_tvwMemory_leave_notify_event" swapped="no"/>
+            <signal name="motion-notify-event" handler="on_tvwMemory_motion_notify_event" swapped="no"/>
+          </object>
+          <packing>
+            <property name="y">47</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="HighlightPanel">
+            <property name="can_focus">True</property>
+            <property name="double_buffered">False</property>
+            <property name="margin_left">4</property>
+            <property name="margin_right">4</property>
+            <property name="margin_top">2</property>
+            <property name="margin_bottom">2</property>
+            <property name="max_length">2</property>
+            <property name="has_frame">False</property>
+            <property name="width_chars">2</property>
+            <property name="max_width_chars">2</property>
+            <property name="text" translatable="yes">FF</property>
+            <property name="overwrite_mode">True</property>
+            <property name="caps_lock_warning">False</property>
+            <signal name="key-release-event" handler="on_HighlightPanel_key_release_event" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">772</property>
+            <property name="y">352</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lblPosition">
+            <property name="width_request">170</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes"></property>
+            <property name="xalign">0.06</property>
+          </object>
+          <packing>
+            <property name="x">624</property>
+            <property name="y">356</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="btnSave">
+            <property name="label" translatable="yes">Save</property>
+            <property name="can_focus">False</property>
+            <property name="receives_default">True</property>
+            <property name="double_buffered">False</property>
+            <signal name="clicked" handler="on_btnSave_clicked" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">770</property>
+            <property name="y">6</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

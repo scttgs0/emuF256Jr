@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.2 -->
+<interface>
+  <requires lib="gtk+" version="3.18"/>
+  <object class="GtkWindow" id="SDCardWindow">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">SDCardWindow</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkFixed">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="margin_left">10</property>
+        <property name="margin_right">10</property>
+        <property name="margin_top">10</property>
+        <property name="margin_bottom">10</property>
+        <child>
+          <object class="GtkCheckButton" id="chkSdcEnable">
+            <property name="label" translatable="yes">Enable SD Card</property>
+            <property name="width_request">110</property>
+            <property name="height_request">17</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="draw_indicator">True</property>
+            <signal name="toggled" handler="on_chkSdcEnable_toggled" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">12</property>
+            <property name="y">12</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="chkIsoMode">
+            <property name="label" translatable="yes">Enable ISO Mode</property>
+            <property name="width_request">110</property>
+            <property name="height_request">17</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="draw_indicator">True</property>
+            <signal name="toggled" handler="on_chkIsoMode_toggled" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">142</property>
+            <property name="y">12</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lblFolder">
+            <property name="height_request">13</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Folder</property>
+          </object>
+          <packing>
+            <property name="x">22</property>
+            <property name="y">47</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFileChooserButton" id="fcbFolder">
+            <property name="width_request">365</property>
+            <property name="height_request">20</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="title" translatable="yes"/>
+            <signal name="file-set" handler="on_fcbFolder_file_set" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">66</property>
+            <property name="y">38</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lblCapacity">
+            <property name="height_request">13</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Capacity</property>
+            <property name="width_chars">4</property>
+            <property name="max_width_chars">4</property>
+          </object>
+          <packing>
+            <property name="x">12</property>
+            <property name="y">86</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="cboCapacity">
+            <property name="width_request">56</property>
+            <property name="height_request">20</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="active">0</property>
+            <items>
+              <item id="8" translatable="yes">8</item>
+              <item id="16" translatable="yes">16</item>
+              <item id="32" translatable="yes">32</item>
+              <item id="64" translatable="yes">64</item>
+              <item id="256" translatable="yes">256</item>
+              <item id="512" translatable="yes">512</item>
+              <item id="1024" translatable="yes">1024</item>
+              <item id="2048" translatable="yes">2048</item>
+            </items>
+            <signal name="changed" handler="on_cboCapacity_changed" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">66</property>
+            <property name="y">79</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lblCluster">
+            <property name="height_request">13</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Cluster</property>
+          </object>
+          <packing>
+            <property name="x">173</property>
+            <property name="y">86</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="cboCluster">
+            <property name="width_request">56</property>
+            <property name="height_request">20</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="active">0</property>
+            <items>
+              <item id="512" translatable="yes">512</item>
+              <item id="1024" translatable="yes">1024</item>
+              <item id="2048" translatable="yes">2048</item>
+              <item id="4096" translatable="yes">4096</item>
+              <item id="8192" translatable="yes">8192</item>
+            </items>
+          </object>
+          <packing>
+            <property name="x">219</property>
+            <property name="y">79</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lblType">
+            <property name="height_request">13</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Type</property>
+          </object>
+          <packing>
+            <property name="x">314</property>
+            <property name="y">86</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="cboType">
+            <property name="height_request">20</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="active">0</property>
+            <items>
+              <item id="FAT12" translatable="yes">FAT12</item>
+              <item id="FAT16" translatable="yes">FAT16</item>
+              <item id="FAT32" translatable="yes">FAT32</item>
+            </items>
+          </object>
+          <packing>
+            <property name="x">354</property>
+            <property name="y">79</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

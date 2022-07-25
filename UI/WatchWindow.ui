@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.2 -->
+<interface>
+  <requires lib="gtk+" version="3.18"/>
+  <object class="GtkListStore" id="liststoreWatches">
+    <columns>
+      <!-- column-name watchName -->
+      <column type="gchararray"/>
+      <!-- column-name watchAddress -->
+      <column type="gchararray"/>
+      <!-- column-name watch8bit -->
+      <column type="gchararray"/>
+      <!-- column-name watch16bit -->
+      <column type="gchararray"/>
+      <!-- column-name watchMem -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name watchDel -->
+      <column type="GdkPixbuf"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">ABC</col>
+        <col id="1" translatable="yes">18:020B</col>
+        <col id="2" translatable="yes">A4</col>
+        <col id="3" translatable="yes">02A4</col>
+        <col id="4">Images/memory-btn.png</col>
+        <col id="5">Images/delete-btn.png</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">DEF</col>
+        <col id="1" translatable="yes">18:020D</col>
+        <col id="2" translatable="yes">72</col>
+        <col id="3" translatable="yes">0072</col>
+        <col id="4">Images/memory-btn.png</col>
+        <col id="5">Images/delete-btn.png</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkWindow" id="WatchWindow">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">WatchWindow</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="type_hint">dialog</property>
+    <property name="has_resize_grip">True</property>
+    <signal name="key-press-event" handler="on_WatchWindow_key_press_event" swapped="no"/>
+    <signal name="map" handler="on_WatchWindow_map" swapped="no"/>
+    <signal name="unmap" handler="on_WatchWindow_unmap" swapped="no"/>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkFixed">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkHeaderBar">
+            <property name="width_request">400</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkEntry" id="txtName">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="max_length">15</property>
+                <property name="width_chars">15</property>
+                <property name="max_width_chars">15</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="txtAddress">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="max_length">7</property>
+                <property name="width_chars">7</property>
+                <property name="max_width_chars">7</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="btnAdd">
+                <property name="label">gtk-add</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="margin_top">2</property>
+                <property name="margin_bottom">2</property>
+                <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
+                <signal name="clicked" handler="on_btnAdd_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkViewport">
+            <property name="width_request">400</property>
+            <property name="height_request">200</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">False</property>
+            <property name="vexpand">False</property>
+            <child>
+              <object class="GtkTreeView" id="WatchGrid">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="model">liststoreWatches</property>
+                <property name="headers_clickable">False</property>
+                <property name="show_expanders">False</property>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection"/>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="colName">
+                    <property name="min_width">165</property>
+                    <property name="title" translatable="yes">Name</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="colAddress">
+                    <property name="fixed_width">80</property>
+                    <property name="title" translatable="yes">Address</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="col8bit">
+                    <property name="sizing">fixed</property>
+                    <property name="fixed_width">55</property>
+                    <property name="title" translatable="yes">8-bit</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="col16bit">
+                    <property name="sizing">fixed</property>
+                    <property name="fixed_width">55</property>
+                    <property name="title" translatable="yes">16-bit</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="colMem">
+                    <property name="sizing">fixed</property>
+                    <property name="fixed_width">24</property>
+                    <property name="title" translatable="yes">M</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="colDel">
+                    <property name="sizing">fixed</property>
+                    <property name="fixed_width">24</property>
+                    <property name="title" translatable="yes">D</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="y">50</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
