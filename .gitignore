@@ -1,12 +1,13 @@
-Tools/WDCTools Version 2.1.zip
-Obj
-CharSet Manager/.vs/CharSet Manager/v15/.suo
-/.vs/Nu64/v15
+.vs
+.vscode
+.dccache
+*.cache
+packages
+obj/
+bin/
 *.pdb
 *.suo
 *.user
-.vs
 Tests/*.hex
 Tests/*.lst
-bin/Debug
-packages
+*.txt

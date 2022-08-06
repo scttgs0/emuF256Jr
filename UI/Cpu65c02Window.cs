@@ -933,7 +933,7 @@ namespace FoenixToolkit.UI
             if (_kernel == null)
                 throw new InvalidOperationException("Kernel is undefined");
 
-            int pc = Breakpoints.GetIntFromHex(txtAddress.Text);
+            ushort pc = (ushort)Breakpoints.GetIntFromHex(txtAddress.Text);
             _kernel.CoreCpu.PC = pc;
             ClearTrace();
 

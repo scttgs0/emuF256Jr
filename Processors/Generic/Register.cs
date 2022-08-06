@@ -25,23 +25,15 @@ namespace FoenixCore.Processor.GenericNew
             }
         }
 
-        public short w
+        public ushort w
         {
-            get => (short) Convert.ChangeType(_value, typeof (short));
+            get => (ushort) Convert.ChangeType(_value, typeof (ushort));
             set {
                 uint v = (uint) Convert.ChangeType(_value, typeof (uint));
                 v &= 0xffff0000;
                 v &= (uint)value & 0xffff;
 
                 _value = (T) Convert.ChangeType(v, typeof (T));
-            }
-        }
-
-        public int l
-        {
-            get => (int) Convert.ChangeType(_value, typeof (int));
-            set {
-                _value = (T) Convert.ChangeType(value, typeof (T));
             }
         }
     }

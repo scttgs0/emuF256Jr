@@ -1,20 +1,21 @@
+using FoenixCore.Processor.GenericNew;
+
+
 namespace FoenixCore.Processor.wdc65c02
 {
-    public class RegisterStackPointer : Processor.Generic.Register16
+    public class RegisterStackPointer : Register<ushort>
     {
         public const int DefaultStackValue = 0x01ff;
         public int TopOfStack = DefaultStackValue;
 
-        public int Value16
+        public override ushort Value
         {
             get => _value;
             set => _value = value;
         }
 
-        public override void Reset()
+        public void Reset()
         {
-            base.Reset();
-
             TopOfStack = DefaultStackValue;
             Value = DefaultStackValue;
         }

@@ -1,15 +1,27 @@
 ﻿using System;
+using FoenixCore.Processor.GenericNew;
+
 
 namespace FoenixCore.Processor.wdc65c02
 {
     public partial class CentralProcessingUnit
     {
-        public int PC = 0;
+        public ushort PC = 0;
 
         /// <summary>
         /// Accumulator
         /// </summary>
-        public Processor.Generic.Register A = new();
+        public Register<byte> A = new();
+
+        /// <summary>
+        /// X Index Regiser
+        /// </summary>
+        public Register<byte> X = new();
+
+        /// <summary>
+        /// Y Index Register
+        /// </summary>
+        public Register<byte> Y = new();
 
         /// <summary>
         /// Processor Status Register
@@ -20,16 +32,6 @@ namespace FoenixCore.Processor.wdc65c02
         /// Stack Pointer. The stack is always in the first 64KB page.
         /// </summary>
         public RegisterStackPointer Stack = new();
-
-        /// <summary>
-        /// X Index Regiser
-        /// </summary>
-        public Processor.Generic.Register X = new();
-
-        /// <summary>
-        /// Y Index Register
-        /// </summary>
-        public Processor.Generic.Register Y = new();
 
         /// <summary>
         /// Wait state. When Wait is true, the CoreCpu will not exeucte instructions. It
@@ -46,7 +48,7 @@ namespace FoenixCore.Processor.wdc65c02
         /// <summary>
         /// Stack pointer (S)
         /// </summary>
-        public Processor.Generic.Register16 S => Stack;
+        public Register<ushort> S => Stack;
 
         public TimeSpan CycleTime => DateTime.Now - checkStartTime;
     }

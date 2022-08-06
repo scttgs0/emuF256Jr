@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 
+using FoenixCore.Processor.GenericNew;
 using FoenixCore.MemoryLocations;
 
 
@@ -145,7 +146,7 @@ namespace FoenixCore.Processor.wdc65c02
             OpcodeCycles = 1;
             SignatureBytes = ReadSignature(OpcodeLength, PC);
 
-            PC += OpcodeLength;
+            PC += (ushort)OpcodeLength;
             CurrentOpcode.Execute(SignatureBytes);
             clockCyles += OpcodeCycles;
 
@@ -198,12 +199,12 @@ namespace FoenixCore.Processor.wdc65c02
         /// </summary>
         public void SetEmulationMode()
         {
-            A.Width = 1;
-            A.DiscardUpper = false;
-            X.Width = 1;
-            X.DiscardUpper = true;
-            Y.Width = 1;
-            Y.DiscardUpper = true;
+            // A.Width = 1;
+            // A.DiscardUpper = false;
+            // X.Width = 1;
+            // X.DiscardUpper = true;
+            // Y.Width = 1;
+            // Y.DiscardUpper = true;
         }
 
         /// <summary>
@@ -238,7 +239,7 @@ namespace FoenixCore.Processor.wdc65c02
         /// <param name="baseAddress"></param>
         /// <param name="Index"></param>
         /// <returns></returns>
-        private int GetPointerLocal(int baseAddress, Processor.Generic.Register Index = null)
+        private int GetPointerLocal(int baseAddress, Register<byte> Index = null)
         {
             int addr = baseAddress;
 
@@ -255,7 +256,7 @@ namespace FoenixCore.Processor.wdc65c02
         /// <param name="baseAddress"></param>
         /// <param name="Index"></param>
         /// <returns></returns>
-        private int GetPointerDirect(int baseAddress, Processor.Generic.Register Index = null)
+        private int GetPointerDirect(int baseAddress, Register<byte> Index = null)
         {
             int addr = baseAddress;
 
@@ -273,7 +274,7 @@ namespace FoenixCore.Processor.wdc65c02
         /// <param name="baseAddress">24-bit address</param>
         /// <param name="Index"></param>
         /// <returns></returns>
-        private int GetPointerLong(int baseAddress, Processor.Generic.Register Index = null)
+        private int GetPointerLong(int baseAddress, Register<byte> Index = null)
         {
             int addr = baseAddress;
 
@@ -289,29 +290,14 @@ namespace FoenixCore.Processor.wdc65c02
         /// Change execution to anohter address in the same bank
         /// </summary>
         /// <param name="addr"></param>
-        public void JumpShort(int addr)
+        public void JumpShort(ushort addr)
         {
-            PC = (PC & 0xFF_0000) + (addr & 0xFFFF);
-        }
-
-        /// <summary>
-        /// Change execution to a 24-bit address
-        /// </summary>
-        /// <param name="addr"></param>
-        public void JumpLong(int addr)
-        {
-            //ProgramBank.Value = addr >> 16;
-            // PC.Value = addr;
             PC = addr;
         }
 
         public void JumpVector(int VectorAddress)
         {
-            int addr = MemMgr.ReadWord(VectorAddress);
-
-            //ProgramBank.Value = 0;
-            //PC.Value = addr;
-            PC = addr;
+            PC = MemMgr.ReadWord(VectorAddress);
         }
 
         public static byte GetByte(int Value, int Offset)
@@ -328,7 +314,7 @@ namespace FoenixCore.Processor.wdc65c02
             throw new Exception("Offset must be 0-2. Got " + Offset.ToString());
         }
 
-        public void Push(int value, int bytes)
+        public void Push(int value, ushort bytes)
         {
             if (bytes < 1 || bytes > 3)
                 throw new Exception("bytes must be between 1 and 3. Got " + bytes.ToString());
@@ -337,17 +323,17 @@ namespace FoenixCore.Processor.wdc65c02
             MemMgr.Write(Stack.Value + 1, value, bytes);
         }
 
-        public void Push(Processor.Generic.Register Reg, int Offset)
+        public void Push(Register<byte> Reg, int Offset)
         {
-            Push(Reg.Value + Offset, Reg.Width);
+            Push(Reg.Value + Offset, 1);
         }
 
-        public void Push(Processor.Generic.Register Reg)
+        public void Push(Register<byte> Reg)
         {
-            Push(Reg.Value, Reg.Width);
+            Push(Reg.Value, 1);
         }
 
-        public int Pull(int bytes)
+        public int Pull(ushort bytes)
         {
             if (bytes < 1 || bytes > 3)
                 throw new Exception("bytes must be between 1 and 3. got " + bytes.ToString());
@@ -359,9 +345,9 @@ namespace FoenixCore.Processor.wdc65c02
             return ret;
         }
 
-        public void PullInto(Processor.Generic.Register Register)
+        public void PullInto(Register<byte> Register)
         {
-            Register.Value = Pull(Register.Width);
+            Register.Value = (byte)Pull(1);
         }
 
         /// <summary>

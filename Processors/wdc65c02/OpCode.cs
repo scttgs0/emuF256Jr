@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 
+using FoenixCore.Processor.GenericNew;
+
 
 namespace FoenixCore.Processor.wdc65c02
 {
@@ -12,9 +14,9 @@ namespace FoenixCore.Processor.wdc65c02
         public delegate void ExecuteDelegate(byte Instruction, AddressModes AddressMode, int Signature);
         public event ExecuteDelegate ExecuteOp;
         public int Length8Bit;
-        public Processor.Generic.Register ActionRegister = null;
+        public Register<byte> ActionRegister = null;
 
-        public OpCode(byte Value, string Mnemonic, int Length8Bit, Processor.Generic.Register ActionRegister, AddressModes Mode, ExecuteDelegate newDelegate)
+        public OpCode(byte Value, string Mnemonic, int Length8Bit, Register<byte> ActionRegister, AddressModes Mode, ExecuteDelegate newDelegate)
         {
             this.Value = Value;
             this.Length8Bit = Length8Bit;
@@ -49,9 +51,6 @@ namespace FoenixCore.Processor.wdc65c02
         {
             get
             {
-                if (ActionRegister != null && ActionRegister.Width == 2)
-                    return Length8Bit + 1;
-
                 return Length8Bit;
             }
         }

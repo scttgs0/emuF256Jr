@@ -1,11 +1,9 @@
-﻿using System;
-
-using FoenixCore.Processor.Generic;
+﻿using FoenixCore.Processor.GenericNew;
 
 
 namespace FoenixCore.Processor.wdc65c02
 {
-    public class CpuFlags : Register8
+    public class CpuFlags : Register<byte>
     {
         //flags
         public bool Negative;
@@ -16,7 +14,7 @@ namespace FoenixCore.Processor.wdc65c02
         public bool Zero;
         public bool Carry;
 
-        public override int Value
+        public override byte Value
         {
             get
             {
@@ -87,7 +85,7 @@ namespace FoenixCore.Processor.wdc65c02
             Zero = Val == 0;
         }
 
-        public void SetZ(Processor.Generic.Register X)
+        public void SetZ(Register<byte> X)
         {
             Zero = X.Value == 0;
         }
@@ -102,7 +100,7 @@ namespace FoenixCore.Processor.wdc65c02
                 Negative = (Value & 0x8000) != 0;
         }
 
-        public override void Reset()
+        public void Reset()
         {
             Negative = false;
             oVerflow = false;

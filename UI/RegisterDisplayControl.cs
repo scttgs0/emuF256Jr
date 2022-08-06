@@ -15,14 +15,12 @@ namespace FoenixToolkit.UI
 
 #pragma warning disable CS0649  // never assigned
         [GUI] Box boxRegisters;
-        [GUI] RegisterControl ucRegA;
-        [GUI] RegisterControl ucRegPC;
-        [GUI] RegisterControl ucRegX;
-        [GUI] RegisterControl ucRegY;
-        [GUI] RegisterControl ucRegS;
-        [GUI] RegisterControl ucRegDBR;
-        [GUI] RegisterControl ucRegDP;
-        [GUI] RegisterControl ucRegFlags;
+        [GUI] RegisterControl<byte> ucRegA;
+        [GUI] RegisterControl<ushort> ucRegPC;
+        [GUI] RegisterControl<byte> ucRegX;
+        [GUI] RegisterControl<byte> ucRegY;
+        [GUI] RegisterControl<ushort> ucRegS;
+        [GUI] RegisterControl<byte> ucRegFlags;
 #pragma warning restore CS0649
 
         private CentralProcessingUnit _cpu;
@@ -41,11 +39,6 @@ namespace FoenixToolkit.UI
 
             ucRegS = new() { Caption = "S", Margin = 4 };
             boxRegisters.Add(ucRegS);
-            ucRegDBR = new() { Caption = "DBR", Margin = 4 };
-            boxRegisters.Add(ucRegDBR);
-            ucRegDP = new() { Caption = "DP", Margin = 4 };
-            boxRegisters.Add(ucRegDP);
-
             ucRegFlags = new() { Caption = "Flags", Margin = 4 };
             boxRegisters.Add(ucRegFlags);
         }
@@ -93,8 +86,10 @@ namespace FoenixToolkit.UI
 
             foreach (object c in boxRegisters.AllChildren)
             {
-                if (c is UI.RegisterControl rc)
-                    rc.UpdateValue();
+                if (c is UI.RegisterControl<byte> rc8)
+                    rc8.UpdateValue();
+                if (c is UI.RegisterControl<ushort> rc16)
+                    rc16.UpdateValue();
             }
         }
 

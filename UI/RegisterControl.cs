@@ -3,16 +3,16 @@ using System;
 using Gtk;
 using GUI = Gtk.Builder.ObjectAttribute;
 
-using FoenixCore.Processor.Generic;
+using FoenixCore.Processor.GenericNew;
 
 
 namespace FoenixToolkit.UI
 {
-    public class RegisterControl : Box
+    public class RegisterControl<T> : Box
     {
         string _caption;
         string _value;
-        Register _register = null;
+        Register<T> _register = null;
 
 #pragma warning disable CS0649  // never assigned
         [GUI] Label lblRegister;
@@ -46,7 +46,7 @@ namespace FoenixToolkit.UI
             }
         }
 
-        public Register Register
+        public Register<T> Register
         {
             get => _register;
             set
