@@ -178,33 +178,19 @@ namespace FoenixCore.Processor.wdc65c02
             Pins.VectorPull = true;
             MemMgr.VectorPull = true;
 
-            SetEmulationMode();
             Flags.Value = 0;
             A.Value = 0;
             X.Value = 0;
             Y.Value = 0;
             Stack.Reset();
 
-            PC = MemMgr.ReadWord(MemoryMap.VECTOR_ERESET);
+            PC = MemMgr.ReadWord(MemoryMap.VECTOR_RESET);
 
             Flags.IrqDisable = true;
             Pins.IRQ = false;
             Pins.VectorPull = false;
             MemMgr.VectorPull = false;
             Waiting = false;
-        }
-
-        /// <summary>
-        ///  Sets the registers to 8 bits. Sets the emulation flag.
-        /// </summary>
-        public void SetEmulationMode()
-        {
-            // A.Width = 1;
-            // A.DiscardUpper = false;
-            // X.Width = 1;
-            // X.DiscardUpper = true;
-            // Y.Width = 1;
-            // Y.DiscardUpper = true;
         }
 
         /// <summary>
@@ -371,18 +357,18 @@ namespace FoenixCore.Processor.wdc65c02
 
                 return true;
             }
-            else if (Pins.Abort)
+            else if (Pins.ABORT)
             {
                 DebugPause = true;
-                Pins.Abort = false;
+                Pins.ABORT = false;
                 Interrupt(Processor.Generic.InterruptTypes.ABORT);
 
                 return true;
             }
-            else if (Pins.Reset)
+            else if (Pins.RESET)
             {
                 DebugPause = true;
-                Pins.Reset = false;
+                Pins.RESET = false;
                 Interrupt(Processor.Generic.InterruptTypes.RESET);
 
                 return true;
@@ -408,7 +394,7 @@ namespace FoenixCore.Processor.wdc65c02
             switch (T)
             {
                 case Processor.Generic.InterruptTypes.BRK:
-                    addr = MemoryMap.VECTOR_BRK;
+                    addr = MemoryMap.VECTOR_IRQ_BRK;
                     break;
 
                 case Processor.Generic.InterruptTypes.ABORT:
@@ -416,7 +402,7 @@ namespace FoenixCore.Processor.wdc65c02
                     break;
 
                 case Processor.Generic.InterruptTypes.IRQ:
-                    addr = MemoryMap.VECTOR_IRQ;
+                    addr = MemoryMap.VECTOR_IRQ_BRK;
                     break;
 
                 case Processor.Generic.InterruptTypes.NMI:

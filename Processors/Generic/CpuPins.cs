@@ -22,7 +22,7 @@
         /// Program Counter to the address in the vector, and begin executing 
         /// instructions
         /// </summary>
-        public bool Reset = false;
+        public bool RESET = false;
 
         /// <summary>
         /// Execute a non-maskable interrupt
@@ -37,7 +37,7 @@
         /// <summary>
         /// Aborts the current instruction. Control is shifted to the Abort vector.
         /// </summary>
-        public bool Abort = false;
+        public bool ABORT = false;
 
         /// <summary>
         /// When high, the CoreCpu is reading interrupt/reset vectors
@@ -47,6 +47,6 @@
         /// <summary>
         /// Helper method to let CoreCpu class know an interrutp pin is high
         /// </summary>
-        public bool InterruptPinActive => Reset || NMI || IRQ || Abort;
+        public bool InterruptPinActive => RESET || NMI || IRQ || ABORT;
     }
 }
