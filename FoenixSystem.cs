@@ -52,15 +52,13 @@ namespace FoenixCore
                 KEYBOARD = new KeyboardRegister(keyboardAddress, 5),
                 SDCARD = sdcard,
                 INTERRUPT = new InterruptController(MemoryMap.INT_PENDING_REG0, 4),
-                UART1 = new UART(MemoryMap.UART1_REGISTERS, 8),
-                UART2 = new UART(MemoryMap.UART2_REGISTERS, 8),
+                UART = new UART(MemoryMap.UART_REGISTERS, 8),
                 OPL2 = new OPL2(MemoryMap.OPL2_S_BASE, 256),
                 FLOAT = new MathFloatRegister(MemoryMap.FLOAT_START, MemoryMap.FLOAT_END - MemoryMap.FLOAT_START + 1),
                 MPU401 = new MPU401(MemoryMap.MPU401_REGISTERS, 2),
                 VDMA = new VDMA(MemoryMap.VDMA_START, MemoryMap.VDMA_SIZE),
                 TIMER0 = new TimerRegister(MemoryMap.TIMER0_CTRL_REG, 8),
-                TIMER1 = new TimerRegister(MemoryMap.TIMER1_CTRL_REG, 8),
-                TIMER2 = new TimerRegister(MemoryMap.TIMER2_CTRL_REG, 8)
+                TIMER1 = new TimerRegister(MemoryMap.TIMER1_CTRL_REG, 8)
             };
 
             MemMgr.CODEC = codec;
@@ -83,7 +81,6 @@ namespace FoenixCore
 
             MemMgr.TIMER0.TimerInterruptDelegate += TimerEvent0;
             MemMgr.TIMER1.TimerInterruptDelegate += TimerEvent1;
-            MemMgr.TIMER2.TimerInterruptDelegate += TimerEvent2;
 
             // Set the Vicky rev and subrev
             MemMgr.VICKY.WriteWord(0x1C, 0x7654);
@@ -105,11 +102,11 @@ namespace FoenixCore
         {
             byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_MASK_REG0);
 
-            if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.FNX0_INT02_TMR0) == (byte)Register0.FNX0_INT02_TMR0))
+            if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.INT04_TMR0) == (byte)Register0.INT04_TMR0))
             {
                 // Set the Timer0 Interrupt
                 byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_PENDING_REG0);
-                IRQ0 |= (byte)Register0.FNX0_INT02_TMR0;
+                IRQ0 |= (byte)Register0.INT04_TMR0;
 
                 MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);
 
@@ -121,27 +118,11 @@ namespace FoenixCore
         {
             byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_MASK_REG0);
 
-            if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.FNX0_INT03_TMR1) == (byte)Register0.FNX0_INT03_TMR1))
+            if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.INT05_TMR1) == (byte)Register0.INT05_TMR1))
             {
                 // Set the Timer1 Interrupt
                 byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_PENDING_REG0);
-                IRQ0 |= (byte)Register0.FNX0_INT03_TMR1;
-
-                MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);
-
-                CoreCpu.Pins.IRQ = true;
-            }
-        }
-
-        private void TimerEvent2()
-        {
-            byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_MASK_REG0);
-
-            if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.FNX0_INT04_TMR2) == (byte)Register0.FNX0_INT04_TMR2))
-            {
-                // Set the Timer2 Interrupt
-                byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_PENDING_REG0);
-                IRQ0 |= (byte)Register0.FNX0_INT04_TMR2;
+                IRQ0 |= (byte)Register0.INT05_TMR1;
 
                 MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);
 

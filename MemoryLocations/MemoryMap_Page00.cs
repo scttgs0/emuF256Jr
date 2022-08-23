@@ -52,42 +52,30 @@
         public const int MATH_END = 0x00_012F;
 
         // Pending Interrupt (Read and Write Back to Clear)
-        public const int INT_PENDING_REG0 = 0x00_0140;
-        public const int INT_PENDING_REG1 = 0x00_0141;
-        public const int INT_PENDING_REG2 = 0x00_0142;
-        public const int INT_PENDING_REG3 = 0x00_0143; // FMX Model
+        public const ushort INT_PENDING_REG0 = 0xD660;
+        public const ushort INT_PENDING_REG1 = 0xD661;
 
         // Polarity Set
-        public const int INT_POL_REG0 = 0x00_0144;
-        public const int INT_POL_REG1 = 0x00_0145;
-        public const int INT_POL_REG2 = 0x00_0146;
-        public const int INT_POL_REG7 = 0x00_0147; // FMX Model
+        public const ushort INT_POL_REG0 = 0xD664;
+        public const ushort INT_POL_REG1 = 0xD665;
 
         // Edge Detection Enable
-        public const int INT_EDGE_REG0 = 0x00_0148;
-        public const int INT_EDGE_REG1 = 0x00_0149;
-        public const int INT_EDGE_REG2 = 0x00_014A;
-        public const int INT_EDGE_REG3 = 0x00_014B; // FMX Model
+        public const ushort INT_EDGE_REG0 = 0xD668;
+        public const ushort INT_EDGE_REG1 = 0xD669;
+
         // Mask
-        public const int INT_MASK_REG0 = 0x00_014C;
-        public const int INT_MASK_REG1 = 0x00_014D;
-        public const int INT_MASK_REG2 = 0x00_014E;
-        public const int INT_MASK_REG3 = 0x00_014F; // FMX Model
+        public const ushort INT_MASK_REG0 = 0xD66C;
+        public const ushort INT_MASK_REG1 = 0xD66D;
 
         public const int TIMER0_CTRL_REG = 0x00_0160;
-        public const int TIMER0_CHARGE   = 0x00_0161;
-        public const int TIMER0_CMP_REG  = 0x00_0164;
-        public const int TIMER0_CMP      = 0x00_0165;
+        public const int TIMER0_CHARGE = 0x00_0161;
+        public const int TIMER0_CMP_REG = 0x00_0164;
+        public const int TIMER0_CMP = 0x00_0165;
 
         public const int TIMER1_CTRL_REG = 0x00_0168;
-        public const int TIMER1_CHARGE   = 0x00_0169;
-        public const int TIMER1_CMP_REG  = 0x00_016C;
-        public const int TIMER1_CMP      = 0x00_016D;
-
-        public const int TIMER2_CTRL_REG = 0x00_0170;
-        public const int TIMER2_CHARGE   = 0x00_0171;
-        public const int TIMER2_CMP_REG  = 0x00_0174;
-        public const int TIMER2_CMP      = 0x00_0175;
+        public const int TIMER1_CHARGE = 0x00_0169;
+        public const int TIMER1_CMP_REG = 0x00_016C;
+        public const int TIMER1_CMP = 0x00_016D;
 
         public const int VECTOR_STATE = 0x0001FF; // 1 Byte Interrupt Vector State. See VECTOR_STATE_ENUM
 
@@ -158,19 +146,13 @@
 
         public const int VECTORS_BEGIN = 0x00FFE0; // 0 Byte Jumps to ROM READY routine. Modified whenever alternate command interpreter is loaded. 
         public const int JMP_READY = 0x00FFE0; // 4 Bytes Jumps to ROM READY routine. Modified whenever alternate command interpreter is loaded. 
-        public const int VECTOR_COP = 0x00FFE4; // 2 Bytes Native COP Interrupt vector
-        public const int VECTOR_BRK = 0x00FFE6; // 2 Bytes Native BRK Interrupt vector
-        public const int VECTOR_ABORT = 0x00FFE8; // 2 Bytes Native ABORT Interrupt vector
-        public const int VECTOR_NMI = 0x00FFEA; // 2 Bytes Native NMI Interrupt vector
-        public const int VECTOR_RESET = 0x00FFEC; // 2 Bytes Unused (Native RESET vector)
-        public const int VECTOR_IRQ = 0x00FFEE; // 2 Bytes Native IRQ Vector
 
-        public const int VECTOR_ECOP = 0x00FFF4; // 2 Bytes Emulation mode interrupt handler
-        public const int VECTOR_EBRK = 0x00FFF6; // 2 Bytes Emulation mode interrupt handler
-        public const int VECTOR_EABORT = 0x00FFF8; // 2 Bytes Emulation mode interrupt handler
-        public const int VECTOR_ENMI = 0x00FFFA; // 2 Bytes Emulation mode interrupt handler
-        public const int VECTOR_ERESET = 0x00FFFC; // 2 Bytes Emulation mode interrupt handler
-        public const int VECTOR_EIRQ = 0x00FFFE; // 2 Bytes Emulation mode interrupt handler
+        public const int VECTOR_COP = 0x00FFF4; // 2-Byte interrupt handler
+        //public const int VECTOR_BRK = 0x00FFF6; // 2-Byte interrupt handler
+        public const int VECTOR_ABORT = 0x00FFF8; // 2-Byte interrupt handler
+        public const int VECTOR_NMI = 0x00FFFA; // 2-Byte interrupt handler
+        public const int VECTOR_RESET = 0x00FFFC; // 2-Byte interrupt handler
+        public const int VECTOR_IRQ_BRK = 0x00FFFE; // 2-Byte interrupt handler
         public const int VECTORS_END = 0x010000; // *End of vector space
         public const int BANK0_END = 0x00FFFF; // End of Bank 00 and Direct page
 
