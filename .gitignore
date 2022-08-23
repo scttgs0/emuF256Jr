@@ -2,12 +2,16 @@
 .vscode
 .dccache
 *.cache
-packages
 obj/
 bin/
+packages
 *.pdb
 *.suo
 *.user
+*.dll
+*.exe
 Tests/*.hex
 Tests/*.lst
 *.txt
+*.ui~
+*copy*.cs
