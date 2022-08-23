@@ -200,14 +200,14 @@ namespace FoenixCore.MemoryLocations
         /// </summary>
         /// <param name="Address"></param>
         /// <returns></returns>
-        public int ReadWord(int Address)
+        public ushort ReadWord(int Address)
         {
             GetDeviceAt(Address, out IMappable device, out int deviceAddress);
 
             if (device == null)
                 return 0x4040;
 
-            return device.ReadByte(deviceAddress) | (device.ReadByte(deviceAddress + 1) << 8);
+            return (ushort)(device.ReadByte(deviceAddress) | (device.ReadByte(deviceAddress + 1) << 8));
         }
 
         /// <summary>

@@ -35,11 +35,6 @@
         public const int VDMA_START = 0xAF_0400;
         public const int VDMA_SIZE = 0x31; // from $af:0400 to $af:0430
 
-        public const int MOUSE_PTR_GRAP0 = 0xAF_0500; // image for pointer 0
-        public const int MOUSE_PTR_GRAP1 = 0xAF_0600; // image for pointer 1
-
-        public const int MOUSE_PTR_REG = 0xAF_0700;
-
         public const int C256F_MODEL_MAJOR = 0xAF_070B;
         public const int C256F_MODEL_MINOR = 0xAF_070C;
         public const int FPGA_DOR = 0xAF_070D;
