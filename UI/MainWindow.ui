@@ -210,10 +210,6 @@
                   <placeholder/>
                 </child>
               </object>
-              <packing>
-                <property name="x">0</property>
-                <property name="y">0</property>
-              </packing>
             </child>
           </object>
           <packing>
@@ -257,13 +253,35 @@
                       <object class="GtkLabel" id="lblRevision">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Rev Jr</property>
+                        <property name="label" translatable="yes">Jr Rev A</property>
                         <property name="width_chars">8</property>
                       </object>
                     </child>
                   </object>
                   <packing>
                     <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="lblKernel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xpad">6</property>
+                    <property name="label" translatable="yes">Kernel: OpenKERNAL</property>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="lblBASIC">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xpad">6</property>
+                    <property name="label" translatable="yes">BOOT: None</property>
+                  </object>
+                  <packing>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -287,7 +305,7 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="position">2</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -299,7 +317,7 @@
                     <property name="single_line_mode">True</property>
                   </object>
                   <packing>
-                    <property name="position">3</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
@@ -311,7 +329,7 @@
                     <property name="single_line_mode">True</property>
                   </object>
                   <packing>
-                    <property name="position">4</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
@@ -323,7 +341,7 @@
                     <property name="single_line_mode">True</property>
                   </object>
                   <packing>
-                    <property name="position">5</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
                 <child>
@@ -336,7 +354,7 @@
                     <property name="xalign">0.029999999329447746</property>
                   </object>
                   <packing>
-                    <property name="position">6</property>
+                    <property name="position">8</property>
                   </packing>
                 </child>
               </object>

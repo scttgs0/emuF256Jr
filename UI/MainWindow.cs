@@ -39,7 +39,7 @@ namespace FoenixToolkit.UI
         private readonly ResourceChecker ResChecker = new();
         private delegate void TransmitByteFunction(byte Value);
         private delegate void ShowFormFunction();
-        private readonly String defaultKernel = "roms/kernel.hex";
+        private readonly String defaultKernel = "roms/C256jr.hex";
         private readonly int jumpStartAddress;
         private readonly bool disabledIRQs = false;
         private BoardVersion version = BoardVersion.RevJr;
@@ -124,7 +124,7 @@ namespace FoenixToolkit.UI
 
             if (version == BoardVersion.RevJr)
             {
-                lblRevision.Text = "Rev Jr";
+                lblRevision.Text = "Jr Rev A";
                 //--shortVersion = "Jr";
             }
 
@@ -273,11 +273,11 @@ namespace FoenixToolkit.UI
         {
             // Check if the SD Card interrupt is allowed
             byte mask = kernel.MemMgr.ReadByte(MemoryMap.INT_MASK_REG1);
-            if (!kernel.CoreCpu.DebugPause && (~mask & (byte)Register1.FNX1_INT07_SDCARD) == (byte)Register1.FNX1_INT07_SDCARD)
+            if (!kernel.CoreCpu.DebugPause && (~mask & (byte)Register1.INT07_SDCARD) == (byte)Register1.INT07_SDCARD)
             {
                 // Set the SD Card Interrupt
                 byte IRQ1 = kernel.MemMgr.ReadByte(MemoryMap.INT_PENDING_REG1);
-                IRQ1 |= (byte)Register1.FNX1_INT07_SDCARD;
+                IRQ1 |= (byte)Register1.INT07_SDCARD;
                 kernel.MemMgr.INTERRUPT.WriteFromGabe(1, IRQ1);
                 kernel.CoreCpu.Pins.IRQ = true;
 
@@ -594,8 +594,7 @@ namespace FoenixToolkit.UI
             QueueResize();
 
             // Code is tightly coupled with memory manager
-            // kernel.MemMgr.UART1.TransmitByte += SerialTransmitByte;
-            // kernel.MemMgr.UART2.TransmitByte += SerialTransmitByte;
+            // kernel.MemMgr.UART.TransmitByte += SerialTransmitByte;
             kernel.MemMgr.SDCARD.sdCardIRQMethod += SDCardInterrupt;
             kernel.Resources = ResChecker;
 
@@ -784,11 +783,11 @@ namespace FoenixToolkit.UI
             {
                 // Set the SOF Interrupt
                 byte IRQ0 = kernel.MemMgr.ReadByte(MemoryMap.INT_PENDING_REG0);
-                IRQ0 |= (byte)Register0.FNX0_INT00_SOF;
+                IRQ0 |= (byte)Register0.INT00_SOF;
 
                 kernel.MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);
 
-                if ((~mask & (byte)Register0.FNX0_INT00_SOF) == (byte)Register0.FNX0_INT00_SOF)
+                if ((~mask & (byte)Register0.INT00_SOF) == (byte)Register0.INT00_SOF)
                     kernel.CoreCpu.Pins.IRQ = true;
             }
         }
@@ -798,11 +797,11 @@ namespace FoenixToolkit.UI
             // Check if the interrupt is enabled
             byte mask = kernel.MemMgr.ReadByte(MemoryMap.INT_MASK_REG0);
 
-            if (!kernel.CoreCpu.DebugPause && ((~mask & (byte)Register0.FNX0_INT01_SOL) == (byte)Register0.FNX0_INT01_SOL))
+            if (!kernel.CoreCpu.DebugPause && ((~mask & (byte)Register0.INT01_SOL) == (byte)Register0.INT01_SOL))
             {
                 // Set the SOL Interrupt
                 byte IRQ0 = kernel.MemMgr.ReadByte(MemoryMap.INT_PENDING_REG0);
-                IRQ0 |= (byte)Register0.FNX0_INT01_SOL;
+                IRQ0 |= (byte)Register0.INT01_SOL;
 
                 kernel.MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);
 
@@ -916,7 +915,7 @@ namespace FoenixToolkit.UI
             byte mask = kernel.MemMgr.ReadByte(MemoryMap.INT_MASK_REG0);
 
             // The PS/2 packet is byte0, xm, ym
-            if ((~mask & (byte)Register0.FNX0_INT07_MOUSE) == (byte)Register0.FNX0_INT07_MOUSE)
+            if ((~mask & (byte)Register0.INT03_MOUSE) == (byte)Register0.INT03_MOUSE)
             {
                 kernel.MemMgr.KEYBOARD.MousePackets((byte)(8 + (middle ? 4 : 0) + (right ? 2 : 0) + (left ? 1 : 0)), (byte)(X & 0xFF), (byte)(Y & 0xFF));
             }
