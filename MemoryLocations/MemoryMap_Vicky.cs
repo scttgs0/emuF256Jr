@@ -4,8 +4,8 @@
     {
         #region Vicky Memory Map
 
-        public const int VICKY_BASE_ADDR = 0xAF_0000;
-        public const int GAMMA_CTRL_REG = 0xAF_0002;
+        public const ushort VICKY_BASE_ADDR = 0xD000;
+        public const ushort GAMMA_CTRL_REG = 0xD002;
 
         public const ushort BORDER_CTRL_REG = 0xD004;          // border is enabled if bit 0 is 1.
         public const ushort BORDER_COLOR_B = 0xD005;
@@ -63,7 +63,7 @@
         public const int BG_CHAR_LUT_PTR = 0xAF_1F80; // 15 color lookup table
 
         public const int GRP_LUT_BASE_ADDR = 0xAF_2000;  // room for 8 LUTs at 1024 bytes each (256 * 4 bytes per colour)
-        public const int GAMMA_BASE_ADDR = 0xAF_4000;    // each 256 byte for B, G, R
+        public const ushort GAMMA_BASE_ADDR = 0xC000;    // each 256 byte for B, G, R
 
         public const int TILESET_BASE_ADDR = 0xAF_0280; // 8 tileset addresses, 4 bytes - 3 bytes address of tileset, 1 byte configuration
 

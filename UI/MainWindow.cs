@@ -908,8 +908,8 @@ namespace FoenixToolkit.UI
             if (kernel.MemMgr == null)
                 return;
 
-            kernel.MemMgr.VICKY.WriteWord(0x702, (int)evtX);
-            kernel.MemMgr.VICKY.WriteWord(0x704, (int)evtY);
+            kernel.MemMgr.VICKY.WriteWord(0x702, (ushort)evtX);
+            kernel.MemMgr.VICKY.WriteWord(0x704, (ushort)evtY);
 
             // Generate three interrupts - to emulate how the PS/2 controller works
             byte mask = kernel.MemMgr.ReadByte(MemoryMap.INT_MASK_REG0);

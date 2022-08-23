@@ -78,7 +78,7 @@ namespace FoenixCore.MemoryLocations
             data[Address] = Value;
         }
 
-        public void WriteWord(int Address, int Value)
+        public void WriteWord(int Address, ushort Value)
         {
             WriteByte(Address, (byte)(Value & 0xff));
             WriteByte(Address + 1, (byte)(Value >> 8 & 0xff));
