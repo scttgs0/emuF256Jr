@@ -59,10 +59,10 @@
         public const int MPU401_DATA_REG = 0xAF_1330;
         public const int MPU401_STATUS_REG = 0xAF_1331;
 
-        public const int FG_CHAR_LUT_PTR = 0xAF_1F40; // 15 color lookup table
-        public const int BG_CHAR_LUT_PTR = 0xAF_1F80; // 15 color lookup table
+        public const ushort FG_CHAR_LUT_PTR = 0xC040;       // 15 color lookup table
+        public const ushort BG_CHAR_LUT_PTR = 0xC080;       // 15 color lookup table
+        public const int GRP_LUT_BASE_ADDR = 0x1_D000;      // room for 8 LUTs at 1024 bytes each (256 * 4 bytes per colour)
 
-        public const int GRP_LUT_BASE_ADDR = 0xAF_2000;  // room for 8 LUTs at 1024 bytes each (256 * 4 bytes per colour)
         public const ushort GAMMA_BASE_ADDR = 0xC000;    // each 256 byte for B, G, R
 
         public const int TILESET_BASE_ADDR = 0xAF_0280; // 8 tileset addresses, 4 bytes - 3 bytes address of tileset, 1 byte configuration
