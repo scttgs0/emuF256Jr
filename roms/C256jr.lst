@@ -1,0 +1,4152 @@
+
+; 64tass Turbo Assembler Macro V1.56.2625? listing file
+; 64tass --intel-hex -I . -C -Wall -Werror -Wno-shadow --verbose-list -L bin/C256jr.lst -o bin/C256jr.hex core/kernel.asm core/iec.asm core/io.asm core/rtc.asm core/sys.asm core/keyboard.asm core/video.asm core/device.asm core/token.asm core/vectors.asm core/cli.asm platform/jr/jr.asm platform/jr/irq.asm platform/jr/ps2.asm platform/jr/console.asm platform/jr/c64kbd.asm platform/jr/FPGA/TinyVicky_Def.asm platform/jr/FPGA/interrupt_def.asm hardware/hardware.asm hardware/i8042.asm hardware/ps2.asm hardware/ps2_kbd1.asm hardware/ps2_kbd2.asm hardware/keys.asm
+; Mon Aug 22 23:57:40 2022
+
+;Offset	;Hex		;Monitor	;Source
+
+;******  Processing input file: core/kernel.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; Memory layout and general support for TinyCore device drivers.
+
+					            .cpu    "w65c02"
+
+					;reserved   = $0000     ; $00 - $02
+					;basic      = $0002     ; $02 - $90
+					*           = $0090     ; $90 - $fb kernel
+					*           = $00a3     ; $90 - $fb kernel
+.00a3					DP          .dsection   dp
+					            .cerror * >= $00fb, "Out of dp space."
+
+					*           = $0100     ; Stack
+>0100					Stack       .fill       $100
+
+					*           = $0200     ; BASIC, some KERNAL
+>0200					Tokens      .fill       $90     ; BASIC
+.0290					p2end
+.0290					tokens_start
+					            .cerror * > $02ff, "Out of kmem space."
+
+					*           = $0300
+>0300					            .fill   $34         ; Shared vectors
+.0334					p3end
+.0334					KBUF        .dsection   kbuf    ; kernal
+.0344					KMEM        .dsection   kmem    ; KERNAL
+					            .cerror * > $03ff, "Out of kbuf space."
+
+					*           = $0400     ; Device tables (from the TinyCore kernel)
+					            .dsection   kpages
+
+
+=$800					free_mem    = $800  ; Traditional start.
+
+
+
+					; $e000 - $e500 contains a simple command line shell which may be
+					; used to load applications in the absence of either CBM BASIC or
+					; a more general ROM.  If CBM BASIC is bundled, it will overwrite
+					; this section of the kernel.
+
+					*           = $e000
+					            .dsection   shell
+					            .cerror * > $e4ff, "Out of shell space."
+
+					; Start of the kernel proper, pushed back to accomodate the use of
+					; CBM BASIC.
+					*           = $e500
+					            .dsection   tables
+					            .dsection   kernel
+					            .cerror * > $feff, "Out of kernel space."
+
+					*           = $ff81
+					kernel      .namespace
+					            .dstruct    vectors
+.ff81	4c 92 ea	jmp $ea92	SCINIT      jmp     scinit
+.ff84	4c 51 e8	jmp $e851	IOINIT      jmp     io.ioinit
+.ff87	4c fc e9	jmp $e9fc	RAMTAS      jmp     ramtas
+.ff8a	4c a0 eb	jmp $eba0	RESTOR      jmp     restor
+.ff8d	4c b2 eb	jmp $ebb2	VECTOR      jmp     vector
+.ff90	4c 30 ea	jmp $ea30	SETMSG      jmp     setmsg
+.ff93	4c 94 e6	jmp $e694	LSTNSA      jmp     lstnsa
+.ff96	4c 94 e6	jmp $e694	TALKSA      jmp     talksa
+.ff99	4c 33 ea	jmp $ea33	MEMBOT      jmp     membot
+.ff9c	4c 3f ea	jmp $ea3f	MEMTOP      jmp     memtop
+.ff9f	4c 4b ea	jmp $ea4b	SCNKEY      jmp     scnkey
+.ffa2	4c 8f e6	jmp $e68f	SETTMO      jmp     settmo
+.ffa5	4c 92 e6	jmp $e692	IECIN       jmp     iecin
+.ffa8	4c 92 e6	jmp $e692	IECOUT      jmp     iecout
+.ffab	4c 92 e6	jmp $e692	UNTALK      jmp     untalk
+.ffae	4c 92 e6	jmp $e692	UNLSTN      jmp     unlstn
+.ffb1	4c 92 e6	jmp $e692	LISTEN      jmp     listen
+.ffb4	4c 92 e6	jmp $e692	TALK        jmp     talk
+.ffb7	4c 87 e8	jmp $e887	READST      jmp     io.readst
+.ffba	4c 8f e8	jmp $e88f	SETLFS      jmp     io.setlfs
+.ffbd	4c 96 e8	jmp $e896	SETNAM      jmp     io.setnam
+.ffc0	4c 9d e8	jmp $e89d	OPEN        jmp     io.open
+.ffc3	4c c4 e8	jmp $e8c4	CLOSE       jmp     io.close
+.ffc6	4c db e8	jmp $e8db	CHKIN       jmp     io.chkin
+.ffc9	4c e5 e8	jmp $e8e5	CHKOUT      jmp     io.chkout
+.ffcc	4c ef e8	jmp $e8ef	CLRCHN      jmp     io.clrchn
+.ffcf	4c 13 e9	jmp $e913	CHRIN       jmp     io.chrin
+.ffd2	4c c8 e9	jmp $e9c8	CHROUT      jmp     io.chrout
+.ffd5	4c f8 e9	jmp $e9f8	LOAD        jmp     io.load
+.ffd8	4c f8 e9	jmp $e9f8	SAVE        jmp     io.save
+.ffdb	4c fa e9	jmp $e9fa	SETTIM      jmp     settim
+.ffde	4c fa e9	jmp $e9fa	RDTIM       jmp     rdtim
+.ffe1	4c 4c ea	jmp $ea4c	STOP        jmp     stop
+.ffe4	4c b4 e9	jmp $e9b4	GETIN       jmp     io.getin
+.ffe7	4c e1 e9	jmp $e9e1	CLALL       jmp     io.clall
+.ffea	4c fa e9	jmp $e9fa	UDTIM       jmp     udtim
+.ffed	4c 95 ea	jmp $ea95	SCREEN      jmp     screen
+.fff0	4c 9a ea	jmp $ea9a	PLOT        jmp     plot
+.fff3	4c 50 ea	jmp $ea50	IOBASE      jmp     iobase
+					            .ends
+					            .endn
+
+					            .section    kpages
+.0400					frame
+>0400					Devices     .fill       256
+>0500					DevState    .fill       256
+					            .send
+
+					            .namespace  kernel
+
+					            .section    dp
+>00a3					ticks       .word   ?
+>00a5					src         .word   ?   ; src ptr for copy operations.
+>00a7					dest        .word   ?   ; dest ptr for copy operations.
+					            .send
+
+
+					            .section    dp
+>00a9					mem_start   .word       ?
+>00ab					mem_end     .word       ?
+>00ad					msg_switch  .byte       ?
+>00ae					iec_timeout .byte       ?
+>00af					current_dev .byte       ?
+>00b0					input       .byte       ?
+					            .send
+
+					            .section    kernel
+
+					thread      .namespace  ; For devices borrowed from the TinyCore kernel.
+.e600	cb		wai		yield       wai
+.e601	60		rts		            rts
+					            .endn
+
+.e602					init
+					      ; Initialize device driver services.
+.e602	20 4a eb	jsr $eb4a	        jsr     token.init
+.e605	20 bc ea	jsr $eabc	        jsr     device.init
+.e608	20 55 ea	jsr $ea55	        jsr     keyboard.init
+.e60b	60		rts		        rts
+
+.e60c					tick
+.e60c	e6 a3		inc $a3		        inc     kernel.ticks
+.e60e	d0 02		bne $e612	        bne     _end
+.e610	e6 a4		inc $a4		        inc     kernel.ticks+1
+.e612	60		rts		_end    rts
+
+.e613					error
+.e613	a9 2a		lda #$2a	        lda     #<_msg
+.e615	85 a5		sta $a5		        sta     src
+.e617	a9 e6		lda #$e6	        lda     #>_msg
+.e619	85 a6		sta $a6		        sta     src+1
+.e61b	a0 00		ldy #$00	        ldy     #0
+.e61d	b1 a5		lda ($a5),y	_loop   lda     (src),y
+.e61f	f0 06		beq $e627	        beq     _done
+.e621	20 3c f6	jsr $f63c	        jsr     platform.console.putc
+.e624	c8		iny		        iny
+.e625	80 f6		bra $e61d	        bra     _loop
+.e627	4c 00 ff	jmp $ff00	_done   jmp     wreset
+>e62a	45 72 72 6f 72 00		_msg    .null   "Error"
+
+.e630	a0 ff		ldy #$ff	strcmp      ldy     #$ff
+.e632	c8		iny		_loop       iny
+.e633	b1 a5		lda ($a5),y	            lda     (src),y
+.e635	f0 04		beq $e63b	            beq     _out
+.e637	51 a7		eor ($a7),y	            eor     (dest),y
+.e639	f0 f7		beq $e632	            beq     _loop
+.e63b	60		rts		_out        rts
+
+
+					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+					; CBM stuff below ... move to another file.
+
+=$a000					basic = $a000
+
+.e63c					start
+.e63c	64 01		stz $01		            stz     $1  ; Default to the sys map.
+
+.e63e	20 fc e9	jsr $e9fc	            jsr     ramtas
+.e641	20 a0 eb	jsr $eba0	            jsr     restor
+.e644	20 81 ff	jsr $ff81	            jsr     SCINIT
+.e647	20 84 ff	jsr $ff84	            jsr     IOINIT
+.e64a	4c 4d e6	jmp $e64d	            jmp     chain
+
+.e64d					chain
+.e64d	a2 00		ldx #$00	            ldx     #0
+.e64f					_loop
+					          ; Point src and dest at the expected signature and offset
+.e64f	bd 73 e6	lda $e673,x	            lda     _table,x
+.e652	85 a5		sta $a5		            sta     src+0
+.e654	e8		inx		            inx
+.e655	bd 73 e6	lda $e673,x	            lda     _table,x
+.e658	85 a6		sta $a6		            sta     src+1
+.e65a	e8		inx		            inx
+.e65b	bd 73 e6	lda $e673,x	            lda     _table,x
+.e65e	85 a7		sta $a7		            sta     dest+0
+.e660	e8		inx		            inx
+.e661	bd 73 e6	lda $e673,x	            lda     _table,x
+.e664	85 a8		sta $a8		            sta     dest+1
+.e666	e8		inx		            inx
+
+					          ; Chain on signature match.
+.e667	20 30 e6	jsr $e630	            jsr     strcmp
+.e66a	d0 03		bne $e66f	            bne     _next
+.e66c	7c 73 e6	jmp ($e673,x)	            jmp     (_table,x)
+.e66f	e8		inx		_next       inx
+.e670	e8		inx		            inx
+.e671	80 dc		bra $e64f	            bra     _loop
+.e673					_table
+>e673	7f e6 04 a0 88 e6		            .word   cbm_bytes, $a004, cbm_start ; Check for CBM BASIC
+>e679	8b e6 00 e0 8c e6		            .word   cli_bytes, $e000, cli_start ; Always last
+
+>e67f	43 42 4d 42 41 53 49 43		cbm_bytes   .null   "CBMBASIC"
+>e687	00
+.e688	6c 00 a0	jmp ($a000)	cbm_start   jmp     (basic)
+
+>e68b	00				cli_bytes   .null   ""          ; Fall-through match.
+.e68c	4c 00 e0	jmp $e000	cli_start   jmp     shell.start
+
+
+.0000					vectors     .struct
+.0000	4c 92 ea	jmp $ea92	SCINIT      jmp     scinit
+.0003	4c 51 e8	jmp $e851	IOINIT      jmp     io.ioinit
+.0006	4c fc e9	jmp $e9fc	RAMTAS      jmp     ramtas
+.0009	4c a0 eb	jmp $eba0	RESTOR      jmp     restor
+.000c	4c b2 eb	jmp $ebb2	VECTOR      jmp     vector
+.000f	4c 30 ea	jmp $ea30	SETMSG      jmp     setmsg
+.0012	4c 94 e6	jmp $e694	LSTNSA      jmp     lstnsa
+.0015	4c 94 e6	jmp $e694	TALKSA      jmp     talksa
+.0018	4c 33 ea	jmp $ea33	MEMBOT      jmp     membot
+.001b	4c 3f ea	jmp $ea3f	MEMTOP      jmp     memtop
+.001e	4c 4b ea	jmp $ea4b	SCNKEY      jmp     scnkey
+.0021	4c 8f e6	jmp $e68f	SETTMO      jmp     settmo
+.0024	4c 92 e6	jmp $e692	IECIN       jmp     iecin
+.0027	4c 92 e6	jmp $e692	IECOUT      jmp     iecout
+.002a	4c 92 e6	jmp $e692	UNTALK      jmp     untalk
+.002d	4c 92 e6	jmp $e692	UNLSTN      jmp     unlstn
+.0030	4c 92 e6	jmp $e692	LISTEN      jmp     listen
+.0033	4c 92 e6	jmp $e692	TALK        jmp     talk
+.0036	4c 87 e8	jmp $e887	READST      jmp     io.readst
+.0039	4c 8f e8	jmp $e88f	SETLFS      jmp     io.setlfs
+.003c	4c 96 e8	jmp $e896	SETNAM      jmp     io.setnam
+.003f	4c 9d e8	jmp $e89d	OPEN        jmp     io.open
+.0042	4c c4 e8	jmp $e8c4	CLOSE       jmp     io.close
+.0045	4c db e8	jmp $e8db	CHKIN       jmp     io.chkin
+.0048	4c e5 e8	jmp $e8e5	CHKOUT      jmp     io.chkout
+.004b	4c ef e8	jmp $e8ef	CLRCHN      jmp     io.clrchn
+.004e	4c 13 e9	jmp $e913	CHRIN       jmp     io.chrin
+.0051	4c c8 e9	jmp $e9c8	CHROUT      jmp     io.chrout
+.0054	4c f8 e9	jmp $e9f8	LOAD        jmp     io.load
+.0057	4c f8 e9	jmp $e9f8	SAVE        jmp     io.save
+.005a	4c fa e9	jmp $e9fa	SETTIM      jmp     settim
+.005d	4c fa e9	jmp $e9fa	RDTIM       jmp     rdtim
+.0060	4c 4c ea	jmp $ea4c	STOP        jmp     stop
+.0063	4c b4 e9	jmp $e9b4	GETIN       jmp     io.getin
+.0066	4c e1 e9	jmp $e9e1	CLALL       jmp     io.clall
+.0069	4c fa e9	jmp $e9fa	UDTIM       jmp     udtim
+.006c	4c 95 ea	jmp $ea95	SCREEN      jmp     screen
+.006f	4c 9a ea	jmp $ea9a	PLOT        jmp     plot
+.0072	4c 50 ea	jmp $ea50	IOBASE      jmp     iobase
+					            .ends
+
+
+					            .send
+					            .endn
+
+
+;******  Processing input file: core/iec.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					            .cpu    "65c02"
+
+					            .namespace  kernel
+					            .section    kernel
+
+.e68f					settmo
+.e68f	85 ae		sta $ae		            sta     iec_timeout
+.e691	60		rts		            rts
+
+.e692					iecin
+.e692					iecout
+.e692					untalk
+.e692					unlstn
+.e692					listen
+.e692					talk
+.e692	38		sec		            sec
+.e693	60		rts		            rts
+
+.e694					lstnsa
+.e694					talksa
+.e694	38		sec		            sec
+.e695	60		rts		            rts
+
+
+
+					            .send
+					            .endn
+
+
+;******  Processing input file: core/io.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					            .cpu    "w65c02"
+
+					            .namespace  kernel
+					io          .namespace
+
+					            .section    dp
+>00b1					fname       .word       ?       ; file name pointer
+>00b3					fname_len   .byte       ?       ; file name length
+>00b4					cur_logical .byte       ?       ; current logical device
+>00b5					cur_device  .byte       ?       ; current assoc dev #
+>00b6					cur_addr    .byte       ?       ; current associated secondary addr
+>00b7					cur_in      .byte       ?       ; current input device
+>00b8					cur_out     .byte       ?       ; current output device
+>00b9					io_last     .byte       ?       ; device # of most recent read/write operation
+>00ba					io_status   .byte       ?       ; status from most recent read/write operation
+
+					; These could be moved to the file object
+>00bb					scraping    .byte       ?       ; screen scraping bool.
+>00bc					scrape_x    .byte       ?       ; screen scrape x value.
+>00bd					quoted      .byte       ?       ; screen scrape inside quotes.
+
+					            .send
+
+=10					MAX_FILES   =   10
+
+					            .section    kmem
+>0344					files       .fill       MAX_FILES * 8
+					            .send
+
+					file        .namespace
+					            .virtual    files
+>0344					state       .byte       ?       ; OPEN/CLOSED state
+>0345					device      .byte       ?
+>0346					secondary   .byte       ?
+					            .endv
+					            .endn
+
+=1					TOO_MANY_FILES          =   1
+=2					FILE_OPEN               =   2
+=3					FILE_NOT_OPEN           =   3
+=4					FILE_NOT_FOUND          =   4
+=5					DEVICE_NOT_PRESENT      =   5
+=6					NOT_INPUT_FILE          =   6
+=7					NOT_OUTPUT_FILE         =   7
+=8					MISSING_FILE_NAME       =   8
+=9					ILLEGAL_DEVICE_NUMBER   =   9
+
+
+					            .section    kernel
+
+.e696					spin
+.e696	ad 00 c0	lda $c000	        lda $c000
+.e699	1a		inc a		        inc a
+.e69a	8d 00 c0	sta $c000	        sta $c000
+.e69d	4c 96 e6	jmp $e696	        jmp spin
+
+					mkdev       .macro      DEV
+					            .endm
+
+.e6a0					devices
+>e6a0	1e e7 24 e7 28 e7 21 e7		            .word       keyboard_open, keyboard_stat, keyboard_io, keyboard_close
+>e6a8	f6 e6 f6 e6 f6 e6 f6 e6		            .word       missing_open, missing_stat, missing_io, missing_close
+>e6b0	f6 e6 f6 e6 f6 e6 f6 e6		            .word       missing_open, missing_stat, missing_io, missing_close
+>e6b8	09 e7 0f e7 13 e7 0c e7		            .word       screen_open, screen_stat, screen_io, screen_close
+>e6c0	f6 e6 f6 e6 f6 e6 f6 e6		            .word       missing_open, missing_stat, missing_io, missing_close
+>e6c8	f6 e6 f6 e6 f6 e6 f6 e6		            .word       missing_open, missing_stat, missing_io, missing_close
+>e6d0	f6 e6 f6 e6 f6 e6 f6 e6		            .word       missing_open, missing_stat, missing_io, missing_close
+>e6d8	f6 e6 f6 e6 f6 e6 f6 e6		            .word       missing_open, missing_stat, missing_io, missing_close
+>e6e0	f6 e6 f6 e6 f6 e6 f6 e6		            .word       missing_open, missing_stat, missing_io, missing_close
+
+					device      .namespace
+					            .virtual    devices
+>e6a0					open        .word       ?
+>e6a2					stat        .word       ?
+>e6a4					io          .word       ?
+>e6a6					close       .word       ?
+					            .endv
+					            .endn
+
+.e6e8	7c a0 e6	jmp ($e6a0,x)	open_x      jmp     (device.open,x)
+.e6eb	18		clc		read_x      clc
+.e6ec	7c a4 e6	jmp ($e6a4,x)	            jmp     (device.io,x)
+.e6ef	38		sec		write_x     sec
+.e6f0	7c a4 e6	jmp ($e6a4,x)	            jmp     (device.io,x)
+.e6f3	7c a6 e6	jmp ($e6a6,x)	close_x     jmp     (device.close,x)
+
+.e6f6					missing_open
+.e6f6					missing_stat
+.e6f6					missing_io
+.e6f6					missing_close
+.e6f6	a9 05		lda #$05	            lda     #DEVICE_NOT_PRESENT
+.e6f8	4c cc e7	jmp $e7cc	            jmp     error
+
+.e6fb					simple_open
+.e6fb	a9 01		lda #$01	            lda     #1  ; open
+.e6fd	99 44 03	sta $0344,y	            sta     file.state,y
+.e700	18		clc		            clc
+.e701	60		rts		            rts
+
+.e702					simple_close
+.e702	a9 00		lda #$00	            lda     #0
+.e704	99 44 03	sta $0344,y	            sta     file.state,y
+.e707	18		clc		            clc
+.e708	60		rts		            rts
+
+.e709					screen_open
+.e709	4c fb e6	jmp $e6fb	            jmp     simple_open
+
+.e70c					screen_close
+.e70c	4c 02 e7	jmp $e702	            jmp     simple_close
+
+.e70f					screen_stat
+.e70f	a9 00		lda #$00	            lda     #0
+.e711	18		clc		            clc
+.e712	60		rts		            rts
+
+.e713					screen_io
+.e713	b0 04		bcs $e719	            bcs     _write
+.e715	a9 00		lda #$00	            lda     #0
+.e717	18		clc		            clc
+.e718	60		rts		            rts
+.e719	20 3c f6	jsr $f63c	_write      jsr     platform.console.putc
+.e71c	18		clc		            clc
+.e71d	60		rts		            rts
+
+.e71e					keyboard_open
+.e71e	4c fb e6	jmp $e6fb	            jmp     simple_open
+
+.e721					keyboard_close
+.e721	4c 02 e7	jmp $e702	            jmp     simple_close
+
+.e724					keyboard_stat
+.e724	a9 00		lda #$00	            lda     #0
+.e726	18		clc		            clc
+.e727	60		rts		            rts
+
+.e728					keyboard_io
+.e728	b0 0f		bcs $e739	            bcs     _write
+.e72a	5a		phy		        phy
+.e72b	a4 b0		ldy $b0		        ldy input
+.e72d	b9 3e e7	lda $e73e,y	        lda _input,y
+.e730	f0 02		beq $e734	        beq _out
+.e732	e6 b0		inc $b0		        inc input
+.e734	7a		ply		_out    ply
+.e735	09 00		ora #$00	        ora #0
+.e737	18		clc		        clc
+.e738	60		rts		        rts
+.e739	a9 07		lda #$07	_write      lda     #NOT_OUTPUT_FILE
+.e73b	4c cc e7	jmp $e7cc	            jmp     error
+
+.e73e					_input
+					            .enc        "none"
+					;            .text       "5 PRINT CHR$(211)",$0d
+>e73e	31 30 20 46 4f 52 20 59		            .text       "10 FOR Y = 0 TO 15", $0d
+>e746	20 3d 20 30 20 54 4f 20 31 35 0d
+>e751	32 30 20 46 4f 52 20 58		            .text       "20 FOR X = 0 TO 15", $0d
+>e759	20 3d 20 30 20 54 4f 20 31 35 0d
+>e764	33 30 20 50 4f 4b 45 20		            .text       "30 POKE 49152+Y*80+X,Y*16+X", $0d
+>e76c	34 39 31 35 32 2b 59 2a 38 30 2b 58 2c 59 2a 31
+>e77c	36 2b 58 0d
+>e780	34 30 20 4e 45 58 54 20		            .text       "40 NEXT X: NEXT Y", $0d
+>e788	58 3a 20 4e 45 58 54 20 59 0d
+>e792	35 30 20 47 4f 54 4f 20		            .text       "50 GOTO 50", $0d
+>e79a	35 30 0d
+
+					;            .text       "10 PRINT CHR$(205.5+RND(1)); : GOTO 10", $0d
+					;            .text       "10 POKE 49152,77", $0d
+>e79d	4c 49 53 54 0d			            .text       "LIST",$0d
+					;            .text       "RUN",$0d
+>e7a2	00				            .byte       0
+
+					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+.e7a3					find:
+
+					    ; IN: A = logical file #
+					    ; SUCCESS:
+					    ;   Carry clear
+					    ;   X->device entry
+					    ;   Y->file entry
+					    ; FAIL:
+					    ;   Carry set
+					    ;   A = FILE_NOT_OPEN or TOO_MANY_FILES
+
+.e7a3	20 bf e7	jsr $e7bf	            jsr     link
+.e7a6	b0 08		bcs $e7b0	            bcs     _out
+.e7a8	b9 44 03	lda $0344,y	            lda     file.state,y
+.e7ab	d0 04		bne $e7b1	            bne     _device
+.e7ad	a9 03		lda #$03	            lda     #FILE_NOT_OPEN
+.e7af	38		sec		            sec
+.e7b0	60		rts		_out        rts
+
+.e7b1					_device
+.e7b1	b9 45 03	lda $0345,y	            lda     file.device,y
+.e7b4	c9 08		cmp #$08	            cmp     #8
+.e7b6	90 02		bcc $e7ba	            bcc     _found
+.e7b8	a9 08		lda #$08	            lda     #8
+
+.e7ba					_found
+.e7ba	0a		asl a		            asl     a
+.e7bb	0a		asl a		            asl     a
+.e7bc	0a		asl a		            asl     a
+.e7bd	aa		tax		            tax
+.e7be	60		rts		            rts
+
+.e7bf					link:
+					    ; IN: A = logical file #
+					    ; SUCCESS:
+					    ;   Carry clear
+					    ;   X->device entry
+					    ;   Y->file entry
+					    ; FAIL:
+					    ;   Carry set
+					    ;   A = TOO_MANY_FILES
+
+.e7bf	c9 0a		cmp #$0a	            cmp     #MAX_FILES
+.e7c1	90 04		bcc $e7c7	            bcc     _link
+.e7c3	a9 01		lda #$01	            lda     #TOO_MANY_FILES
+.e7c5	38		sec		            sec
+.e7c6	60		rts		            rts
+
+.e7c7	0a		asl a		_link       asl     a
+.e7c8	0a		asl a		            asl     a
+.e7c9	0a		asl a		            asl     a
+.e7ca	a8		tay		            tay
+.e7cb	60		rts		            rts
+
+.e7cc					error
+.e7cc	20 03 e8	jsr $e803	    jsr dump
+.e7cf	48		pha		            pha
+.e7d0	5a		phy		            phy
+.e7d1	48		pha		            pha
+.e7d2	a0 00		ldy #$00	            ldy     #0
+.e7d4	b9 ed e7	lda $e7ed,y	_loop       lda     _msg,y
+.e7d7	f0 06		beq $e7df	            beq     _number
+.e7d9	20 3c f6	jsr $f63c	            jsr     platform.console.putc
+.e7dc	c8		iny		            iny
+.e7dd	80 f5		bra $e7d4	            bra     _loop
+.e7df	68		pla		_number     pla
+.e7e0	18		clc		            clc
+.e7e1	69 30		adc #$30	            adc     #'0'
+.e7e3	20 3c f6	jsr $f63c	            jsr     platform.console.putc
+.e7e6	20 f8 e7	jsr $e7f8	            jsr     crlf
+.e7e9	7a		ply		            ply
+.e7ea	68		pla		            pla
+.e7eb	38		sec		            sec
+.e7ec	60		rts		            rts
+>e7ed	49 2f 4f 20 45 52 52 4f		_msg        .null   "I/O ERROR "
+>e7f5	52 20 00
+
+.e7f8					crlf
+.e7f8	a9 0a		lda #$0a	            lda     #$0a
+.e7fa	20 3c f6	jsr $f63c	            jsr     platform.console.putc
+.e7fd	a9 0d		lda #$0d	            lda     #$0d
+.e7ff	20 3c f6	jsr $f63c	            jsr     platform.console.putc
+.e802	60		rts		            rts
+
+.e803					dump
+.e803	48		pha		        pha
+.e804	da		phx		        phx
+.e805	5a		phy		        phy
+.e806	a9 0d		lda #$0d	        lda #$0d
+.e808	20 3c f6	jsr $f63c	        jsr platform.console.putc
+.e80b	a0 00		ldy #$00	        ldy #0
+.e80d	b9 44 03	lda $0344,y	_loop   lda files,y
+.e810	20 26 e8	jsr $e826	        jsr _pb
+.e813	c8		iny		        iny
+.e814	98		tya		        tya
+.e815	29 07		and #$07	        and #$07
+.e817	d0 f4		bne $e80d	        bne _loop
+.e819	a9 0d		lda #$0d	        lda #$0d
+.e81b	20 3c f6	jsr $f63c	        jsr platform.console.putc
+.e81e	c0 50		cpy #$50	        cpy #80
+.e820	d0 eb		bne $e80d	        bne _loop
+
+.e822	7a		ply		        ply
+.e823	fa		plx		        plx
+.e824	68		pla		        pla
+.e825	60		rts		        rts
+.e826					_pb
+.e826	48		pha		        pha
+.e827	4a		lsr a		        lsr a
+.e828	4a		lsr a		        lsr a
+.e829	4a		lsr a		        lsr a
+.e82a	4a		lsr a		        lsr a
+.e82b	20 39 e8	jsr $e839	        jsr _nibble
+.e82e	68		pla		        pla
+.e82f	29 0f		and #$0f	        and #$0f
+.e831	20 39 e8	jsr $e839	        jsr _nibble
+.e834	a9 20		lda #$20	        lda #' '
+.e836	4c 3c f6	jmp $f63c	        jmp platform.console.putc
+.e839					_nibble
+.e839	aa		tax		        tax
+.e83a	bd 40 e8	lda $e840,x	        lda _hex,x
+.e83d	4c 3c f6	jmp $f63c	        jmp platform.console.putc
+>e840	30 31 32 33 34 35 36 37		_hex    .null "0123456789abcdef"
+>e848	38 39 61 62 63 64 65 66 00
+
+
+					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+.e851					ioinit
+.e851	64 bb		stz $bb		            stz     scraping    ; Not presently screen scraping.
+.e853	64 bd		stz $bd		            stz     quoted      ; Not presently in a quoted string
+.e855	64 b0		stz $b0		            stz     input
+
+					          ; Init (zero) the files table
+.e857	a2 00		ldx #$00	            ldx     #0
+.e859	9e 44 03	stz $0344,x	_loop       stz     files,x
+.e85c	e8		inx		            inx
+.e85d	e0 50		cpx #$50	            cpx     #8 * MAX_FILES
+.e85f	d0 f8		bne $e859	            bne     _loop
+.e861	4c 64 e8	jmp $e864	            jmp     reopen
+
+.e864					reopen
+					          ; Open keyboard as stdin
+.e864	a9 00		lda #$00	            lda     #0      ; stdin
+.e866	a2 00		ldx #$00	            ldx     #0      ; keyboard
+.e868	a0 00		ldy #$00	            ldy     #0      ; dummy sub-device
+.e86a	20 8f e8	jsr $e88f	            jsr     setlfs
+.e86d	20 9d e8	jsr $e89d	            jsr     open
+.e870	a2 00		ldx #$00	            ldx     #0
+.e872	20 db e8	jsr $e8db	            jsr     chkin
+
+					          ; Open screen as stdout
+.e875	a9 01		lda #$01	            lda     #1      ; stdout
+.e877	a2 03		ldx #$03	            ldx     #3      ; screen
+.e879	a0 00		ldy #$00	            ldy     #0      ; dummy sub-device
+.e87b	20 8f e8	jsr $e88f	            jsr     setlfs
+.e87e	20 9d e8	jsr $e89d	            jsr     open
+.e881	a2 01		ldx #$01	            ldx     #1
+.e883	20 e5 e8	jsr $e8e5	            jsr     chkout
+
+.e886	60		rts		            rts
+
+
+.e887	4c 96 e6	jmp $e696	readst jmp spin
+.e88a	a5 b9		lda $b9		            lda     io_last
+.e88c	a9 00		lda #$00	            lda #0
+.e88e	60		rts		            rts
+
+.e88f					setlfs
+.e88f	85 b4		sta $b4		            sta     cur_logical
+.e891	86 b5		stx $b5		            stx     cur_device
+.e893	84 b6		sty $b6		            sty     cur_addr
+.e895	60		rts		            rts
+
+.e896					setnam
+.e896	85 b3		sta $b3		            sta     fname_len
+.e898	86 b1		stx $b1		            stx     fname+0
+.e89a	84 b2		sty $b2		            sty     fname+1
+.e89c	60		rts		            rts
+
+.e89d					open
+.e89d	a5 b4		lda $b4		            lda     cur_logical
+.e89f	20 bf e7	jsr $e7bf	            jsr     link
+.e8a2	b0 07		bcs $e8ab	            bcs     _error
+.e8a4	b9 44 03	lda $0344,y	            lda     file.state,y
+.e8a7	f0 05		beq $e8ae	            beq     _open
+.e8a9	a9 02		lda #$02	            lda     #FILE_OPEN
+.e8ab	4c cc e7	jmp $e7cc	_error      jmp     error
+
+.e8ae					_open
+.e8ae	a5 b5		lda $b5		            lda     cur_device
+.e8b0	99 45 03	sta $0345,y	            sta     file.device,y
+.e8b3	a5 b6		lda $b6		            lda     cur_addr
+.e8b5	99 46 03	sta $0346,y	            sta     file.secondary,y
+
+.e8b8	a5 b5		lda $b5		            lda     cur_device
+.e8ba	0a		asl a		            asl     a
+.e8bb	0a		asl a		            asl     a
+.e8bc	0a		asl a		            asl     a
+.e8bd	aa		tax		            tax
+
+.e8be	20 e8 e6	jsr $e6e8	            jsr     open_x
+.e8c1	b0 e8		bcs $e8ab	            bcs     _error
+.e8c3	60		rts		            rts
+
+
+.e8c4					close
+.e8c4	20 a3 e7	jsr $e7a3	            jsr     find
+.e8c7	90 03		bcc $e8cc	            bcc     _close
+.e8c9	4c cc e7	jmp $e7cc	            jmp     error
+.e8cc	4c f3 e6	jmp $e6f3	_close      jmp     close_x
+
+.e8cf					chk
+					    ; IN: X = logical file ID
+					    ; Reports and returns an error if the file is invalid.
+.e8cf	da		phx		            phx
+.e8d0	8a		txa		            txa
+.e8d1	20 a3 e7	jsr $e7a3	            jsr     find
+.e8d4	90 03		bcc $e8d9	            bcc     _out
+.e8d6	20 cc e7	jsr $e7cc	            jsr     error
+.e8d9	fa		plx		_out        plx
+.e8da	60		rts		            rts
+
+.e8db					chkin
+.e8db	5a		phy		            phy
+.e8dc	20 cf e8	jsr $e8cf	            jsr     chk
+.e8df	b0 02		bcs $e8e3	            bcs     _out
+.e8e1	86 b7		stx $b7		            stx     cur_in
+.e8e3	7a		ply		_out        ply
+.e8e4	60		rts		            rts
+.e8e5					chkout
+.e8e5	5a		phy		            phy
+.e8e6	20 cf e8	jsr $e8cf	            jsr     chk
+.e8e9	b0 02		bcs $e8ed	            bcs     _out
+.e8eb	86 b8		stx $b8		            stx     cur_out
+.e8ed	7a		ply		_out        ply
+.e8ee	60		rts		            rts
+
+.e8ef					clrchn ; TODO: not sure how this is /supposed/ to work.
+.e8ef	18		clc		   clc
+.e8f0	60		rts		   rts
+.e8f1	5a		phy		            phy
+
+.e8f2	a5 b7		lda $b7		_stdin      lda     cur_in
+.e8f4	20 a3 e7	jsr $e7a3	            jsr     find
+.e8f7	b0 03		bcs $e8fc	            bcs     _stdout
+.e8f9	20 f3 e6	jsr $e6f3	            jsr     close_x
+
+.e8fc	a5 b8		lda $b8		_stdout     lda     cur_out
+.e8fe	20 a3 e7	jsr $e7a3	            jsr     find
+.e901	b0 03		bcs $e906	            bcs     _reset
+.e903	20 f3 e6	jsr $e6f3	            jsr     close_x
+
+					          ; Reset stdin/stdout to 0/1
+.e906	a2 00		ldx #$00	_reset      ldx     #0
+.e908	20 db e8	jsr $e8db	            jsr     chkin
+.e90b	a2 01		ldx #$01	            ldx     #1
+.e90d	20 e5 e8	jsr $e8e5	            jsr     chkout
+
+.e910	18		clc		            clc
+.e911	7a		ply		            ply
+.e912	60		rts		            rts
+
+.e913					chrin
+.e913	da		phx		            phx
+.e914	5a		phy		            phy
+.e915	a5 b7		lda $b7		            lda     cur_in
+.e917	20 a3 e7	jsr $e7a3	            jsr     find
+.e91a	b0 0f		bcs $e92b	            bcs     _error
+
+.e91c	b9 45 03	lda $0345,y	            lda     file.device,y
+.e91f	d0 05		bne $e926	            bne     _read
+
+.e921	20 31 e9	jsr $e931	_screen     jsr     screen
+.e924	80 08		bra $e92e	            bra     _out
+
+.e926	20 eb e6	jsr $e6eb	_read       jsr     read_x
+.e929	90 03		bcc $e92e	            bcc     _out
+.e92b					_error
+.e92b	20 cc e7	jsr $e7cc	            jsr     error
+.e92e					_out
+.e92e	7a		ply		            ply
+.e92f	fa		plx		            plx
+.e930	60		rts		            rts
+
+.e931					screen
+					      ; Resume an inprogress screen-scrape
+.e931	a5 bb		lda $bb		        lda     scraping
+.e933	d0 1e		bne $e953	        bne     _next
+
+					      ; Begin screen editing
+.e935	a5 c5		lda $c5		        lda     platform.console.cur_x
+.e937	85 bc		sta $bc		        sta     scrape_x    ; Start of input
+.e939	85 bd		sta $bd		        sta     quoted      ; Disables toupper if not at col zero
+
+.e93b	20 7a ea	jsr $ea7a	_read   jsr     kernel.keyboard.deque
+.e93e	90 05		bcc $e945	        bcc     _key
+.e940	20 00 e6	jsr $e600	        jsr     kernel.thread.yield
+.e943	80 f6		bra $e93b	        bra     _read
+
+.e945	c9 0d		cmp #$0d	_key    cmp     #13     ; ENTER
+.e947	f0 08		beq $e951	        beq     _scrape
+.e949	20 93 e9	jsr $e993	        jsr     emacs
+.e94c	20 3c f6	jsr $f63c	        jsr     platform.console.putc
+.e94f	80 ea		bra $e93b	        bra     _read
+
+.e951					_scrape
+.e951	85 bb		sta $bb		        sta     scraping    ; 13 (enter) is non-zero.
+.e953					_next
+.e953	a4 bc		ldy $bc		        ldy     scrape_x
+.e955	c4 c5		cpy $c5		        cpy     platform.console.cur_x
+.e957	d0 08		bne $e961	        bne     _getchar
+.e959	64 bb		stz $bb		        stz     scraping
+.e95b	64 bd		stz $bd		        stz     quoted
+.e95d	a9 0d		lda #$0d	        lda     #13
+.e95f	80 24		bra $e985	        bra     _okay
+
+.e961					_getchar
+.e961	da		phx		        phx
+.e962	a6 01		ldx $01		        ldx     $1  ; TODO: move to console driver.
+.e964	a9 02		lda #$02	        lda     #2
+.e966	85 01		sta $01		        sta     $1
+.e968	b1 c7		lda ($c7),y	        lda     (platform.console.ptr),y
+.e96a	86 01		stx $01		        stx     $1
+.e96c	fa		plx		        plx
+
+.e96d	e6 bc		inc $bc		        inc     scrape_x
+.e96f	c9 20		cmp #$20	        cmp     #32
+.e971	90 e0		bcc $e953	        bcc     _next   ; can't generate these
+.e973	c9 22		cmp #$22	        cmp     #$22    ; Quote
+.e975	f0 10		beq $e987	        beq     _quote
+.e977	a6 bd		ldx $bd		        ldx     quoted
+.e979	d0 0a		bne $e985	        bne     _okay
+.e97b	c9 7b		cmp #$7b	        cmp     #'z'+1
+.e97d	b0 06		bcs $e985	        bcs     _okay
+.e97f	c9 61		cmp #$61	        cmp     #'a'
+.e981	90 02		bcc $e985	        bcc     _okay
+.e983	49 20		eor #$20	        eor     #$20    ; toupper
+.e985					_okay
+.e985	18		clc		        clc
+.e986	60		rts		        rts
+
+.e987					_quote
+.e987	a5 bd		lda $bd		        lda     quoted
+.e989	64 bd		stz $bd		        stz     quoted
+.e98b	d0 02		bne $e98f	        bne     _ret
+.e98d	e6 bd		inc $bd		        inc     quoted
+.e98f	a9 22		lda #$22	_ret    lda     #$22     ; quote
+.e991	80 f2		bra $e985	        bra     _okay
+
+					map     .macro  key, ctrl
+					        .endm
+.e993					emacs
+.e993	da		phx		        phx
+.e994	a2 00		ldx #$00	        ldx     #0
+.e996	dd a8 e9	cmp $e9a8,x	_loop   cmp     _map,x
+.e999	f0 08		beq $e9a3	        beq     _found
+.e99b	e8		inx		        inx
+.e99c	e8		inx		        inx
+.e99d	e0 0c		cpx #$0c	        cpx     #_end
+.e99f	d0 f5		bne $e996	        bne     _loop
+.e9a1	80 03		bra $e9a6	        bra     _out
+.e9a3	bd a9 e9	lda $e9a9,x	_found  lda     _map+1,x
+.e9a6	fa		plx		_out    plx
+.e9a7	60		rts		        rts
+.e9a8					_map
+>e9a8	96 01				        .byte   HOME, ('a' & 31)
+>e9aa	97 05				        .byte   END, ('e' & 31)
+>e9ac	99 10				        .byte   UP, ('p' & 31)
+>e9ae	9a 0e				        .byte   DOWN, ('n' & 31)
+>e9b0	9b 02				        .byte   LEFT, ('b' & 31)
+>e9b2	9c 06				        .byte   RIGHT, ('f' & 31)
+=12					_end    = * - _map
+
+.e9b4					getin
+.e9b4	da		phx		            phx
+.e9b5	a5 b7		lda $b7		            lda     cur_in
+.e9b7	20 a3 e7	jsr $e7a3	            jsr     find
+.e9ba	b0 05		bcs $e9c1	            bcs     _error
+.e9bc	20 eb e6	jsr $e6eb	            jsr     read_x
+.e9bf	90 03		bcc $e9c4	            bcc     _done
+.e9c1	20 cc e7	jsr $e7cc	_error      jsr     error
+.e9c4	fa		plx		_done       plx
+.e9c5	09 00		ora #$00	            ora     #0
+.e9c7	60		rts		            rts
+
+.e9c8					chrout
+.e9c8	da		phx		            phx
+.e9c9	5a		phy		            phy
+.e9ca	48		pha		            pha
+.e9cb	a5 b8		lda $b8		            lda     cur_out
+.e9cd	20 a3 e7	jsr $e7a3	            jsr     find
+.e9d0	90 06		bcc $e9d8	            bcc     _okay
+.e9d2	7a		ply		            ply     ; drop the character
+.e9d3	20 cc e7	jsr $e7cc	            jsr     error
+.e9d6	80 06		bra $e9de	            bra     _done
+.e9d8	68		pla		_okay       pla
+.e9d9	48		pha		            pha
+.e9da	20 ef e6	jsr $e6ef	            jsr     write_x
+.e9dd	68		pla		            pla
+.e9de	7a		ply		_done       ply
+.e9df	fa		plx		            plx
+.e9e0	60		rts		            rts
+
+.e9e1					clall
+.e9e1	5a		phy		            phy
+
+					          ; Close all
+					          ; Manually, to hide errors.
+.e9e2	a9 00		lda #$00	            lda     #0
+.e9e4	48		pha		_loop       pha
+.e9e5	20 a3 e7	jsr $e7a3	            jsr     find
+.e9e8	b0 03		bcs $e9ed	            bcs     _next
+.e9ea	20 f3 e6	jsr $e6f3	            jsr     close_x
+.e9ed	68		pla		_next       pla
+.e9ee	1a		inc a		            inc     a
+.e9ef	c9 0a		cmp #$0a	            cmp     #MAX_FILES
+.e9f1	d0 f1		bne $e9e4	            bne     _loop
+
+					          ; Reset stdin/stdout
+.e9f3	20 64 e8	jsr $e864	            jsr     reopen
+.e9f6	7a		ply		            ply
+.e9f7	60		rts		            rts
+
+
+.e9f8					load
+.e9f8					save
+.e9f8	38		sec		    sec
+.e9f9	60		rts		    rts
+
+
+					            .send
+					            .endn
+					            .endn
+
+
+
+;******  Processing input file: core/rtc.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					            .cpu    "65c02"
+
+					            .namespace  kernel
+					            .section    kernel
+
+.e9fa					settim
+.e9fa					rdtim
+.e9fa					udtim
+.e9fa	18		clc		    clc
+.e9fb	60		rts		    rts
+
+					            .send
+					            .endn
+
+
+;******  Processing input file: core/sys.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					            .cpu        "w65c02"
+
+					            .namespace  kernel
+					            .section    kernel
+
+
+.e9fc					ramtas
+
+.e9fc	a2 02		ldx #$02	            ldx     #2
+.e9fe	74 00		stz $00,x	_11         stz     $0,x
+.ea00	e8		inx		            inx
+.ea01	e0 a3		cpx #$a3	            cpx     #<DP        ; Don't clear the kernel's dp.
+.ea03	d0 f9		bne $e9fe	            bne     _11
+
+.ea05	9c 00 01	stz $0100	            stz     $100
+.ea08	9c 01 01	stz $0101	            stz     $101
+
+.ea0b	a2 00		ldx #$00	            ldx     #0
+.ea0d	9e 00 02	stz $0200,x	_l2         stz     $200,x
+.ea10	e8		inx		            inx
+.ea11	e0 90		cpx #$90	            cpx     #<p2end     ; Don't clear the kernel's page 2 memory.
+.ea13	d0 f8		bne $ea0d	            bne     _l2
+
+.ea15	a2 00		ldx #$00	            ldx     #0
+.ea17	9e 00 03	stz $0300,x	_l3         stz     $300,x
+.ea1a	e8		inx		            inx
+.ea1b	e0 34		cpx #$34	            cpx     #<p3end     ; Don't clear the kernel's page 3 memory
+.ea1d	d0 f8		bne $ea17	            bne     _l3
+
+.ea1f	a2 00		ldx #$00	            ldx     #0
+.ea21	a0 08		ldy #$08	            ldy     #>free_mem
+.ea23	18		clc		            clc     ; set
+.ea24	20 3f ea	jsr $ea3f	            jsr     memtop
+
+.ea27	a2 00		ldx #$00	            ldx     #0
+.ea29	a0 a0		ldy #$a0	            ldy     #>basic
+.ea2b	18		clc		            clc     ; set
+.ea2c	20 33 ea	jsr $ea33	            jsr     membot
+
+.ea2f	60		rts		            rts
+
+
+.ea30					setmsg
+.ea30	85 ad		sta $ad		            sta     msg_switch
+.ea32	60		rts		            rts
+
+.ea33					membot
+.ea33	90 05		bcc $ea3a	            bcc     _save
+
+.ea35	a6 ab		ldx $ab		_load       ldx     mem_end+0
+.ea37	a4 ac		ldy $ac		            ldy     mem_end+1
+.ea39	60		rts		            rts
+
+.ea3a	86 ab		stx $ab		_save       stx     mem_end+0
+.ea3c	84 ac		sty $ac		            sty     mem_end+1
+.ea3e	60		rts		            rts
+
+.ea3f					memtop
+.ea3f	90 05		bcc $ea46	            bcc     _save
+
+.ea41	a6 a9		ldx $a9		_load       ldx     mem_start+0
+.ea43	a4 aa		ldy $aa		            ldy     mem_start+1
+.ea45	60		rts		            rts
+
+.ea46	86 a9		stx $a9		_save       stx     mem_start+0
+.ea48	84 aa		sty $aa		            sty     mem_start+1
+.ea4a	60		rts		            rts
+
+
+
+.ea4b					scnkey
+					            ; PS2 keyboard is interrupt driven.
+					            ; May be used to force a CIA scan.
+.ea4b	60		rts		            rts
+
+.ea4c					stop
+.ea4c	a9 01		lda #$01	    lda #1
+.ea4e	18		clc		    clc
+.ea4f	60		rts		    rts
+
+
+.ea50					iobase
+.ea50	a2 dc		ldx #$dc	        ldx     #$dc
+.ea52	a0 00		ldy #$00	        ldy     #$00
+.ea54	60		rts		        rts
+
+
+					            .send
+					            .endn
+
+
+
+
+
+;******  Processing input file: core/keyboard.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					            .cpu    "w65c02"
+
+					            .namespace  kernel
+					keyboard    .namespace
+
+					            .section    kmem
+>0394					head        .byte       ?
+>0395					tail        .byte       ?
+					            .send
+
+=16					BUF_SIZE = 16
+
+					            .section    kbuf
+>0334					buf         .fill       BUF_SIZE
+					            .send
+
+					            .section    kernel
+
+.ea55					init
+.ea55	9c 94 03	stz $0394	            stz     head
+.ea58	9c 95 03	stz $0395	            stz     tail
+.ea5b	60		rts		            rts
+
+.ea5c					enque
+					    ; A = character to enqueue.
+					    ; Carry set if the queue is full.
+					    ; Code is thread-safe to support multiple event sources.
+.ea5c	da		phx		            phx
+.ea5d	38		sec		            sec     ; Pre-emptively set carry
+.ea5e	08		php		            php     ; Carry is on the stack.
+.ea5f	78		sei		            sei
+.ea60	ae 94 03	ldx $0394	            ldx     head
+.ea63	9d 34 03	sta $0334,x	            sta     buf,x
+.ea66	ca		dex		            dex
+.ea67	10 02		bpl $ea6b	            bpl     _ok
+.ea69	a2 0f		ldx #$0f	            ldx     #BUF_SIZE-1
+.ea6b	ec 95 03	cpx $0395	_ok         cpx     tail
+.ea6e	f0 07		beq $ea77	            beq     _out
+.ea70	8e 94 03	stx $0394	            stx     head
+.ea73	ba		tsx		            tsx
+.ea74	de 01 01	dec $0101,x	            dec     Stack+1,x   ; Clear carry
+.ea77	28		plp		_out        plp
+.ea78	fa		plx		            plx
+.ea79	60		rts		            rts
+
+
+.ea7a					deque
+					    ; A <- character, or carry set on empty.
+					    ; Not thread safe, as the KERNAL calls are not thread safe.
+.ea7a	da		phx		            phx
+.ea7b	ae 95 03	ldx $0395	            ldx     tail
+.ea7e	ec 94 03	cpx $0394	            cpx     head
+.ea81	38		sec		            sec
+.ea82	f0 0c		beq $ea90	            beq     _out
+.ea84	bd 34 03	lda $0334,x	            lda     buf,x
+.ea87	ca		dex		            dex
+.ea88	10 02		bpl $ea8c	            bpl     _ok
+.ea8a	a2 0f		ldx #$0f	            ldx     #BUF_SIZE-1
+.ea8c	8e 95 03	stx $0395	_ok         stx     tail
+.ea8f	18		clc		            clc
+.ea90	fa		plx		_out        plx
+.ea91	60		rts		            rts
+
+					            .send
+					            .endn
+					            .endn
+
+
+;******  Processing input file: core/video.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					           .cpu    "65c02"
+
+					            .namespace  kernel
+					            .section    kernel
+
+.ea92					scinit
+.ea92	4c 81 f4	jmp $f481	            jmp     platform.console.init
+
+.ea95					screen
+.ea95	a2 50		ldx #$50	            ldx     #platform.console.COLS
+.ea97	a0 3c		ldy #$3c	            ldy     #platform.console.ROWS
+.ea99	60		rts		            rts
+
+.ea9a					plot
+.ea9a	b0 03		bcs $ea9f	            bcs     _fetch
+.ea9c	20 e0 f5	jsr $f5e0	            jsr     platform.console.gotoxy
+.ea9f	a6 c5		ldx $c5		_fetch      ldx     platform.console.cur_x
+.eaa1	a6 c6		ldx $c6		            ldx     platform.console.cur_y
+.eaa3	60		rts		            rts
+
+					            .send
+					            .endn
+
+
+;******  Processing input file: core/device.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; This file is from the w6502c TinyCore kernel by the same author.
+
+					            .cpu        "w65c02"
+
+					            .namespace  kernel
+
+					dev         .namespace
+					            .virtual    Devices
+
+					          ; External functions
+>0400					data        .word       ?       ; Data ready
+>0402					status      .word       ?       ; Status change
+>0404					fetch       .word       ?       ; Device requests data to send
+
+					          ; Internal functions
+>0406					open        .word       ?       ; Call to open device
+>0408					get         .word       ?       ; Call to get device data
+>040a					set         .word       ?       ; Call to set device data
+>040c					send        .word       ?       ; Call to send data
+>040e					close       .word       ?       ; Call to close device
+.0410					size        .endv
+					            .endn
+
+					device      .namespace
+
+					mkdev       .macro  PREFIX
+					            .endm
+
+					            .section    kmem
+>0396					entries     .byte       ?       ; List of free device entries
+					            .send
+
+					            .section    kernel
+
+.eaa4	7c 00 04	jmp ($0400,x)	data        jmp     (kernel.dev.data,x)
+.eaa7	7c 02 04	jmp ($0402,x)	status      jmp     (kernel.dev.status,x)
+.eaaa	7c 04 04	jmp ($0404,x)	fetch       jmp     (kernel.dev.fetch,x)
+.eaad	7c 06 04	jmp ($0406,x)	open        jmp     (kernel.dev.open,x)
+.eab0	7c 08 04	jmp ($0408,x)	get         jmp     (kernel.dev.get,x)
+.eab3	7c 0a 04	jmp ($040a,x)	set         jmp     (kernel.dev.set,x)
+.eab6	7c 0c 04	jmp ($040c,x)	send        jmp     (kernel.dev.send,x)
+.eab9	7c 0e 04	jmp ($040e,x)	close       jmp     (kernel.dev.close,x)
+
+.eabc					init
+.eabc	9c 96 03	stz $0396	            stz     entries
+.eabf	a9 00		lda #$00	            lda     #0
+.eac1	80 04		bra $eac7	            bra     _next   ; Reserve the first one.
+.eac3	aa		tax		_loop       tax
+.eac4	20 de ea	jsr $eade	            jsr     free
+.eac7	18		clc		_next       clc
+.eac8	69 10		adc #$10	            adc     #<dev.size
+.eaca	d0 f7		bne $eac3	            bne     _loop
+
+.eacc	18		clc		            clc
+.eacd	60		rts		            rts
+
+.eace					alloc
+.eace	38		sec		            sec
+.eacf	ae 96 03	ldx $0396	            ldx     entries
+.ead2	f0 09		beq $eadd	            beq     _out
+.ead4	48		pha		            pha
+.ead5	bd 00 04	lda $0400,x	            lda     Devices,x
+.ead8	8d 96 03	sta $0396	            sta     entries
+.eadb	68		pla		            pla
+.eadc	18		clc		            clc
+.eadd	60		rts		_out        rts
+
+
+.eade					free
+.eade	48		pha		            pha
+.eadf	ad 96 03	lda $0396	            lda     entries
+.eae2	9d 00 04	sta $0400,x	            sta     Devices,x
+.eae5	8e 96 03	stx $0396	            stx     entries
+.eae8	68		pla		            pla
+.eae9	18		clc		            clc
+.eaea	60		rts		            rts
+
+.eaeb					install
+					    ; IN: kernel.src points to the function table.
+.eaeb	48		pha		            pha
+.eaec	da		phx		            phx
+.eaed	5a		phy		            phy
+.eaee	a0 00		ldy #$00	            ldy     #0
+.eaf0	b1 a5		lda ($a5),y	_loop       lda     (src),y
+.eaf2	9d 00 04	sta $0400,x	            sta     Devices,x
+.eaf5	e8		inx		            inx
+.eaf6	c8		iny		            iny
+.eaf7	c0 10		cpy #$10	            cpy     #<dev.size
+.eaf9	d0 f5		bne $eaf0	            bne     _loop
+.eafb	7a		ply		            ply
+.eafc	fa		plx		            plx
+.eafd	68		pla		            pla
+.eafe	18		clc		            clc
+.eaff	60		rts		            rts
+
+					queue       .namespace
+					            .virtual    DevState
+>0500					head        .byte       ?
+>0501					tail        .byte       ?
+					            .endv
+
+.eb00					init
+.eb00	9e 00 05	stz $0500,x	            stz     head,x
+.eb03	9e 01 05	stz $0501,x	            stz     tail,x
+.eb06	60		rts		            rts
+
+.eb07					enque
+					    ; X = queue, Y = token
+
+.eb07	48		pha		            pha
+.eb08	08		php		            php
+.eb09	78		sei		            sei
+.eb0a	bd 01 05	lda $0501,x	            lda     tail,x
+.eb0d	99 03 02	sta $0203,y	            sta     kernel.token.entry.next,y
+.eb10	98		tya		            tya
+.eb11	9d 01 05	sta $0501,x	            sta     tail,x
+.eb14	28		plp		            plp
+.eb15	68		pla		            pla
+.eb16	18		clc		            clc
+.eb17	60		rts		            rts
+
+.eb18					deque
+					    ; OUT:  Y = dequed token; carry set on empty
+
+.eb18	48		pha		            pha
+
+.eb19	bc 00 05	ldy $0500,x	            ldy     head,x
+.eb1c	d0 23		bne $eb41	            bne     _found
+
+.eb1e	38		sec		            sec
+.eb1f	bc 01 05	ldy $0501,x	            ldy     tail,x
+.eb22	f0 24		beq $eb48	            beq     _out
+
+					          ; Safely take the tail (into y)
+.eb24	08		php		            php
+.eb25	78		sei		            sei
+.eb26	bc 01 05	ldy $0501,x	            ldy     tail,x
+.eb29	9e 01 05	stz $0501,x	            stz     tail,x
+.eb2c	28		plp		            plp
+
+					          ; Reverse into head
+.eb2d	b9 03 02	lda $0203,y	_loop       lda     kernel.token.entry.next,y   ; next in A
+.eb30	48		pha		            pha                                 ; next on stack
+.eb31	bd 00 05	lda $0500,x	            lda     head,x
+.eb34	99 03 02	sta $0203,y	            sta     kernel.token.entry.next,y
+.eb37	98		tya		            tya
+.eb38	9d 00 05	sta $0500,x	            sta     head,x
+.eb3b	7a		ply		            ply                                 ; next in Y
+.eb3c	d0 ef		bne $eb2d	            bne     _loop
+
+					          ; "Find" the head (just where we left it)
+.eb3e	bc 00 05	ldy $0500,x	            ldy      head,x
+
+.eb41					_found
+.eb41	b9 03 02	lda $0203,y	            lda     kernel.token.entry.next,y
+.eb44	9d 00 05	sta $0500,x	            sta     head,x
+.eb47	18		clc		            clc
+
+.eb48	68		pla		_out        pla
+.eb49	60		rts		            rts
+
+					            .endn
+					            .send
+					            .endn
+					            .endn
+
+
+;******  Processing input file: core/token.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; This file is from the w6502c TinyCore kernel by the same author.
+
+					            .cpu        "w65c02"
+
+					            .namespace  kernel
+					token       .namespace
+
+					entry       .namespace
+					            .virtual    Tokens
+>0200					data        .fill       3
+>0203					next        .byte       ?
+.0204					end         .endv
+=4					size =      end - Tokens
+					            .endn
+
+					            .section    kmem
+>0397					entries     .byte       ?       ; free list
+					            .send
+
+					            .section    kernel
+
+.eb4a					init
+.eb4a	9c 97 03	stz $0397	            stz     entries
+.eb4d	a9 90		lda #$90	            lda     #<tokens_start
+.eb4f	a8		tay		_loop       tay
+.eb50	20 70 eb	jsr $eb70	            jsr     free
+.eb53	18		clc		            clc
+.eb54	69 04		adc #$04	            adc     #entry.size
+.eb56	d0 f7		bne $eb4f	            bne     _loop
+
+.eb58	18		clc		            clc
+.eb59	60		rts		            rts
+
+.eb5a					alloc
+					    ; Y <- next token, or carry set.
+					    ; Thread safe.
+.eb5a	48		pha		            pha
+.eb5b	08		php		            php
+.eb5c	78		sei		            sei
+.eb5d	ac 97 03	ldy $0397	            ldy     entries
+.eb60	f0 0a		beq $eb6c	            beq     _empty
+.eb62	b9 03 02	lda $0203,y	            lda     entry.next,y
+.eb65	8d 97 03	sta $0397	            sta     entries
+.eb68	28		plp		            plp
+.eb69	68		pla		            pla
+.eb6a	18		clc		            clc
+.eb6b	60		rts		            rts
+.eb6c	28		plp		_empty      plp
+.eb6d	68		pla		            pla
+.eb6e	38		sec		            sec
+.eb6f	60		rts		            rts
+
+.eb70					free
+					    ; Y = token to free
+					    ; Thread safe
+.eb70	48		pha		            pha
+.eb71	08		php		            php
+.eb72	78		sei		            sei
+.eb73	ad 97 03	lda $0397	            lda     entries
+.eb76	99 03 02	sta $0203,y	            sta     entry.next,y
+.eb79	8c 97 03	sty $0397	            sty     entries
+.eb7c	28		plp		            plp
+.eb7d	68		pla		            pla
+.eb7e	18		clc		            clc
+.eb7f	60		rts		            rts
+
+					            .send
+					            .endn
+					            .endn
+
+
+
+;******  Processing input file: core/vectors.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					            .cpu    "65c02"
+
+					            .namespace  kernel
+					            .section    kernel
+
+
+
+
+.eb80					ivec_start
+>eb80	d0 eb				            .word   irq
+>eb82	d0 eb				            .word   break
+>eb84	d0 eb				            .word   nmi
+>eb86	9d e8				            .word   io.open
+>eb88	c4 e8				            .word   io.close
+>eb8a	db e8				            .word   io.chkin
+>eb8c	e5 e8				            .word   io.chkout
+>eb8e	ef e8				            .word   io.clrchn
+>eb90	13 e9				            .word   io.chrin
+>eb92	c8 e9				            .word   io.chrout
+>eb94	4c ea				            .word   stop
+>eb96	b4 e9				            .word   io.getin
+>eb98	e1 e9				            .word   io.clall
+>eb9a	d0 eb				            .word   user
+>eb9c	f8 e9				            .word   io.load
+>eb9e	f8 e9				            .word   io.save
+.eba0					ivec_end
+=32					ivec_size   =   ivec_end - ivec_start
+
+
+
+.eba0					restor
+.eba0	48		pha		            pha
+.eba1	da		phx		            phx
+.eba2	a2 00		ldx #$00	            ldx     #0
+.eba4	bd 80 eb	lda $eb80,x	_loop       lda     ivec_start,x
+.eba7	9d 14 03	sta $0314,x	            sta     $314,x
+.ebaa	e8		inx		            inx
+.ebab	c9 20		cmp #$20	            cmp     #ivec_size
+.ebad	d0 f5		bne $eba4	            bne     _loop
+.ebaf	fa		plx		            plx
+.ebb0	68		pla		            pla
+.ebb1	60		rts		            rts
+
+.ebb2					vector
+.ebb2	86 a5		stx $a5		            stx     src+0
+.ebb4	84 a6		sty $a6		            sty     src+1
+
+.ebb6	a0 00		ldy #$00	            ldy     #0
+.ebb8	b0 0b		bcs $ebc5	            bcs     _out
+
+.ebba	b1 a5		lda ($a5),y	_in         lda     (src),y
+.ebbc	99 14 03	sta $0314,y	            sta     $314,y
+.ebbf	c8		iny		            iny
+.ebc0	c0 20		cpy #$20	            cpy     #ivec_size
+.ebc2	d0 f6		bne $ebba	            bne     _in
+.ebc4	60		rts		            rts
+
+.ebc5	b9 14 03	lda $0314,y	_out        lda     $314,y
+.ebc8	91 a5		sta ($a5),y	            sta     (src),y
+.ebca	c8		iny		            iny
+.ebcb	c0 20		cpy #$20	            cpy     #ivec_size
+.ebcd	d0 f6		bne $ebc5	            bne     _out
+.ebcf	60		rts		            rts
+
+
+
+.ebd0					irq
+.ebd0					break
+.ebd0					nmi
+.ebd0					user
+.ebd0	38		sec		        sec
+.ebd1	60		rts		        rts
+
+
+					            .send
+					            .endn
+
+
+;******  Processing input file: core/cli.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; Simple command-line interface for use when nothing else is included.
+
+					            .cpu    "w65c02"
+
+					            .namespace  kernel
+					shell       .namespace
+					            .section    shell
+
+.e000					start
+.e000	a9 25		lda #$25	            lda     #<_msg
+.e002	85 a5		sta $a5		            sta     src
+.e004	a9 e0		lda #$e0	            lda     #>_msg
+.e006	85 a6		sta $a6		            sta     src+1
+.e008	a0 00		ldy #$00	            ldy     #0
+.e00a	b1 a5		lda ($a5),y	_loop       lda     (src),y
+.e00c	f0 0a		beq $e018	            beq     _done
+.e00e	20 3c f6	jsr $f63c	            jsr     platform.console.putc
+.e011	c8		iny		            iny
+.e012	d0 f6		bne $e00a	            bne     _loop
+.e014	e6 a6		inc $a6		            inc     src+1
+.e016	80 f2		bra $e00a	            bra     _loop
+.e018					_done
+.e018	20 7a ea	jsr $ea7a	            jsr     keyboard.deque
+.e01b	90 03		bcc $e020	            bcc     _report
+.e01d	cb		wai		            wai
+.e01e	80 f8		bra $e018	            bra     _done
+.e020	20 3c f6	jsr $f63c	_report     jsr     platform.console.putc
+.e023	80 f3		bra $e018	            bra     _done
+
+
+>e025	4f 70 65 6e 4b 45 52 4e		_msg        .text   "OpenKERNAL - a clean-room implementation of the C64 KERNAL ABI",13
+>e02d	41 4c 20 2d 20 61 20 63 6c 65 61 6e 2d 72 6f 6f
+>e03d	6d 20 69 6d 70 6c 65 6d 65 6e 74 61 74 69 6f 6e
+>e04d	20 6f 66 20 74 68 65 20 43 36 34 20 4b 45 52 4e
+>e05d	41 4c 20 41 42 49 0d
+>e064	43 6f 70 79 72 69 67 68		            .text   "Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.",13
+>e06c	74 20 32 30 32 32 20 4a 65 73 73 69 65 20 4f 62
+>e07c	65 72 72 65 75 74 65 72 20 3c 47 61 64 67 65 74
+>e08c	40 48 61 63 6b 77 72 65 6e 63 68 4c 61 62 73 2e
+>e09c	63 6f 6d 3e 2e 0d
+>e0a2	52 65 6c 65 61 73 65 64		            .text   "Released under the GPL3 license with the kernel exception:",13
+>e0aa	20 75 6e 64 65 72 20 74 68 65 20 47 50 4c 33 20
+>e0ba	6c 69 63 65 6e 73 65 20 77 69 74 68 20 74 68 65
+>e0ca	20 6b 65 72 6e 65 6c 20 65 78 63 65 70 74 69 6f
+>e0da	6e 3a 0d
+>e0dd	61 70 70 6c 69 63 61 74		            .text   "applications which simply use the ABI are not 'derived works'.", 13
+>e0e5	69 6f 6e 73 20 77 68 69 63 68 20 73 69 6d 70 6c
+>e0f5	79 20 75 73 65 20 74 68 65 20 41 42 49 20 61 72
+>e105	65 20 6e 6f 74 20 27 64 65 72 69 76 65 64 20 77
+>e115	6f 72 6b 73 27 2e 0d
+>e11c	0d				            .text   13
+>e11d	54 68 65 72 65 20 77 69		            .text   "There will be a simple shell here soon.", 13
+>e125	6c 6c 20 62 65 20 61 20 73 69 6d 70 6c 65 20 73
+>e135	68 65 6c 6c 20 68 65 72 65 20 73 6f 6f 6e 2e 0d
+>e145	00				            .byte   0
+
+					            .send
+					            .endn
+					            .endn
+
+
+
+
+;******  Processing input file: platform/jr/jr.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; Startup for OpenKERNAL on the C256 Foenix Jr.
+
+					            .cpu    "w65c02"
+
+					*           = $fffa ; Hardware vectors.
+>fffa	47 ec				            .word   platform.hw_nmi
+>fffc	d3 eb				            .word   platform.hw_reset
+>fffe	4b ec				            .word   platform.hw_irq
+
+					*           = $ff00 ; Keep the Jr's CPU busy during code upload.
+.ff00	4c 00 ff	jmp $ff00	wreset      jmp     wreset
+
+					platform    .namespace
+
+					            .section    dp
+>00be					iomap       .byte       ?       ; Holds $1 during interrupt processing.
+					            .send
+
+					            .section    kmem
+>0398					nmi_flag    .byte       ?
+					            .send
+
+					spin    .macro   OFFSET
+					        .endm
+
+					            .section    kernel
+
+>ebd2	00				booted      .byte       0       ; Reset detect; overwritten by a code push.
+
+.ebd3					hw_reset:
+
+.ebd3	78		sei		        sei
+
+					      ; Initialize the stack pointer
+.ebd4	a2 ff		ldx #$ff	        ldx     #$ff
+.ebd6	9a		txs		        txs
+
+					      ; "clear" the NMI flag.
+.ebd7	ba		tsx		        tsx
+.ebd8	8e 98 03	stx $0398	        stx     nmi_flag
+
+					      ; Check for a reset after the kernel has started.
+.ebdb	ad d2 eb	lda $ebd2	        lda     booted
+.ebde	d0 10		bne $ebf0	        bne     upload  ; Enter "wait for upload" mode.
+.ebe0	ee d2 eb	inc $ebd2	        inc     booted
+
+					      ; Initialize the hardware
+.ebe3	20 11 ec	jsr $ec11	        jsr     init
+.ebe6	b0 05		bcs $ebed	        bcs     _error
+
+					      ; Default $c000 to general I/O.
+.ebe8	64 01		stz $01		        stz     $1
+
+					      ; Chain to the kernel
+.ebea	4c 3c e6	jmp $e63c	        jmp     kernel.start
+.ebed	4c 13 e6	jmp $e613	_error  jmp     kernel.error
+
+.ebf0					upload: ; TODO: use kernel string service
+.ebf0	20 81 f4	jsr $f481	        jsr     console.init
+.ebf3	a9 0a		lda #$0a	        lda     #<_msg
+.ebf5	85 a5		sta $a5		        sta     kernel.src
+.ebf7	a9 ec		lda #$ec	        lda     #>_msg
+.ebf9	85 a6		sta $a6		        sta     kernel.src+1
+.ebfb	a0 00		ldy #$00	        ldy     #0
+.ebfd	b1 a5		lda ($a5),y	_loop   lda     (kernel.src),y
+.ebff	f0 06		beq $ec07	        beq     _done
+.ec01	20 3c f6	jsr $f63c	        jsr     console.putc
+.ec04	c8		iny		        iny
+.ec05	80 f6		bra $ebfd	        bra     _loop
+.ec07	4c 00 ff	jmp $ff00	_done   jmp     wreset
+>ec0a	55 70 6c 6f 61 64 00		_msg    .null   "Upload"
+
+
+.ec11					init
+.ec11	20 00 ed	jsr $ed00	        jsr     irq.init
+.ec14	20 02 e6	jsr $e602	        jsr     kernel.init
+.ec17	20 81 f4	jsr $f481	        jsr     console.init
+.ec1a	b0 0a		bcs $ec26	        bcs     _out
+
+.ec1c	64 01		stz $01		        stz     $1
+.ec1e	20 27 ec	jsr $ec27	        jsr     tick_init
+.ec21	20 b5 ef	jsr $efb5	        jsr     ps2.init
+.ec24	b0 00		bcs $ec26	        bcs     _out
+
+.ec26	60		rts		_out    rts
+
+
+.ec27					tick_init
+					        ; TODO: allocate the device handle.
+
+.ec27	20 9e f7	jsr $f79e	        jsr     c64kbd.init
+
+.ec2a	a9 41		lda #$41	        lda     #<tick
+.ec2c	8d 00 04	sta $0400	        sta     frame+0
+.ec2f	a9 ec		lda #$ec	        lda     #>tick
+.ec31	8d 01 04	sta $0401	        sta     frame+1
+
+.ec34	a9 00		lda #$00	        lda     #<frame
+.ec36	a0 00		ldy #$00	        ldy     #irq.frame
+.ec38	20 cd ed	jsr $edcd	        jsr     irq.install
+
+.ec3b	a9 00		lda #$00	        lda     #irq.frame
+.ec3d	20 d5 ed	jsr $edd5	        jsr     irq.enable
+
+.ec40	60		rts		        rts
+
+.ec41					tick
+.ec41	20 b4 f7	jsr $f7b4	        jsr     c64kbd.scan
+.ec44	4c 0c e6	jmp $e60c	        jmp     kernel.tick
+
+.ec47					hw_nmi:
+.ec47	9c 98 03	stz $0398	        stz     nmi_flag
+.ec4a	40		rti		        rti
+
+.ec4b					hw_irq:
+.ec4b	48		pha		        pha
+.ec4c	da		phx		        phx
+.ec4d	5a		phy		        phy
+
+.ec4e	a5 01		lda $01		        lda     $1
+.ec50	85 be		sta $be		        sta     iomap
+.ec52	20 97 ed	jsr $ed97	        jsr     irq.dispatch
+
+.ec55					_resume
+.ec55	a5 be		lda $be		        lda     iomap
+.ec57	85 01		sta $01		        sta     $1
+
+.ec59	7a		ply		        ply
+.ec5a	fa		plx		        plx
+.ec5b	68		pla		        pla
+.ec5c	40		rti		        rti
+
+					        .send
+					        .endn
+
+
+
+
+;******  Processing input file: platform/jr/irq.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; This file is from the w6502c TinyCore kernel by the same author.
+
+					            .cpu    "w65c02"
+
+					irq         .namespace
+
+					        ; Interrupt Sources
+					            .virtual    0
+>0000					frame       .byte       ?
+>0001					line        .byte       ?
+>0002					ps2_0       .byte       ?
+>0003					ps2_1       .byte       ?
+>0004					timer0      .byte       ?
+>0005					timer1      .byte       ?
+>0006					dma         .byte       ?
+>0007					            .byte       ?
+>0008					serial      .byte       ?
+>0009					col0        .byte       ?
+>000a					col1        .byte       ?
+>000b					col2        .byte       ?
+>000c					rtc         .byte       ?
+>000d					via         .byte       ?
+>000e					iec         .byte       ?
+>000f					sdc         .byte       ?
+.0010					max         .endv
+
+					        ; Dispatch table
+					            .section kmem
+>0399					irq0        .fill   8
+>03a1					irq1        .fill   8
+					            .send
+
+					        ; Interrupt priotity table
+					            .section    tables
+>e500	00 00 01 00 02 00 01 00		first_bit: 	.byte	0, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e508	03 00 01 00 02 00 01 00
+>e510	04 00 01 00 02 00 01 00			    	.byte	4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e518	03 00 01 00 02 00 01 00
+>e520	05 00 01 00 02 00 01 00				.byte	5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e528	03 00 01 00 02 00 01 00
+>e530	04 00 01 00 02 00 01 00		    		.byte	4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e538	03 00 01 00 02 00 01 00
+>e540	06 00 01 00 02 00 01 00			    	.byte	6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e548	03 00 01 00 02 00 01 00
+>e550	04 00 01 00 02 00 01 00		                .byte	4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e558	03 00 01 00 02 00 01 00
+>e560	05 00 01 00 02 00 01 00		    		.byte	5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e568	03 00 01 00 02 00 01 00
+>e570	04 00 01 00 02 00 01 00			    	.byte	4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e578	03 00 01 00 02 00 01 00
+>e580	07 00 01 00 02 00 01 00		    		.byte	7, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e588	03 00 01 00 02 00 01 00
+>e590	04 00 01 00 02 00 01 00		    		.byte	4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e598	03 00 01 00 02 00 01 00
+>e5a0	05 00 01 00 02 00 01 00		    		.byte	5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e5a8	03 00 01 00 02 00 01 00
+>e5b0	04 00 01 00 02 00 01 00		    		.byte	4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e5b8	03 00 01 00 02 00 01 00
+>e5c0	06 00 01 00 02 00 01 00		    		.byte	6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e5c8	03 00 01 00 02 00 01 00
+>e5d0	04 00 01 00 02 00 01 00		    		.byte	4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e5d8	03 00 01 00 02 00 01 00
+>e5e0	05 00 01 00 02 00 01 00		    		.byte	5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e5e8	03 00 01 00 02 00 01 00
+>e5f0	04 00 01 00 02 00 01 00		    		.byte	4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+>e5f8	03 00 01 00 02 00 01 00
+					            .send
+
+					            .section    kernel
+>ec5d					 .align 256
+.ed00					init:
+.ed00	48		pha		            pha
+
+.ed01	64 01		stz $01		            stz     $1
+
+					          ; Begin with all interrupts masked.
+					          ; Begin with all interrupts on the falling edge.
+.ed03	a9 ff		lda #$ff	            lda     #$ff
+.ed05	8d 6c d6	sta $d66c	            sta     INT_MASK_REG0
+.ed08	8d 6d d6	sta $d66d	            sta     INT_MASK_REG1
+.ed0b	8d 68 d6	sta $d668	            sta     INT_EDGE_REG0
+.ed0e	8d 69 d6	sta $d669	            sta     INT_EDGE_REG1
+.ed11	ad 60 d6	lda $d660	            lda     INT_PENDING_REG0
+.ed14	8d 60 d6	sta $d660	            sta     INT_PENDING_REG0
+.ed17	ad 61 d6	lda $d661	            lda     INT_PENDING_REG1
+.ed1a	8d 61 d6	sta $d661	            sta     INT_PENDING_REG1
+
+					            ; Polarities aren't presently initialized in the
+					            ; official Foenix kernel; leaving them uninitialized
+					            ; here.
+					            ; lda   #0
+					            ; sta   INT_POL_REG0
+					            ; sta   INT_POL_REG2
+
+.ed1d	a9 36		lda #$36	            lda     #<dummy
+.ed1f	8d 02 04	sta $0402	            sta     Devices+2
+.ed22	a9 ed		lda #$ed	            lda     #>dummy
+.ed24	8d 03 04	sta $0403	            sta     Devices+3
+.ed27	a9 02		lda #$02	            lda     #2
+.ed29	a0 00		ldy #$00	            ldy     #0
+.ed2b	99 99 03	sta $0399,y	_loop       sta     irq0,y
+.ed2e	c8		iny		            iny
+.ed2f	c0 10		cpy #$10	            cpy     #16
+.ed31	d0 f8		bne $ed2b	            bne     _loop
+
+.ed33	58		cli		            cli
+.ed34	68		pla		            pla
+.ed35	18		clc		            clc
+.ed36	60		rts		dummy       rts
+
+.ed37					show
+.ed37	a0 02		ldy #$02	    ldy     #2
+.ed39	84 01		sty $01		    sty     $1
+.ed3b	48		pha		    pha
+.ed3c	4a		lsr a		    lsr a
+.ed3d	4a		lsr a		    lsr a
+.ed3e	4a		lsr a		    lsr a
+.ed3f	4a		lsr a		    lsr a
+.ed40	a8		tay		    tay
+.ed41	b9 54 ed	lda $ed54,y	    lda _hex,y
+.ed44	8d 20 c0	sta $c020	    sta $c020
+.ed47	68		pla		    pla
+.ed48	29 0f		and #$0f	    and #$0f
+.ed4a	a8		tay		    tay
+.ed4b	b9 54 ed	lda $ed54,y	    lda _hex,y
+.ed4e	8d 21 c0	sta $c021	    sta $c021
+.ed51	64 01		stz $01		    stz $1
+.ed53	60		rts		    rts
+>ed54	30 31 32 33 34 35 36 37		_hex    .null   "0123456789abcdef"
+>ed5c	38 39 61 62 63 64 65 66 00
+.ed65					show2
+.ed65	48		pha		    pha
+.ed66	5a		phy		    phy
+.ed67	a0 02		ldy #$02	    ldy     #2
+.ed69	84 01		sty $01		    sty     $1
+.ed6b	48		pha		    pha
+.ed6c	4a		lsr a		    lsr a
+.ed6d	4a		lsr a		    lsr a
+.ed6e	4a		lsr a		    lsr a
+.ed6f	4a		lsr a		    lsr a
+.ed70	a8		tay		    tay
+.ed71	b9 86 ed	lda $ed86,y	    lda _hex,y
+.ed74	8d 22 c0	sta $c022	    sta $c022
+.ed77	68		pla		    pla
+.ed78	29 0f		and #$0f	    and #$0f
+.ed7a	a8		tay		    tay
+.ed7b	b9 86 ed	lda $ed86,y	    lda _hex,y
+.ed7e	8d 23 c0	sta $c023	    sta $c023
+.ed81	64 01		stz $01		    stz $1
+.ed83	7a		ply		    ply
+.ed84	68		pla		    pla
+.ed85	60		rts		    rts
+>ed86	30 31 32 33 34 35 36 37		_hex    .null   "0123456789abcdef"
+>ed8e	38 39 61 62 63 64 65 66 00
+
+.ed97					dispatch:
+
+.ed97	64 01		stz $01		_reg0       stz     $1
+.ed99	ae 60 d6	ldx $d660	            ldx     INT_PENDING_REG0
+.ed9c	f0 11		beq $edaf	            beq     _reg1
+.ed9e	bc 00 e5	ldy $e500,x	            ldy     first_bit,x     ; 0..7
+.eda1	b9 c5 ed	lda $edc5,y	            lda     bit,y           ; 1, 2, 4, ...
+.eda4	8d 60 d6	sta $d660	            sta     INT_PENDING_REG0
+.eda7	be 99 03	ldx $0399,y	            ldx     irq0,y
+.edaa	20 a4 ea	jsr $eaa4	            jsr     kernel.device.data
+.edad	80 e8		bra $ed97	            bra     _reg0
+
+.edaf	64 01		stz $01		_reg1       stz     $1
+.edb1	ae 61 d6	ldx $d661	            ldx     INT_PENDING_REG1
+.edb4	f0 0e		beq $edc4	            beq     _reg2
+.edb6	bc 00 e5	ldy $e500,x	            ldy     first_bit,b,x
+.edb9	b9 c5 ed	lda $edc5,y	            lda     bit,b,y
+.edbc	8d 61 d6	sta $d661	            sta     INT_PENDING_REG1
+.edbf	be a1 03	ldx $03a1,y	            ldx     irq1,y
+					            ;jsr     kernel.device.data
+.edc2	80 eb		bra $edaf	            bra     _reg1
+
+.edc4	60		rts		_reg2       rts
+
+>edc5	01 02 04 08 10 20 40 80		bit:        .byte   1,2,4,8,16,32,64,128
+
+.edcd					install:
+					    ; IN:   A -> lsb of a vector in Devices
+					    ;       Y -> requested IRQ ID
+
+.edcd	c0 10		cpy #$10	            cpy     #max
+.edcf	b0 03		bcs $edd4	            bcs     _out
+
+.edd1	99 99 03	sta $0399,y	            sta     irq0,y
+.edd4	60		rts		_out        rts
+
+
+.edd5					enable:
+					    ; IN:   A -> requested IRQ ID to enable.
+
+.edd5	c9 10		cmp #$10	            cmp     #max
+.edd7	b0 0d		bcs $ede6	            bcs     _out
+
+.edd9	da		phx		            phx
+.edda	20 e7 ed	jsr $ede7	            jsr     map
+.eddd	49 ff		eor #$ff	            eor     #255    ; clear bit to enable source.
+.eddf	3d 6c d6	and $d66c,x	            and     INT_MASK_REG0,x
+.ede2	9d 6c d6	sta $d66c,x	            sta     INT_MASK_REG0,x
+.ede5	fa		plx		            plx
+
+.ede6	60		rts		_out        rts
+
+.ede7					map:
+					    ; A = IRQ #
+					    ; X <- IRQth byte
+					    ; A <- IRQth bit set
+
+					          ; Offset X to the IRQth byte.
+.ede7	a2 00		ldx #$00	            ldx     #0
+.ede9	89 08		bit #$08	            bit     #8
+.edeb	f0 01		beq $edee	            beq     _bit
+.eded	e8		inx		            inx
+
+.edee	29 07		and #$07	_bit        and      #7
+.edf0	5a		phy		            phy
+.edf1	a8		tay		            tay
+.edf2	b9 c5 ed	lda $edc5,y	            lda     bit,y
+.edf5	7a		ply		            ply
+.edf6	60		rts		            rts
+
+.edf7					disable:
+					    ; IN:   A -> requested IRQ ID to diable.
+
+.edf7	c9 10		cmp #$10	            cmp     #max
+.edf9	b0 0b		bcs $ee06	            bcs     _out
+
+.edfb	da		phx		            phx
+.edfc	20 e7 ed	jsr $ede7	            jsr     map
+.edff	1d 6c d6	ora $d66c,x	            ora     INT_MASK_REG0,x
+.ee02	9d 6c d6	sta $d66c,x	            sta     INT_MASK_REG0,x
+.ee05	fa		plx		            plx
+
+.ee06	60		rts		_out        rts
+
+
+					        .send
+					        .endn
+
+
+;******  Processing input file: platform/jr/ps2.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; Instantiate an i8042 PS2 stack.
+
+					            .cpu    "w65c02"
+
+					            .namespace  platform
+					ps2         .namespace
+
+					            .section    kernel
+
+.ee07					i8042
+
+=$d640					BASE = $D640
+
+					self        .namespace
+					            .virtual    DevState
+>0500					queue       .word       ?       ; write queue, must be first
+>0502					qstate      .word       ?       ; atomic queue count for irq management
+>0504					lower       .byte       ?       ; Lower handler
+>0505					config      .byte       ?       ; Current i8042 config
+>0506					last        .byte       ?       ; tick at time of last data write
+>0507					mask        .byte       ?       ; bit to check for ready status
+>0508					mark        .byte       ?       ; ticks at start of status wait loop
+>0509					pending     .byte       ?       ; true if 'data' contains pending data.
+>050a					data        .byte       ?       ; delayed write while waiting for the i8042.
+					            .endv
+					            .endn
+
+=4					CMD     =   4
+=0					DATA    =   0
+=4					STATUS  =   4
+
+.ee07					vectors
+>ee07	4f ef				            .word   ps2_data
+>ee09	b3 ef				            .word   ps2_status
+>ee0b	b3 ef				            .word   ps2_fetch
+>ee0d	eb ee				            .word   ps2_open
+>ee0f	96 ef				            .word   ps2_get
+>ee11	9b ef				            .word   ps2_set
+>ee13	2d ef				            .word   ps2_send
+>ee15	90 ef				            .word   ps2_close
+
+.ee17					init
+.ee17	20 ce ea	jsr $eace	            jsr     kernel.device.alloc
+.ee1a	b0 09		bcs $ee25	            bcs     _out
+.ee1c	20 26 ee	jsr $ee26	            jsr     ps2_init
+.ee1f	90 04		bcc $ee25	            bcc     _out
+.ee21	20 de ea	jsr $eade	            jsr     kernel.device.free
+.ee24	38		sec		            sec
+.ee25	60		rts		_out        rts
+
+.ee26					ps2_init
+					        ; 0. Disable IRQs
+.ee26	a9 02		lda #$02	            lda     #irq.ps2_0
+.ee28	20 f7 ed	jsr $edf7	            jsr     irq.disable
+.ee2b	a9 03		lda #$03	            lda     #irq.ps2_1
+.ee2d	20 f7 ed	jsr $edf7	            jsr     irq.disable
+
+					        ; 1. Init the USB controllers (N/A)
+					        ; 2. Determine if the i8042 exists (N/A)
+
+					        ; 3. Disable the ports
+
+					          ; Dispable the first port
+.ee30	a9 ac		lda #$ac	            lda     #$ac
+.ee32	20 8b ee	jsr $ee8b	            jsr     send_cmd
+
+					          ; Disable the second port
+.ee35	a9 a7		lda #$a7	            lda     #$a7
+.ee37	20 8b ee	jsr $ee8b	            jsr     send_cmd
+
+					        ; 4. Flush the recv queueu
+.ee3a	20 9d ee	jsr $ee9d	            jsr     flush
+.ee3d	b0 2b		bcs $ee6a	            bcs     _out
+
+					        ; 5. Configure the controller
+.ee3f	20 6b ee	jsr $ee6b	            jsr     _configure
+.ee42	b0 26		bcs $ee6a	            bcs     _out
+
+
+					        ; 6. Test the controller
+.ee44	a9 aa		lda #$aa	            lda     #$aa
+.ee46	20 ab ee	jsr $eeab	            jsr     txrx
+.ee49	b0 1f		bcs $ee6a	            bcs     _out
+.ee4b	c9 55		cmp #$55	            cmp     #$55
+.ee4d	38		sec		            sec
+.ee4e	d0 1a		bne $ee6a	            bne     _out
+.ee50	20 6b ee	jsr $ee6b	            jsr     _configure
+.ee53	b0 15		bcs $ee6a	            bcs     _out
+
+					        ; 7. Enable port 2 and recheck bit 5 (N/A)
+
+					        ; 8. Test the ports (meh)
+
+					        ; 9. Set the post bit
+.ee55	bd 05 05	lda $0505,x	            lda     self.config,x
+.ee58	09 04		ora #$04	            ora     #4
+.ee5a	20 79 ee	jsr $ee79	            jsr     send_conf
+.ee5d	b0 0b		bcs $ee6a	            bcs     _out
+.ee5f					_vectors
+.ee5f	a9 07		lda #$07	            lda     #<vectors
+.ee61	85 a5		sta $a5		            sta     kernel.src
+.ee63	a9 ee		lda #$ee	            lda     #>vectors
+.ee65	85 a6		sta $a6		            sta     kernel.src+1
+.ee67	20 eb ea	jsr $eaeb	            jsr     kernel.device.install
+
+.ee6a	60		rts		_out        rts
+
+.ee6b					_configure
+.ee6b	a9 20		lda #$20	            lda     #$20        ; CmdGetConfig
+.ee6d	20 ab ee	jsr $eeab	            jsr     txrx
+.ee70	b0 f8		bcs $ee6a	            bcs     _out
+.ee72	29 bc		and #$bc	            and     #255-1-2-64
+.ee74	29 0f		and #$0f	            and     #$0f
+.ee76	4c 79 ee	jmp $ee79	            jmp     send_conf
+
+.ee79					send_conf
+.ee79	48		pha		            pha
+.ee7a	a9 60		lda #$60	            lda     #$60        ; CmdSetConfig
+.ee7c	20 8b ee	jsr $ee8b	            jsr     send_cmd
+.ee7f	68		pla		            pla
+.ee80	b0 08		bcs $ee8a	            bcs     _end
+.ee82	20 94 ee	jsr $ee94	            jsr     send_data
+.ee85	b0 03		bcs $ee8a	            bcs     _end
+.ee87	9d 05 05	sta $0505,x	            sta     self.config,b,x
+.ee8a	60		rts		_end        rts
+
+
+.ee8b					send_cmd:
+.ee8b	20 be ee	jsr $eebe	            jsr     tx_wait
+.ee8e	b0 03		bcs $ee93	            bcs     _out
+.ee90	8d 44 d6	sta $d644	            sta     BASE+CMD
+.ee93	60		rts		_out        rts
+
+.ee94					send_data:
+.ee94	20 be ee	jsr $eebe	            jsr     tx_wait
+.ee97	b0 03		bcs $ee9c	            bcs     _out
+.ee99	8d 40 d6	sta $d640	            sta     BASE+DATA
+.ee9c	60		rts		_out        rts
+
+.ee9d	a0 64		ldy #$64	flush       ldy     #100            ; Max bytes to eat.
+.ee9f	20 b1 ee	jsr $eeb1	_flush      jsr     recv_data
+.eea2	b0 05		bcs $eea9	            bcs     _flushed
+.eea4	88		dey		            dey
+.eea5	d0 f8		bne $ee9f	            bne     _flush
+.eea7	38		sec		            sec
+.eea8	60		rts		            rts
+.eea9	18		clc		_flushed    clc
+.eeaa	60		rts		            rts
+
+.eeab					txrx:
+.eeab	20 8b ee	jsr $ee8b	            jsr     send_cmd
+.eeae	90 01		bcc $eeb1	            bcc     recv_data
+.eeb0	60		rts		            rts
+
+.eeb1					recv_data:
+.eeb1	20 ba ee	jsr $eeba	            jsr     rx_wait
+.eeb4	b0 03		bcs $eeb9	            bcs     _out
+.eeb6	ad 40 d6	lda $d640	            lda     BASE+DATA
+.eeb9	60		rts		_out        rts
+
+.eeba					rx_wait:
+.eeba	a9 01		lda #$01	            lda     #1
+.eebc	80 08		bra $eec6	            bra     wait
+
+.eebe					tx_wait:
+.eebe	48		pha		            pha
+.eebf	a9 02		lda #$02	            lda     #2
+.eec1	20 c6 ee	jsr $eec6	            jsr     wait
+.eec4	68		pla		            pla
+.eec5	60		rts		            rts
+
+.eec6					wait:
+					    ; IN:   A = bit to wait on
+					    ; OUT:  Carry set on timeout
+
+.eec6	9d 07 05	sta $0507,x	            sta     self.mask,x
+.eec9	a5 a3		lda $a3		            lda     kernel.ticks
+.eecb	9d 08 05	sta $0508,x	            sta     self.mark,x
+
+.eece	18		clc		            clc
+.eecf	ad 44 d6	lda $d644	_loop       lda     BASE+STATUS
+.eed2	49 02		eor #$02	            eor     #2              ; normalize
+.eed4	3d 07 05	and $0507,x	            and     self.mask,x
+.eed7	f0 01		beq $eeda	            beq     _wait
+.eed9	60		rts		_out        rts
+
+.eeda	a5 a3		lda $a3		_wait       lda     kernel.ticks
+.eedc	38		sec		            sec
+.eedd	fd 08 05	sbc $0508,x	            sbc     self.mark,x
+.eee0	c9 1e		cmp #$1e	            cmp     #30
+.eee2	b0 f5		bcs $eed9	            bcs     _out
+.eee4	20 00 e6	jsr $e600	            jsr     kernel.thread.yield
+.eee7	80 e6		bra $eecf	            bra     _loop
+
+.eee9					hang
+					.if false
+					.endif
+.eee9	80 fe		bra $eee9	        bra hang
+
+=54864					TIMER0_CTRL_REG = $d650+$0
+=54865					TIMER0_CHARGE_L = $d650+$1
+=54866					TIMER0_CHARGE_M = $d650+$2
+=54867					TIMER0_CHARGE_H = $d650+$3
+=54868					TIMER0_CMP_REG  = $d650+$4
+=54869					TIMER0_CMP_L    = $d650+$5
+=54870					TIMER0_CMP_M    = $d650+$6
+=54871					TIMER0_CMP_H    = $d650+$7
+
+=$01					TMR0_EN     = $01
+=$02					TMR0_SCLR   = $02
+=$04					TMR0_SLOAD  = $04 ; Use SLOAD is
+=$08					TMR0_UPDWN  = $08
+
+=$01					TMR0_CMP_RECLR     = $01 ; set to one for it to cycle when Counting up
+=$02					TMR0_CMP_RELOAD    = $02 ; Set to one for it to reload when Counting Down
+
+					            .virtual Tokens
+>0200					port        .byte   ?
+>0201					data        .byte   ?
+					            .endv
+
+
+.eeeb					ps2_open
+
+.eeeb	20 00 eb	jsr $eb00	        jsr     kernel.device.queue.init
+.eeee	9e 09 05	stz $0509,x	        stz     self.pending,x
+
+.eef1	a9 ff		lda #$ff	        lda     #$ff
+.eef3	9d 02 05	sta $0502,x	        sta     self.qstate,x   ; qstate == 0 when count is 1.
+
+.eef6	8a		txa		        txa
+.eef7	a0 04		ldy #$04	        ldy     #irq.timer0
+.eef9	20 cd ed	jsr $edcd	        jsr     irq.install
+
+.eefc	a9 a8		lda #$a8	        lda     #$a8
+.eefe	8d 55 d6	sta $d655	        sta     TIMER0_CMP_L
+.ef01	a9 61		lda #$61	        lda     #$61
+.ef03	8d 56 d6	sta $d656	        sta     TIMER0_CMP_M
+.ef06	a9 00		lda #$00	        lda     #$0
+.ef08	8d 57 d6	sta $d657	        sta     TIMER0_CMP_H
+
+.ef0b	9c 51 d6	stz $d651	        stz     TIMER0_CHARGE_L
+.ef0e	9c 52 d6	stz $d652	        stz     TIMER0_CHARGE_M
+.ef11	9c 53 d6	stz $d653	        stz     TIMER0_CHARGE_H
+
+.ef14	a9 02		lda #$02	        lda     #TMR0_CMP_RELOAD
+.ef16	8d 54 d6	sta $d654	        sta     TIMER0_CMP_REG
+
+.ef19	a9 64		lda #$64	        lda     #100
+.ef1b	8d 19 d0	sta $d019	        sta     VKY_LINE_CMP_VALUE_LO
+.ef1e	9c 1a d0	stz $d01a	        stz     VKY_LINE_CMP_VALUE_HI
+.ef21	a9 01		lda #$01	        lda     #1
+.ef23	8d 18 d0	sta $d018	        sta     VKY_LINE_IRQ_CTRL_REG
+
+.ef26	a9 04		lda #$04	        lda     #irq.timer0
+.ef28	20 d5 ed	jsr $edd5	        jsr     irq.enable
+
+.ef2b	18		clc		        clc
+.ef2c	60		rts		        rts
+
+
+.ef2d					ps2_send
+					    ; Asynchronously send the byte in A to the device at port Y.
+					    ; A = byte, Y = port
+					    ; Carry set on error (no free tokens)
+.ef2d	5a		phy		            phy
+
+.ef2e	20 5a eb	jsr $eb5a	            jsr     kernel.token.alloc
+.ef31	90 02		bcc $ef35	            bcc     _queue
+.ef33	7a		ply		            ply
+.ef34	60		rts		            rts
+
+.ef35					_queue
+.ef35	99 01 02	sta $0201,y	            sta     data,y
+.ef38	68		pla		            pla
+.ef39	99 00 02	sta $0200,y	            sta     port,y
+
+.ef3c	20 07 eb	jsr $eb07	            jsr     kernel.device.queue.enque
+.ef3f	fe 02 05	inc $0502,x	            inc     self.qstate,x
+.ef42	d0 03		bne $ef47	            bne     _ack
+.ef44	20 49 ef	jsr $ef49	            jsr     timer_resume
+
+.ef47					_ack
+					.if false
+					.endif
+.ef47	18		clc		            clc
+.ef48	60		rts		            rts
+
+
+.ef49					timer_resume
+.ef49	a9 0d		lda #$0d	        lda     #TMR0_EN | TMR0_SLOAD | TMR0_UPDWN
+.ef4b	8d 50 d6	sta $d650	        sta     TIMER0_CTRL_REG
+					.if false
+					.endif
+.ef4e	60		rts		        rts
+
+.ef4f					ps2_data
+					    ; IRQ handler for asynchronously sending bytes to PS2 devices.
+
+					      ; Verify that the i8042 can accept writes
+.ef4f	ad 44 d6	lda $d644	        lda     BASE+STATUS
+.ef52	89 02		bit #$02	        bit     #2
+.ef54	d0 21		bne $ef77	        bne     _wait
+
+					      ; If we have pending data, send it now.
+.ef56	bd 0a 05	lda $050a,x	        lda     self.data,x
+.ef59	bc 09 05	ldy $0509,x	        ldy     self.pending,x
+.ef5c	d0 13		bne $ef71	        bne     _send
+
+.ef5e	20 18 eb	jsr $eb18	        jsr     kernel.device.queue.deque
+.ef61	b0 17		bcs $ef7a	        bcs     _done
+.ef63	de 02 05	dec $0502,x	        dec     self.qstate,x
+
+.ef66	b9 00 02	lda $0200,y	        lda     port,y
+.ef69	d0 10		bne $ef7b	        bne     _prefix
+
+.ef6b	b9 01 02	lda $0201,y	        lda     data,y
+.ef6e	20 70 eb	jsr $eb70	        jsr     kernel.token.free
+
+.ef71	8d 40 d6	sta $d640	_send   sta     BASE+DATA
+.ef74	9e 09 05	stz $0509,x	        stz     self.pending,x
+					.if false
+					.endif
+
+.ef77	20 49 ef	jsr $ef49	_wait   jsr     timer_resume
+.ef7a	60		rts		_done   rts
+
+.ef7b					_prefix
+
+					      ; Send the prefix command for a write to the second port
+.ef7b	a9 d4		lda #$d4	        lda     #$d4
+.ef7d	8d 44 d6	sta $d644	        sta     BASE+CMD
+
+					      ; Flag pending
+.ef80	9d 09 05	sta $0509,x	        sta     self.pending,x  ; force pending to non-zero (ie #$d4)
+
+					      ; Queue the data byte
+.ef83	b9 01 02	lda $0201,y	        lda     data,y
+.ef86	9d 0a 05	sta $050a,x	        sta     self.data,x
+.ef89	20 70 eb	jsr $eb70	        jsr     kernel.token.free
+
+.ef8c	80 e9		bra $ef77	        bra     _wait           ; The i8042 core lies...
+.ef8e	80 bf		bra $ef4f	        bra     ps2_data        ; Try to send straight away (queuing i8042)
+
+.ef90					ps2_close
+.ef90	a9 04		lda #$04	        lda     #irq.timer0
+.ef92	20 f7 ed	jsr $edf7	        jsr     irq.disable
+.ef95	60		rts		        rts
+
+.ef96					ps2_get
+.ef96	ad 40 d6	lda $d640	        lda     BASE+DATA
+.ef99	18		clc		        clc
+.ef9a	60		rts		        rts
+
+.ef9b					ps2_set
+					    ; Enable (/disable) the port
+					    ; Y = port #
+
+					      ; Enable the interrupt on the i8042
+.ef9b	b9 af ef	lda $efaf,y	        lda     _irq,y
+.ef9e	1d 05 05	ora $0505,x	        ora     self.config,x
+.efa1	20 79 ee	jsr $ee79	        jsr     send_conf
+.efa4	b0 08		bcs $efae	        bcs     _out
+
+					      ; Enable the port
+.efa6	b9 b1 ef	lda $efb1,y	        lda     _port,y
+.efa9	20 8b ee	jsr $ee8b	        jsr     send_cmd
+.efac	b0 00		bcs $efae	        bcs     _out
+
+.efae	60		rts		_out    rts
+
+>efaf	01 02				_irq    .byte   $01, $02
+>efb1	ae a8				_port   .byte   $ae, $a8
+
+
+.efb3					ps2_status
+.efb3					ps2_fetch
+.efb3	18		clc		            clc
+.efb4	60		rts		            rts
+
+
+.efb5					init
+.efb5	64 01		stz $01		        stz     $1  ; The i8042 registers are in General I/O.
+
+					      ; Init and open the i8042 device.
+.efb7	20 17 ee	jsr $ee17	        jsr     i8042.init
+.efba	b0 24		bcs $efe0	        bcs     _out
+.efbc	20 ad ea	jsr $eaad	        jsr     kernel.device.open
+.efbf	b0 1f		bcs $efe0	        bcs     _out
+
+					      ; Init and open the first PS2 device.
+.efc1	da		phx		        phx
+.efc2	8a		txa		        txa
+.efc3	a0 02		ldy #$02	        ldy     #irq.ps2_0
+.efc5	20 be f8	jsr $f8be	        jsr     hardware.ps2.init
+.efc8	b0 03		bcs $efcd	        bcs     _e1
+.efca	20 ad ea	jsr $eaad	        jsr     kernel.device.open
+.efcd	fa		plx		_e1     plx
+.efce	b0 10		bcs $efe0	        bcs     _out
+
+					      ; Init and open the second PS2 device.
+.efd0	da		phx		        phx
+.efd1	8a		txa		        txa
+.efd2	a0 03		ldy #$03	        ldy     #irq.ps2_1
+.efd4	20 be f8	jsr $f8be	        jsr     hardware.ps2.init
+.efd7	b0 03		bcs $efdc	        bcs     _e2
+.efd9	20 ad ea	jsr $eaad	        jsr     kernel.device.open
+.efdc	fa		plx		_e2     plx
+.efdd	b0 01		bcs $efe0	        bcs     _out
+
+.efdf	18		clc		        clc
+.efe0	60		rts		_out    rts
+
+
+					        .send
+					        .endn
+					        .endn
+
+
+
+;******  Processing input file: platform/jr/console.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; Low level Console driver.
+					; TODO: move screen editor to kernel.
+
+					            .cpu    "w65c02"
+
+					            .namespace  platform
+					console     .namespace
+
+
+=60					ROWS = 60
+=80					COLS = 80
+=4					TABS = 4
+
+
+					; IO PAGE 0
+=$d800					TEXT_LUT_FG      = $D800
+=$d840					TEXT_LUT_BG	 = $D840
+					; Text Memory
+=$c000					TEXT_MEM         = $C000 	; IO Page 2
+=$c000					COLOR_MEM        = $C000 	; IO Page 3
+
+					            .section    dp
+>00bf					src         .word   ?
+>00c1					dest        .word   ?
+>00c3					count       .word   ?
+
+>00c5					cur_x       .byte   ?
+>00c6					cur_y       .byte   ?
+>00c7					ptr         .word   ?
+>00c9					color       .byte   ?
+>00ca					scratch     .byte   ?
+					            .send
+
+
+					            .section    kernel
+
+					fcb         .macro  ; For importing TinyCore fonts.
+					            .endm
+
+.efe1					font
+>efe1	00 00 00 00 00 00 00 00		            .fill       20*8,0
+>efe9	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>eff9	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>f009	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>f019	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>f029	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>f039	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>f049	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>f059	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>f069	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>f079	00 00 00 00 00 00 00 00
+					            ;.include    "hardware/8x8.fcb"
+>f081	ff b6 76 36 36 36 36 00		            .binary    "Bm437_PhoenixEGA_8x8.bin", 160, $400
+>f089	7e c1 dc 22 22 1f 83 7e 00 00 00 7e 7e 00 00 00
+>f099	18 7e 18 18 7e 18 00 ff 18 7e 18 18 18 18 18 00
+>f0a9	18 18 18 18 18 7e 18 00 00 04 06 ff 06 04 00 00
+>f0b9	00 20 60 ff 60 20 00 00 00 00 00 c0 c0 c0 ff 00
+>f0c9	00 24 66 ff 66 24 00 00 00 00 10 38 7c fe 00 00
+>f0d9	00 00 00 fe 7c 38 10 00 00 00 00 00 00 00 00 00
+>f0e9	30 30 30 30 30 00 30 00 66 66 00 00 00 00 00 00
+>f0f9	6c 6c fe 6c fe 6c 6c 00 10 7c d2 7c 86 7c 10 00
+>f109	f0 96 fc 18 3e 72 de 00 30 48 30 78 ce cc 78 00
+>f119	0c 0c 18 00 00 00 00 00 10 60 c0 c0 c0 60 10 00
+>f129	10 0c 06 06 06 0c 10 00 00 54 38 fe 38 54 00 00
+>f139	00 18 18 7e 18 18 00 00 00 00 00 00 00 00 18 70
+>f149	00 00 00 7e 00 00 00 00 00 00 00 00 00 00 18 00
+>f159	02 06 0c 18 30 60 c0 00 7c ce de f6 e6 e6 7c 00
+>f169	18 38 78 18 18 18 3c 00 7c c6 06 0c 30 60 fe 00
+>f179	7c c6 06 3c 06 c6 7c 00 0e 1e 36 66 fe 06 06 00
+>f189	fe c0 c0 fc 06 06 fc 00 7c c6 c0 fc c6 c6 7c 00
+>f199	fe 06 0c 18 30 60 60 00 7c c6 c6 7c c6 c6 7c 00
+>f1a9	7c c6 c6 7e 06 c6 7c 00 00 30 00 00 00 30 00 00
+>f1b9	00 30 00 00 00 30 20 00 00 1c 30 60 30 1c 00 00
+>f1c9	00 00 7e 00 7e 00 00 00 00 70 18 0c 18 70 00 00
+>f1d9	7c c6 0c 18 30 00 30 00 7c 82 9a aa aa 9e 7c 00
+>f1e9	7c c6 c6 fe c6 c6 c6 00 fc 66 66 7c 66 66 fc 00
+>f1f9	7c c6 c0 c0 c0 c6 7c 00 fc 66 66 66 66 66 fc 00
+>f209	fe 62 68 78 68 62 fe 00 fe 62 68 78 68 60 f0 00
+>f219	7c c6 c6 c0 de c6 7c 00 c6 c6 c6 fe c6 c6 c6 00
+>f229	3c 18 18 18 18 18 3c 00 1e 0c 0c 0c 0c cc 78 00
+>f239	c6 cc d8 f0 d8 cc c6 00 f0 60 60 60 60 62 fe 00
+>f249	c6 ee fe d6 c6 c6 c6 00 c6 e6 f6 de ce c6 c6 00
+>f259	7c c6 c6 c6 c6 c6 7c 00 fc 66 66 7c 60 60 f0 00
+>f269	7c c6 c6 c6 c6 c6 7c 0c fc 66 66 7c 66 66 e6 00
+>f279	7c c6 c0 7c 06 c6 7c 00 7e 5a 18 18 18 18 3c 00
+>f289	c6 c6 c6 c6 c6 c6 7c 00 c6 c6 c6 c6 c6 6c 38 00
+>f299	c6 c6 c6 c6 d6 ee c6 00 c6 6c 38 38 38 6c c6 00
+>f2a9	66 66 66 3c 18 18 3c 00 fe c6 0c 18 30 66 fe 00
+>f2b9	1c 18 18 18 18 18 1c 00 c0 60 30 18 0c 06 02 00
+>f2c9	70 30 30 30 30 30 70 00 00 00 10 38 6c c6 00 00
+>f2d9	00 00 00 00 00 00 00 ff 30 30 18 00 00 00 00 00
+>f2e9	00 00 7c 06 7e c6 7e 00 c0 c0 fc c6 c6 c6 fc 00
+>f2f9	00 00 7c c6 c0 c6 7c 00 06 06 7e c6 c6 c6 7e 00
+>f309	00 00 7c c6 fe c0 7c 00 3c 66 60 f0 60 60 60 00
+>f319	00 00 7e c6 c6 7e 06 7c c0 c0 fc c6 c6 c6 c6 00
+>f329	18 00 38 18 18 18 3c 00 00 0c 00 1c 0c 0c cc 78
+>f339	c0 c0 c6 d8 f0 d8 c6 00 38 18 18 18 18 18 3c 00
+>f349	00 00 ee fe d6 c6 c6 00 00 00 fc c6 c6 c6 c6 00
+>f359	00 00 7c c6 c6 c6 7c 00 00 00 fc c6 c6 fc c0 c0
+>f369	00 00 7e c6 c6 7e 06 06 00 00 de 76 60 60 60 00
+>f379	00 00 7c c0 7c 06 7c 00 18 18 7e 18 18 18 1e 00
+>f389	00 00 c6 c6 c6 c6 7e 00 00 00 c6 c6 c6 6c 38 00
+>f399	00 00 c6 c6 d6 fe c6 00 00 00 c6 6c 38 6c c6 00
+>f3a9	00 00 c6 c6 c6 7e 06 7c 00 00 fe 0c 18 60 fe 00
+>f3b9	0e 18 18 70 18 18 0e 00 18 18 18 00 18 18 18 00
+>f3c9	e0 30 30 1c 30 30 e0 00 00 00 70 9a 0e 00 00 00
+>f3d9	00 00 18 3c 66 ff 00 00 7c c6 c0 c0 c6 7c 18 70
+>f3e9	66 00 c6 c6 c6 c6 7e 00 0e 18 7c c6 fe c0 7c 00
+>f3f9	18 24 7c 06 7e c6 7e 00 66 00 7c 06 7e c6 7e 00
+>f409	38 0c 7c 06 7e c6 7e 00 18 00 7c 06 7e c6 7e 00
+>f419	00 00 7c c0 c0 7c 18 70 18 24 7c c6 fe c0 7c 00
+>f429	66 00 7c c6 fe c0 7c 00 70 18 7c c6 fe c0 7c 00
+>f439	66 00 38 18 18 18 3c 00 18 24 38 18 18 18 3c 00
+>f449	38 0c 38 18 18 18 3c 00 66 00 7c c6 fe c6 c6 00
+>f459	18 00 7c c6 fe c6 c6 00 0e 18 fe 60 78 60 fe 00
+>f469	00 00 7c 1a 7e d8 7e 00 7e d8 d8 de f8 d8 de 00
+>f479	18 24 7c c6 c6 c6 7c 00
+
+
+.f481					init
+.f481	20 8d f4	jsr $f48d	            jsr     TinyVky_Init
+.f484	a9 e6		lda #$e6	            lda     #$e6
+.f486	85 c9		sta $c9		            sta     color
+.f488	20 ab f5	jsr $f5ab	            jsr     cls
+
+.f48b	18		clc		            clc
+.f48c	60		rts		            rts
+
+
+.f48d					TinyVky_Init:
+.f48d	64 01		stz $01		            stz     $1
+
+.f48f	a9 01		lda #$01	            lda     #Mstr_Ctrl_Text_Mode_En;
+.f491	8d 00 d0	sta $d000	            sta     MASTER_CTRL_REG_L
+
+.f494	20 a1 f4	jsr $f4a1	            jsr     init_palette
+.f497	20 f2 f4	jsr $f4f2	            jsr     init_border
+.f49a	20 ff f4	jsr $f4ff	            jsr     init_font
+
+					          ; We'll manage our own cursor
+.f49d	9c 10 d0	stz $d010	            stz     VKY_TXT_CURSOR_CTRL_REG
+
+.f4a0	60		rts		            rts
+
+.f4a1					init_palette
+
+.f4a1	a2 00		ldx #$00	            ldx     #0
+.f4a3	bd b2 f4	lda $f4b2,x	_loop       lda     _palette,x
+.f4a6	9d 00 d8	sta $d800,x	            sta     TEXT_LUT_FG,x
+.f4a9	9d 40 d8	sta $d840,x	            sta     TEXT_LUT_BG,x
+.f4ac	e8		inx		            inx
+.f4ad	e0 40		cpx #$40	            cpx     #64
+.f4af	d0 f2		bne $f4a3	            bne     _loop
+.f4b1	60		rts		            rts
+.f4b2					_palette
+>f4b2	00 00 00 00			            .dword  $000000
+>f4b6	ff ff ff 00			            .dword  $ffffff
+>f4ba	00 00 88 00			            .dword  $880000
+>f4be	ee ff aa 00			            .dword  $aaffee
+>f4c2	cc 44 cc 00			            .dword  $cc44cc
+>f4c6	55 cc 00 00			            .dword  $00cc55
+>f4ca	aa 00 00 00			            .dword  $0000aa
+>f4ce	77 dd dd 00			            .dword  $dddd77
+>f4d2	55 88 dd 00			            .dword  $dd8855
+>f4d6	00 44 66 00			            .dword  $664400
+>f4da	77 77 ff 00			            .dword  $ff7777
+>f4de	33 33 33 00			            .dword  $333333
+>f4e2	77 77 77 00			            .dword  $777777
+>f4e6	66 ff aa 00			            .dword  $aaff66
+>f4ea	ff 88 00 00			            .dword  $0088ff
+>f4ee	bb bb bb 00			            .dword  $bbbbbb
+
+.f4f2					init_border
+.f4f2	9c 04 d0	stz $d004	            stz     BORDER_CTRL_REG
+.f4f5	9c 07 d0	stz $d007	            stz     BORDER_COLOR_R
+.f4f8	9c 06 d0	stz $d006	            stz     BORDER_COLOR_G
+.f4fb	9c 05 d0	stz $d005	            stz     BORDER_COLOR_B
+.f4fe	60		rts		            rts
+
+
+.f4ff					init_font:
+.f4ff	a5 01		lda $01		            lda     $1
+.f501	48		pha		            pha
+
+.f502	a9 01		lda #$01	            lda     #1
+.f504	85 01		sta $01		            sta     $1
+.f506	20 0e f5	jsr $f50e	            jsr     _install
+
+.f509	68		pla		            pla
+.f50a	85 01		sta $01		            sta     $1
+
+.f50c	18		clc		            clc
+.f50d	60		rts		            rts
+
+.f50e					_install
+					          ; Install lower half
+
+.f50e	a9 e1		lda #$e1	            lda     #<font
+.f510	85 bf		sta $bf		            sta     src+0
+.f512	a9 ef		lda #$ef	            lda     #>font
+.f514	85 c0		sta $c0		            sta     src+1
+
+.f516	a9 c0		lda #$c0	            lda     #$c0
+.f518	85 c2		sta $c2		            sta     dest+1
+.f51a	64 c1		stz $c1		            stz     dest+0
+
+.f51c	64 c3		stz $c3		            stz     count
+.f51e	a9 04		lda #$04	            lda     #>(128 * 8)
+.f520	85 c4		sta $c4		            sta     count+1
+
+.f522	20 5b f5	jsr $f55b	            jsr     long_move1
+
+					          ; Install upper half
+
+.f525	a9 e1		lda #$e1	            lda     #<font
+.f527	85 bf		sta $bf		            sta     src+0
+.f529	a9 ef		lda #$ef	            lda     #>font
+.f52b	85 c0		sta $c0		            sta     src+1
+
+.f52d	64 c3		stz $c3		            stz     count
+.f52f	a9 04		lda #$04	            lda     #>(128 * 8)
+.f531	85 c4		sta $c4		            sta     count+1
+
+.f533	20 82 f5	jsr $f582	            jsr     long_move2
+
+.f536	60		rts		            rts
+
+.f537					long_move
+.f537	da		phx		            phx
+.f538	5a		phy		            phy
+
+.f539	a0 00		ldy #$00	            ldy     #0
+.f53b	a6 c4		ldx $c4		            ldx     count+1
+.f53d	f0 15		beq $f554	            beq     _small
+
+.f53f	b1 bf		lda ($bf),y	_large      lda     (src),y
+.f541	91 c1		sta ($c1),y	            sta     (dest),y
+.f543	c8		iny		            iny
+.f544	d0 f9		bne $f53f	            bne     _large
+.f546	e6 c0		inc $c0		            inc     src+1
+.f548	e6 c2		inc $c2		            inc     dest+1
+.f54a	ca		dex		            dex
+.f54b	d0 f2		bne $f53f	            bne     _large
+.f54d	80 05		bra $f554	            bra     _small
+
+.f54f	b1 bf		lda ($bf),y	_loop       lda     (src),y
+.f551	91 c1		sta ($c1),y	            sta     (dest),y
+
+.f553	c8		iny		            iny
+.f554	c4 c3		cpy $c3		_small      cpy     count
+.f556	d0 f7		bne $f54f	            bne     _loop
+
+.f558	7a		ply		            ply
+.f559	fa		plx		            plx
+.f55a	60		rts		            rts
+
+.f55b					long_move1
+.f55b	da		phx		            phx
+.f55c	5a		phy		            phy
+
+.f55d	a0 00		ldy #$00	            ldy     #0
+.f55f	a6 c4		ldx $c4		            ldx     count+1
+.f561	f0 18		beq $f57b	            beq     _small
+
+.f563	b1 bf		lda ($bf),y	_large      lda     (src),y
+.f565	4a		lsr a		            lsr     a
+.f566	91 c1		sta ($c1),y	            sta     (dest),y
+.f568	c8		iny		            iny
+.f569	d0 f8		bne $f563	            bne     _large
+.f56b	e6 c0		inc $c0		            inc     src+1
+.f56d	e6 c2		inc $c2		            inc     dest+1
+.f56f	ca		dex		            dex
+.f570	d0 f1		bne $f563	            bne     _large
+.f572	80 07		bra $f57b	            bra     _small
+
+.f574	b1 bf		lda ($bf),y	_loop       lda     (src),y
+.f576	49 ff		eor #$ff	            eor     #$ff
+.f578	91 c1		sta ($c1),y	            sta     (dest),y
+
+.f57a	c8		iny		            iny
+.f57b	c4 c3		cpy $c3		_small      cpy     count
+.f57d	d0 f5		bne $f574	            bne     _loop
+
+.f57f	7a		ply		            ply
+.f580	fa		plx		            plx
+.f581	60		rts		            rts
+.f582					long_move2
+.f582	da		phx		            phx
+.f583	5a		phy		            phy
+
+.f584	a0 00		ldy #$00	            ldy     #0
+.f586	a6 c4		ldx $c4		            ldx     count+1
+.f588	f0 1a		beq $f5a4	            beq     _small
+
+.f58a	b1 bf		lda ($bf),y	_large      lda     (src),y
+.f58c	4a		lsr a		            lsr     a
+.f58d	49 ff		eor #$ff	            eor     #$ff
+.f58f	91 c1		sta ($c1),y	            sta     (dest),y
+.f591	c8		iny		            iny
+.f592	d0 f6		bne $f58a	            bne     _large
+.f594	e6 c0		inc $c0		            inc     src+1
+.f596	e6 c2		inc $c2		            inc     dest+1
+.f598	ca		dex		            dex
+.f599	d0 ef		bne $f58a	            bne     _large
+.f59b	80 07		bra $f5a4	            bra     _small
+
+.f59d	b1 bf		lda ($bf),y	_loop       lda     (src),y
+.f59f	49 ff		eor #$ff	            eor     #$ff
+.f5a1	91 c1		sta ($c1),y	            sta     (dest),y
+
+.f5a3	c8		iny		            iny
+.f5a4	c4 c3		cpy $c3		_small      cpy     count
+.f5a6	d0 f5		bne $f59d	            bne     _loop
+
+.f5a8	7a		ply		            ply
+.f5a9	fa		plx		            plx
+.f5aa	60		rts		            rts
+
+
+.f5ab					cls
+.f5ab	48		pha		            pha
+.f5ac	da		phx		            phx
+.f5ad	5a		phy		            phy
+
+.f5ae	a9 02		lda #$02	            lda     #2
+.f5b0	85 01		sta $01		            sta     $1
+.f5b2	a9 20		lda #$20	            lda     #' '
+.f5b4	20 cb f5	jsr $f5cb	            jsr     _fill
+
+.f5b7	a9 03		lda #$03	            lda     #3
+.f5b9	85 01		sta $01		            sta     $1
+.f5bb	a5 c9		lda $c9		            lda     color
+.f5bd	20 cb f5	jsr $f5cb	            jsr     _fill
+
+.f5c0	a2 00		ldx #$00	            ldx     #0
+.f5c2	a0 00		ldy #$00	            ldy     #0
+.f5c4	20 e0 f5	jsr $f5e0	            jsr     gotoxy
+
+.f5c7	7a		ply		            ply
+.f5c8	fa		plx		            plx
+.f5c9	68		pla		            pla
+.f5ca	60		rts		            rts
+
+.f5cb					_fill
+.f5cb	64 c7		stz $c7		            stz     ptr+0
+.f5cd	a0 c0		ldy #$c0	            ldy     #$c0
+.f5cf	84 c8		sty $c8		            sty     ptr+1
+.f5d1	a2 14		ldx #$14	            ldx     #$14
+.f5d3	a0 00		ldy #$00	            ldy     #0
+.f5d5	91 c7		sta ($c7),y	_loop       sta     (ptr),y
+.f5d7	c8		iny		            iny
+.f5d8	d0 fb		bne $f5d5	            bne     _loop
+.f5da	e6 c8		inc $c8		            inc     ptr+1
+.f5dc	ca		dex		            dex
+.f5dd	d0 f6		bne $f5d5	            bne     _loop
+.f5df	60		rts		            rts
+
+
+.f5e0					gotoxy
+.f5e0	86 c5		stx $c5		            stx     cur_x
+.f5e2	84 c6		sty $c6		            sty     cur_y
+
+					    ; 80 = 64 + 16 = 0101 0000
+
+.f5e4	64 c8		stz $c8		            stz     ptr+1
+.f5e6	98		tya		            tya
+.f5e7	0a		asl a		            asl     a           ; 16->32
+.f5e8	0a		asl a		            asl     a           ; 32->64
+.f5e9	26 c8		rol $c8		            rol     ptr+1
+.f5eb	65 c6		adc $c6		            adc     cur_y
+.f5ed	90 02		bcc $f5f1	            bcc     _nc
+.f5ef	e6 c8		inc $c8		            inc     ptr+1
+.f5f1	0a		asl a		_nc         asl     a
+.f5f2	26 c8		rol $c8		            rol     ptr+1
+.f5f4	0a		asl a		            asl     a
+.f5f5	26 c8		rol $c8		            rol     ptr+1
+.f5f7	0a		asl a		            asl     a
+.f5f8	26 c8		rol $c8		            rol     ptr+1
+.f5fa	0a		asl a		            asl     a
+.f5fb	26 c8		rol $c8		            rol     ptr+1
+.f5fd	85 c7		sta $c7		            sta     ptr+0
+
+.f5ff	a5 c8		lda $c8		            lda     ptr+1
+.f601	69 c0		adc #$c0	            adc     #$c0
+.f603	85 c8		sta $c8		            sta     ptr+1
+
+.f605					cursor
+.f605	a4 c5		ldy $c5		        ldy     cur_x
+
+.f607	a2 03		ldx #$03	        ldx     #3      ; color memory
+.f609	86 01		stx $01		        stx     $1
+.f60b	b1 c7		lda ($c7),y	        lda     (ptr),y
+					.if false
+					.endif
+.f60d	64 01		stz $01		        stz     $1
+.f60f	8d 13 d0	sta $d013	        sta     VKY_TXT_CURSOR_COLR_REG
+
+.f612	a2 02		ldx #$02	        ldx     #2      ; text memory
+.f614	86 01		stx $01		        stx     $1
+.f616	b1 c7		lda ($c7),y	        lda     (ptr),y
+.f618	49 80		eor #$80	        eor     #$80
+.f61a	64 01		stz $01		        stz     $1
+.f61c	8d 12 d0	sta $d012	        sta     VKY_TXT_CURSOR_CHAR_REG
+
+.f61f	a5 c5		lda $c5		        lda     cur_x
+.f621	8d 14 d0	sta $d014	        sta     VKY_TXT_CURSOR_X_REG_L
+.f624	9c 15 d0	stz $d015	        stz     VKY_TXT_CURSOR_X_REG_H
+
+.f627	a5 c6		lda $c6		        lda     cur_y
+.f629	8d 16 d0	sta $d016	        sta     VKY_TXT_CURSOR_Y_REG_L
+.f62c	9c 17 d0	stz $d017	        stz     VKY_TXT_CURSOR_Y_REG_H
+
+.f62f	a9 0b		lda #$0b	        lda     #Vky_Cursor_Enable | Vky_Cursor_Flash_Rate0 | 8
+.f631	8d 10 d0	sta $d010	        sta     VKY_TXT_CURSOR_CTRL_REG
+.f634	9c 11 d0	stz $d011	        stz     VKY_TXT_START_ADD_PTR
+
+.f637	a2 02		ldx #$02	        ldx     #2
+.f639	86 01		stx $01		        stx     $1
+
+.f63b	60		rts		        rts
+
+
+.f63c					puts
+.f63c					putc
+.f63c	48		pha		        pha
+.f63d	da		phx		        phx
+.f63e	5a		phy		        phy
+
+.f63f	a6 01		ldx $01		        ldx     $1
+.f641	da		phx		        phx
+
+.f642	a2 02		ldx #$02	        ldx     #2
+.f644	86 01		stx $01		        stx     $1
+
+.f646	20 57 f6	jsr $f657	        jsr     _putc
+.f649	a6 c5		ldx $c5		        ldx     cur_x
+.f64b	a4 c6		ldy $c6		        ldy     cur_y
+.f64d	20 e0 f5	jsr $f5e0	        jsr     gotoxy
+
+.f650	fa		plx		        plx
+.f651	86 01		stx $01		        stx     $1
+
+.f653	7a		ply		        ply
+.f654	fa		plx		        plx
+.f655	68		pla		        pla
+.f656	60		rts		        rts
+
+.f657					_putc
+
+.f657	a6 c5		ldx $c5		   ldx  cur_x
+.f659	a4 c6		ldy $c6		   ldy  cur_y
+.f65b	48		pha		   pha
+.f65c	20 e0 f5	jsr $f5e0	   jsr  gotoxy  ; Init line ptr; TODO: just init line ptr
+.f65f	68		pla		   pla
+
+.f660	c9 20		cmp #$20	        cmp     #$20
+.f662	90 07		bcc $f66b	        bcc     _ctrl
+
+.f664	c9 80		cmp #$80	        cmp     #$80
+.f666	b0 36		bcs $f69e	        bcs     cbm
+
+.f668	4c 4f f7	jmp $f74f	        jmp     insert
+
+.f66b					_ctrl
+.f66b	c9 11		cmp #$11	        cmp     #17
+.f66d	90 07		bcc $f676	        bcc     _indexed
+.f66f	c9 1b		cmp #$1b	        cmp     #27     ; esc
+.f671	d0 2b		bne $f69e	        bne     cbm
+.f673	4c f8 f6	jmp $f6f8	        jmp     esc
+
+.f676					_indexed
+.f676	0a		asl a		        asl     a
+.f677	aa		tax		        tax
+.f678	7c 7b f6	jmp ($f67b,x)	        jmp     (_table,x)
+.f67b					_table
+>f67b	9d f6				        .word   ignore   ; Key is only for documentation.
+>f67d	26 f7				        .word   begin   ; Key is only for documentation.
+>f67f	01 f7				        .word   left   ; Key is only for documentation.
+>f681	9d f6				        .word   ignore   ; Key is only for documentation.
+>f683	9d f6				        .word   ignore   ; Key is only for documentation.
+>f685	29 f7				        .word   end   ; Key is only for documentation.
+>f687	08 f7				        .word   right   ; Key is only for documentation.
+>f689	42 f7				        .word   bell   ; Key is only for documentation.
+>f68b	38 f7				        .word   backspace   ; Key is only for documentation.
+>f68d	43 f7				        .word   tab   ; Key is only for documentation.
+>f68f	dd f6				        .word   lf   ; Key is only for documentation.
+>f691	5b f7				        .word   kill   ; Key is only for documentation.
+>f693	f9 f6				        .word   ff   ; Key is only for documentation.
+>f695	de f6				        .word   cr   ; Key is only for documentation.
+>f697	19 f7				        .word   down   ; Key is only for documentation.
+>f699	9d f6				        .word   ignore   ; Key is only for documentation.
+>f69b	11 f7				        .word   up   ; Key is only for documentation.
+
+.f69d	60		rts		ignore  rts
+
+					ctrl    .macro  key, function
+					        .endm
+
+.f69e					cbm
+					      ; Slower, but I can far-jump
+.f69e	a2 00		ldx #$00	        ldx     #0
+.f6a0	dd b2 f6	cmp $f6b2,x	_loop   cmp     _table,x
+.f6a3	f0 0a		beq $f6af	        beq     _found
+.f6a5	e8		inx		        inx
+.f6a6	e8		inx		        inx
+.f6a7	e8		inx		        inx
+.f6a8	e0 18		cpx #$18	        cpx     #_end
+.f6aa	d0 f4		bne $f6a0	        bne     _loop
+.f6ac	4c 7e f7	jmp $f77e	        jmp     set_color   ; maybe it's a color command
+
+.f6af	7c b3 f6	jmp ($f6b3,x)	_found  jmp     (_table+1,x)
+
+.f6b2					_table
+>f6b2	11				        .byte   $11
+>f6b3	19 f7				        .word   down
+>f6b5	12				        .byte   $12
+>f6b6	ca f6				        .word   reverse
+>f6b8	13				        .byte   $13
+>f6b9	fc f6				        .word   home
+>f6bb	14				        .byte   $14
+>f6bc	38 f7				        .word   backspace
+>f6be	1d				        .byte   $1d
+>f6bf	08 f7				        .word   right
+
+>f6c1	d3				        .byte   $d3
+>f6c2	ab f5				        .word   cls
+>f6c4	93				        .byte   $93
+>f6c5	fc f6				        .word   home
+>f6c7	91				        .byte   $91
+>f6c8	dd f6				        .word   lf
+=24					_end    = * - _table
+
+					entry   .macro  code, function
+					        .endm
+
+.f6ca					reverse
+.f6ca	64 ca		stz $ca		        stz     scratch
+.f6cc	0a		asl a		        asl     a
+.f6cd	26 ca		rol $ca		        rol     scratch
+.f6cf	0a		asl a		        asl     a
+.f6d0	26 ca		rol $ca		        rol     scratch
+.f6d2	0a		asl a		        asl     a
+.f6d3	26 ca		rol $ca		        rol     scratch
+.f6d5	0a		asl a		        asl     a
+.f6d6	26 ca		rol $ca		        rol     scratch
+.f6d8	05 ca		ora $ca		        ora     scratch
+.f6da	85 c9		sta $c9		        sta     color
+.f6dc	60		rts		        rts
+
+.f6dd	60		rts		lf      rts
+
+.f6de					cr
+.f6de	a4 c5		ldy $c5		        ldy     cur_x
+.f6e0	a9 20		lda #$20	        lda     #32
+.f6e2	91 c7		sta ($c7),y	_loop   sta     (ptr),y
+.f6e4	c8		iny		        iny
+.f6e5	c0 50		cpy #$50	        cpy     #COLS
+.f6e7	90 f9		bcc $f6e2	        bcc     _loop
+.f6e9	64 c5		stz $c5		        stz     cur_x
+.f6eb					_lf
+.f6eb	a4 c6		ldy $c6		        ldy     cur_y
+.f6ed	c8		iny		        iny
+.f6ee	c0 3c		cpy #$3c	        cpy     #ROWS
+.f6f0	d0 03		bne $f6f5	        bne     _out
+.f6f2	4c 67 f7	jmp $f767	        jmp     scroll
+.f6f5					_out
+.f6f5	84 c6		sty $c6		        sty     cur_y
+.f6f7	60		rts		        rts
+
+.f6f8					esc
+.f6f8	60		rts		        rts     ; TODO: vt100 sequences
+
+.f6f9					ff
+.f6f9	4c ab f5	jmp $f5ab	        jmp     cls
+
+.f6fc					home
+.f6fc	64 c5		stz $c5		        stz     cur_x
+.f6fe	64 c6		stz $c6		        stz     cur_y
+.f700	60		rts		        rts
+
+.f701					left
+.f701	a5 c5		lda $c5		        lda     cur_x
+.f703	f0 02		beq $f707	        beq     _out
+.f705	c6 c5		dec $c5		        dec     cur_x
+.f707	60		rts		_out    rts
+
+.f708					right
+.f708	a5 c5		lda $c5		        lda     cur_x
+.f70a	c9 4f		cmp #$4f	        cmp     #COLS-1
+.f70c	b0 02		bcs $f710	        bcs     _out
+.f70e	e6 c5		inc $c5		        inc     cur_x
+.f710	60		rts		_out    rts
+
+.f711					up
+.f711	a5 c6		lda $c6		        lda     cur_y
+.f713	3a		dec a		        dec     a
+.f714	30 02		bmi $f718	        bmi     _out
+.f716	85 c6		sta $c6		        sta     cur_y
+.f718	60		rts		_out    rts
+
+.f719					down
+.f719	a5 c6		lda $c6		        lda     cur_y
+.f71b	1a		inc a		        inc     a
+.f71c	c9 3c		cmp #$3c	        cmp     #ROWS
+.f71e	d0 03		bne $f723	        bne     _okay
+.f720	4c 67 f7	jmp $f767	        jmp     scroll
+.f723	85 c6		sta $c6		_okay   sta     cur_y
+.f725	60		rts		        rts
+
+.f726					begin
+.f726	64 c5		stz $c5		        stz     cur_x
+.f728	60		rts		        rts
+
+.f729					end
+.f729	a0 50		ldy #$50	        ldy     #COLS
+.f72b	88		dey		_loop   dey
+.f72c	f0 06		beq $f734	        beq     _done
+.f72e	b1 c7		lda ($c7),y	        lda     (ptr),y
+.f730	c9 20		cmp #$20	        cmp     #32
+.f732	f0 f7		beq $f72b	        beq     _loop
+.f734	84 c5		sty $c5		_done   sty     cur_x
+.f736	80 d0		bra $f708	        bra     right
+
+.f738					backspace
+.f738	20 01 f7	jsr $f701	        jsr     left
+.f73b	a4 c5		ldy $c5		        ldy     cur_x
+.f73d	a9 20		lda #$20	        lda     #32
+.f73f	91 c7		sta ($c7),y	        sta     (ptr),y
+.f741	60		rts		        rts
+
+.f742					bell
+.f742	60		rts		        rts     ; TODO: flash or support sound
+
+.f743					tab
+.f743	a9 20		lda #$20	        lda     #32
+.f745	20 4f f7	jsr $f74f	        jsr     insert
+.f748	a5 c5		lda $c5		        lda     cur_x
+.f74a	29 03		and #$03	        and     #TABS-1
+.f74c	d0 f5		bne $f743	        bne     tab
+.f74e	60		rts		        rts
+
+.f74f					insert
+					      ; ASCII for the rest
+					      ; Someone else can do PETSCII
+.f74f	a4 c5		ldy $c5		        ldy     cur_x
+.f751	91 c7		sta ($c7),y	        sta     (ptr),y
+.f753	c8		iny		        iny
+.f754	c0 50		cpy #$50	        cpy     #COLS
+.f756	f0 86		beq $f6de	        beq     cr
+.f758	84 c5		sty $c5		        sty     cur_x
+.f75a	60		rts		_done   rts
+
+.f75b					kill
+.f75b	a4 c5		ldy $c5		        ldy     cur_x
+.f75d	a9 20		lda #$20	        lda     #32
+.f75f	91 c7		sta ($c7),y	_loop   sta     (ptr),y
+.f761	c8		iny		        iny
+.f762	c0 50		cpy #$50	        cpy     #COLS
+.f764	d0 f9		bne $f75f	        bne     _loop
+.f766	60		rts		        rts
+
+.f767					scroll
+.f767	a9 c0		lda #$c0	        lda     #$c0
+.f769	85 c0		sta $c0		        sta     src+1
+.f76b	85 c2		sta $c2		        sta     dest+1
+
+.f76d	a9 50		lda #$50	        lda     #80
+.f76f	85 bf		sta $bf		        sta     src
+.f771	64 c1		stz $c1		        stz     dest
+
+.f773	a9 c0		lda #$c0	        lda     #<COLS*(ROWS)
+.f775	85 c3		sta $c3		        sta     count
+.f777	a9 12		lda #$12	        lda     #>COLS*(ROWS)
+.f779	85 c4		sta $c4		        sta     count+1
+
+.f77b	4c 37 f5	jmp $f537	        jmp     long_move
+
+.f77e					set_color
+.f77e	a2 00		ldx #$00	        ldx     #0
+.f780	dd 8e f7	cmp $f78e,x	_loop   cmp     _table,x
+.f783	f0 06		beq $f78b	        beq     _found
+.f785	e8		inx		        inx
+.f786	e0 10		cpx #$10	        cpx     #_end
+.f788	d0 f6		bne $f780	        bne     _loop
+.f78a	60		rts		        rts
+.f78b	86 c9		stx $c9		_found  stx     color
+.f78d	60		rts		        rts
+.f78e					_table
+>f78e	90				        .byte   $90 ; color.black
+>f78f	05				        .byte   $05 ; color.white
+>f790	1c				        .byte   $1c ; color.red
+>f791	9f				        .byte   $9f ; color.cyan
+>f792	9c				        .byte   $9c ; color.violet
+>f793	1e				        .byte   $1e ; color.green
+>f794	1f				        .byte   $1f ; color.blue
+>f795	9e				        .byte   $9e ; color.yellow
+>f796	81				        .byte   $81 ; color.orange
+>f797	95				        .byte   $95 ; color.brown
+>f798	96				        .byte   $96 ; color.lred
+>f799	97				        .byte   $97 ; color.grey1
+>f79a	98				        .byte   $98 ; color.grey2
+>f79b	99				        .byte   $99 ; color.lgreen
+>f79c	9a				        .byte   $9a ; color.blue
+>f79d	9b				        .byte   $9b ; color.grey3
+=16					_end    = * - _table
+
+					            .send
+					            .endn
+					            .endn
+
+
+;******  Processing input file: platform/jr/c64kbd.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; Driver for a VIC20/C264 keyboard connected to the 6522 port.
+
+					            .cpu        "w65c02"
+
+					            .namespace  platform
+					c64kbd      .namespace
+
+
+=$dc01					PRA  =  $dc01  ; CIA#1 (Port Register A)
+=$dc03					DDRA =  $dc03  ; CIA#1 (Data Direction Register A)
+
+=$dc00					PRB  =  $dc00  ; CIA#1 (Port Register B)
+=$dc02					DDRB =  $dc02  ; CIA#1 (Data Direction Register B)
+
+					        .section    kmem
+>03a9					mask    .byte       ?   ; Copy of PRA output
+>03aa					hold    .byte       ?   ; Copy of PRB during processing
+>03ab					bitno   .byte       ?   ; # of the col bit being processed
+					        .send
+
+					        .section    dp  ; So we can branch on bits :).
+>00cb					state:  .fill       8
+					        .send
+
+					        .section    kernel
+
+.f79e					init:
+.f79e	64 01		stz $01		        stz $1
+
+.f7a0	a9 ff		lda #$ff	        lda #$ff    ; CIA#1 port A = outputs
+.f7a2	8d 03 dc	sta $dc03	        sta DDRA
+
+.f7a5	a9 00		lda #$00	        lda #$00    ; CIA#1 port B = inputs
+.f7a7	8d 02 dc	sta $dc02	        sta DDRB
+
+					      ; Init the roll-table
+.f7aa	a9 ff		lda #$ff	        lda     #$ff    ; no key grounded
+.f7ac	a2 07		ldx #$07	        ldx     #7
+.f7ae	95 cb		sta $cb,x	_loop   sta     state,x
+.f7b0	ca		dex		        dex
+.f7b1	10 fb		bpl $f7ae	        bpl     _loop
+.f7b3	60		rts		        rts
+
+.f7b4					scan
+.f7b4	64 01		stz $01		        stz     $1
+.f7b6	a9 7f		lda #$7f	        lda     #$7f
+.f7b8	a2 00		ldx #$00	        ldx     #0
+
+.f7ba					_loop
+.f7ba	8d 01 dc	sta $dc01	        sta     PRA
+.f7bd	8d a9 03	sta $03a9	        sta     mask
+
+.f7c0	ad 00 dc	lda $dc00	        lda     PRB
+.f7c3	8d aa 03	sta $03aa	        sta     hold
+.f7c6	55 cb		eor $cb,x	        eor     state,x
+.f7c8	f0 03		beq $f7cd	        beq     _next
+
+.f7ca	20 d7 f7	jsr $f7d7	        jsr     report
+
+.f7cd					_next
+.f7cd	e8		inx		        inx
+.f7ce	ad a9 03	lda $03a9	        lda     mask
+.f7d1	4a		lsr a		        lsr     a
+.f7d2	09 80		ora #$80	        ora     #$80
+.f7d4	b0 e4		bcs $f7ba	        bcs     _loop
+.f7d6	60		rts		        rts
+
+
+.f7d7					report
+
+					    ; Current state doesn't match last state.
+					    ; Walk the bits and report any new keys.
+
+.f7d7					_loop ; Process any bits that differ between PRB and state,x
+
+					      ; Y->next diff bit to check
+.f7d7	a8		tay		        tay
+.f7d8	b9 00 e5	lda $e500,y	        lda     irq.first_bit,y
+.f7db	8d ab 03	sta $03ab	        sta     bitno
+.f7de	a8		tay		        tay
+
+					      ; Clear the current state for this bit
+.f7df	b9 c5 ed	lda $edc5,y	        lda     irq.bit,y   ; 'A' contains a single diff-bit
+.f7e2	49 ff		eor #$ff	        eor     #$ff
+.f7e4	35 cb		and $cb,x	        and     state,x
+.f7e6	95 cb		sta $cb,x	        sta     state,x
+
+					      ; Report key and update the state
+.f7e8	b9 c5 ed	lda $edc5,y	        lda     irq.bit,y   ; 'A' contains a single diff-bit
+.f7eb	2d aa 03	and $03aa	        and     hold        ; Get the state of this specific bit
+.f7ee	d0 05		bne $f7f5	        bne     _save       ; Key is released; no action.
+.f7f0	48		pha		        pha
+.f7f1	20 01 f8	jsr $f801	        jsr     _report     ; Key is pressed; report it.
+.f7f4	68		pla		        pla
+.f7f5					_save
+					      ; Save the state of the bit
+.f7f5	15 cb		ora $cb,x	        ora     state,x
+.f7f7	95 cb		sta $cb,x	        sta     state,x
+.f7f9					_next
+.f7f9	ad aa 03	lda $03aa	        lda     hold
+.f7fc	55 cb		eor $cb,x	        eor     state,x
+.f7fe	d0 d7		bne $f7d7	        bne     _loop
+
+.f800	60		rts		_done   rts
+
+.f801					_report
+					      ; A = row #
+.f801	8a		txa		        txa     ; Row #
+
+					      ; Bit numbers are the reverse of
+					      ; the table order, so advance one
+					      ; row and then "back up" by bitno.
+.f802	1a		inc a		        inc     a
+
+					      ; A = table offset for row
+.f803	0a		asl a		        asl     a
+.f804	0a		asl a		        asl     a
+.f805	0a		asl a		        asl     a
+
+					      ; A = table entry for key
+.f806	ed ab 03	sbc $03ab	        sbc     bitno
+
+					      ; Y-> table entry
+.f809	a8		tay		        tay
+
+.f80a	b9 2e f8	lda $f82e,y	        lda     keytab,y
+.f80d	c9 5f		cmp #$5f	        cmp     #'_'
+.f80f	f0 1c		beq $f82d	        beq     _out    ; Don't report meta keys
+
+.f811	2f cb 0e	bbr 2,$cb,$f822	        bbr    2,state+0,_ctrl   ; CTRL
+.f814	4f cc 0f	bbr 4,$cc,$f826	        bbr    4,state+1,_shift  ; RSHIFT
+.f817	7f d1 0c	bbr 7,$d1,$f826	        bbr    7,state+6,_shift  ; LSHIFT
+
+.f81a	df cb 02	bbs 5,$cb,$f81f	_alt    bbs    5,state+0,_queue  ; C= (ALT)
+.f81d	09 80		ora #$80	        ora     #$80
+
+.f81f					_queue
+.f81f	4c 5c ea	jmp $ea5c	        jmp     kernel.keyboard.enque
+
+.f822					_ctrl
+.f822	29 1f		and #$1f	        and     #$1f
+.f824	80 f4		bra $f81a	        bra     _alt
+
+.f826					_shift
+.f826	b9 6e f8	lda $f86e,y	        lda     shift,y
+.f829	c9 5f		cmp #$5f	        cmp     #'_'
+.f82b	d0 ed		bne $f81a	        bne     _alt
+
+.f82d	60		rts		_out    rts
+
+					        .enc   "none"
+>f82e	5f 71 5f 20 32 5f 60 31		keytab: .text  "_q_ 2_`1"
+>f836	2f 5e 3d 5f 5f 3b 2a 7e		        .text  "/^=__;*~"
+>f83e	2c 40 3a 2e 2d 6c 70 2b		        .text  ",@:.-lp+"
+>f846	6e 6f 6b 6d 30 6a 69 39		        .text  "nokm0ji9"
+>f84e	76 75 68 62 38 67 79 37		        .text  "vuhb8gy7"
+>f856	78 74 66 63 36 64 72 35		        .text  "xtfc6dr5"
+>f85e	5f 65 73 7a 34 61 77 33		        .text  "_esz4aw3"
+>f866	0e 85 83 81 87 06 0d 08		        .byte  'N'-64, 5+128, 3+128, 1+128, 7+128, 'F'-64, 13, 8
+
+>f86e	5f 51 5f 20 22 5f 7e 21		shift:  .text  "_Q_ ",34,"_~!"
+>f876	3f 5e 3d 5f 5f 5d 2a 7e		        .text  "?^=__]*~"
+>f87e	3c 40 5b 3e 2d 4c 50 2b		        .text  "<@[>-LP+"
+>f886	4e 4f 4b 4d 30 4a 49 29		        .text  "NOKM0JI)"
+>f88e	56 55 48 42 28 47 59 27		        .text  "VUHB(GY'"
+>f896	58 54 46 43 26 44 52 25		        .text  "XTFC&DR%"
+>f89e	5f 45 53 5a 24 41 57 23		        .text  "_ESZ$AW#"
+>f8a6	10 85 83 81 87 02 0d 08		        .byte   'P'-64, 5+128, 3+128, 1+128, 7+128, 'B'-64, 13, 8
+
+					        .send
+					        .endn
+					        .endn
+
+
+;******  Processing input file: platform/jr/FPGA/TinyVicky_Def.asm
+
+					;Internal Tiny VICKY Registers and Internal Memory Locations (LUTs)
+					; IO Page 0
+=$d000					MASTER_CTRL_REG_L	    = $D000
+					;Control Bits Fields
+=$01					Mstr_Ctrl_Text_Mode_En  = $01       ; Enable the Text Mode
+=$02					Mstr_Ctrl_Text_Overlay  = $02       ; Enable the Overlay of the text mode on top of Graphic Mode (the Background Color is ignored)
+=$04					Mstr_Ctrl_Graph_Mode_En = $04       ; Enable the Graphic Mode
+=$08					Mstr_Ctrl_Bitmap_En     = $08       ; Enable the Bitmap Module In Vicky
+=$10					Mstr_Ctrl_TileMap_En    = $10       ; Enable the Tile Module in Vicky
+=$20					Mstr_Ctrl_Sprite_En     = $20       ; Enable the Sprite Module in Vicky
+=$40					Mstr_Ctrl_GAMMA_En      = $40       ; this Enable the GAMMA correction - The Analog and DVI have different color value, the GAMMA is great to correct the difference
+=$80					Mstr_Ctrl_Disable_Vid   = $80       ; This will disable the Scanning of the Video hence giving 100% bandwith to the CPU
+=$d001					MASTER_CTRL_REG_H	    = $D001
+					; Reserved - TBD
+=$d002					VKY_RESERVED_00         = $D002
+=$d003					VKY_RESERVED_01         = $D003
+					;
+=$d004					BORDER_CTRL_REG         = $D004 ; Bit[0] - Enable (1 by default)  Bit[4..6]: X Scroll Offset ( Will scroll Left) (Acceptable Value: 0..7)
+=$01					Border_Ctrl_Enable      = $01
+=$d005					BORDER_COLOR_B          = $D005
+=$d006					BORDER_COLOR_G          = $D006
+=$d007					BORDER_COLOR_R          = $D007
+=$d008					BORDER_X_SIZE           = $D008; X-  Values: 0 - 32 (Default: 32)
+=$d009					BORDER_Y_SIZE           = $D009; Y- Values 0 -32 (Default: 32)
+					; Reserved - TBD
+=$d00a					VKY_RESERVED_02         = $D00A
+=$d00b					VKY_RESERVED_03         = $D00B
+=$d00c					VKY_RESERVED_04         = $D00C
+					; Valid in Graphics Mode Only
+=$d00d					BACKGROUND_COLOR_B      = $D00D ; When in Graphic Mode, if a pixel is "0" then the Background pixel is chosen
+=$d00e					BACKGROUND_COLOR_G      = $D00E
+=$d00f					BACKGROUND_COLOR_R      = $D00F ;
+					; Cursor Registers
+=$d010					VKY_TXT_CURSOR_CTRL_REG = $D010   ;[0] enable [1..2] flash rate [3] no flash
+=$01					Vky_Cursor_Enable       = $01
+=$02					Vky_Cursor_Flash_Rate0  = $02
+=$04					Vky_Cursor_Flash_Rate1  = $04
+=$08					Vky_Cursor_No_Flash     = $08
+=$d011					VKY_TXT_START_ADD_PTR   = $D011   ; This is an offset to change the Starting address of the Text Mode Buffer (in x)
+=$d012					VKY_TXT_CURSOR_CHAR_REG = $D012
+=$d013					VKY_TXT_CURSOR_COLR_REG = $D013
+=$d014					VKY_TXT_CURSOR_X_REG_L  = $D014
+=$d015					VKY_TXT_CURSOR_X_REG_H  = $D015
+=$d016					VKY_TXT_CURSOR_Y_REG_L  = $D016
+=$d017					VKY_TXT_CURSOR_Y_REG_H  = $D017
+					; Line Interrupt
+=$d018					VKY_LINE_IRQ_CTRL_REG   = $D018 ;[0] - Enable Line 0 - WRITE ONLY
+=$d019					VKY_LINE_CMP_VALUE_LO  = $D019 ;Write Only [7:0]
+=$d01a					VKY_LINE_CMP_VALUE_HI  = $D01A ;Write Only [3:0]
+
+=$d018					VKY_PIXEL_X_POS_LO     = $D018 ; This is Where on the video line is the Pixel
+=$d019					VKY_PIXEL_X_POS_HI     = $D019 ; Or what pixel is being displayed when the register is read
+=$d01a					VKY_LINE_Y_POS_LO      = $D01A ; This is the Line Value of the Raster
+=$d01b					VKY_LINE_Y_POS_HI      = $D01B ;
+
+;******  Processing input file: platform/jr/FPGA/interrupt_def.asm
+
+					; Pending Interrupt (Read and Write Back to Clear)
+=$d660					INT_PENDING_REG0 = $D660 ;
+=$d661					INT_PENDING_REG1 = $D661 ;
+=$d662					INT_PENDING_REG2 = $D662 ; NOT USED
+=$d663					INT_PENDING_REG3 = $D663 ; NOT USED
+					; Polarity Set
+=$d664					INT_POL_REG0     = $D664 ;
+=$d665					INT_POL_REG1     = $D665 ;
+=$d666					INT_POL_REG2     = $D666 ;  NOT USED
+=$d667					INT_POL_REG3     = $D667 ; NOT USED
+					; Edge Detection Enable
+=$d668					INT_EDGE_REG0    = $D668 ;
+=$d669					INT_EDGE_REG1    = $D669 ;
+=$d66a					INT_EDGE_REG2    = $D66A ; NOT USED
+=$d66b					INT_EDGE_REG3    = $D66B ; NOT USED
+					; Mask
+=$d66c					INT_MASK_REG0    = $D66C ;
+=$d66d					INT_MASK_REG1    = $D66D ;
+=$d66e					INT_MASK_REG2    = $D66E ; NOT USED
+=$d66f					INT_MASK_REG3    = $D66F ; NOT USED
+					; Interrupt Bit Definition
+					; Register Block 0
+=$01					JR0_INT00_SOF        = $01  ;Start of Frame @ 60FPS
+=$02					JR0_INT01_SOL        = $02  ;Start of Line (Programmable)
+=$04					JR0_INT02_KBD        = $04  ;
+=$08					JR0_INT03_MOUSE      = $08  ;
+=$10					JR0_INT04_TMR0       = $10  ;
+=$20					JR0_INT05_TMR1       = $20  ;Real-Time Clock Interrupt
+=$40					JR0_INT06_DMA        = $40  ;Floppy Disk Controller
+=$80					JR0_INT07_TBD        = $80  ; Mouse Interrupt (INT12 in SuperIO IOspace)
+					; Register Block 1
+=$01					JR1_INT00_UART       = $01  ;Keyboard Interrupt
+=$02					JR1_INT01_COL0       = $02  ;TYVKY Collision TBD
+=$04					JR1_INT02_COL1       = $04  ;TYVKY Collision TBD
+=$08					JR1_INT03_COL2       = $08  ;TYVKY Collision TBD
+=$10					JR1_INT04_RTC        = $10  ;Serial Port 1
+=$20					JR1_INT05_VIA        = $20  ;Midi Controller Interrupt
+=$40					JR1_INT06_IEC        = $40  ;Parallel Port
+=$80					JR1_INT07_SDCARD     = $80  ;SDCard Insert
+
+
+;******  Processing input file: hardware/hardware.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					hardware    .namespace
+					            .endn
+
+
+
+;******  Processing input file: hardware/i8042.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; This file is from the w6502c TinyCore kernel by the same author.
+
+					            .cpu        "w65c02"
+
+					            .namespace  hardware
+
+					i8042       .macro      BASE = $D640
+					            .endm
+					            .endn
+
+
+;******  Processing input file: hardware/ps2.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; This file borrows from the w6502c TinyCore kernel by the same author.
+
+					            .cpu        "w65c02"
+
+					            .namespace  hardware
+
+					ps2         .namespace
+
+					self        .namespace
+					            .virtual    DevState
+>0500					dummy       .word       ?   ; TODO: Crazy?
+>0502					upper       .byte       ?       ; upper handler
+>0503					irq         .byte       ?       ; IRQ vector
+>0504					port        .byte       ?       ; PS2 port (0/1)
+>0505					state       .byte       ?       ; State machine state.
+>0506					wait        .byte       ?       ; starting tick
+>0507					rx1         .byte       ?       ; least recent auto-detect byte
+>0508					rx2         .byte       ?       ; middle auto-detect byte
+>0509					rx3         .byte       ?       ; most recent auto-detect byte
+					            .endv
+					            .endn
+
+					            .section    kernel
+
+.f8ae					vectors
+>f8ae	4d f9				            .word   dev_data
+>f8b0	4b f9				            .word   dev_status
+>f8b2	4b f9				            .word   dev_fetch
+>f8b4	dc f8				            .word   dev_open
+>f8b6	4b f9				            .word   dev_get
+>f8b8	4b f9				            .word   dev_set
+>f8ba	4b f9				            .word   dev_send
+>f8bc	45 f9				            .word   dev_close
+
+.f8be					init
+					    ; A = upper,  Y = IRQ
+					    ; X <- initialized device, or carry set on error
+
+.f8be	20 ce ea	jsr $eace	            jsr     kernel.device.alloc
+.f8c1	b0 18		bcs $f8db	            bcs     _out
+
+.f8c3	9d 02 05	sta $0502,x	            sta     self.upper,x
+.f8c6	98		tya		            tya
+.f8c7	9d 03 05	sta $0503,x	            sta     self.irq,x
+
+.f8ca	38		sec		            sec
+.f8cb	e9 02		sbc #$02	            sbc     #irq.ps2_0
+.f8cd	9d 04 05	sta $0504,x	            sta     self.port,x
+
+.f8d0	a9 ae		lda #$ae	            lda     #<vectors
+.f8d2	85 a5		sta $a5		            sta     kernel.src
+.f8d4	a9 f8		lda #$f8	            lda     #>vectors
+.f8d6	85 a6		sta $a6		            sta     kernel.src+1
+.f8d8	20 eb ea	jsr $eaeb	            jsr     kernel.device.install
+
+.f8db	60		rts		_out        rts
+
+.f8dc					dev_open
+
+.f8dc	9e 07 05	stz $0507,x	            stz     self.rx1,x
+.f8df	9e 08 05	stz $0508,x	            stz     self.rx2,x
+.f8e2	9e 09 05	stz $0509,x	            stz     self.rx3,x
+.f8e5	20 04 fa	jsr $fa04	            jsr     hardware.kbd1.init
+.f8e8	20 e0 fa	jsr $fae0	            jsr     hardware.kbd2.init
+
+					          ; Wait for reset success
+.f8eb	a9 00		lda #$00	            lda     #state.reset
+.f8ed	9e 05 05	stz $0505,x	            stz     self.state,x
+
+					          ; Install our IRQ handler
+.f8f0	8a		txa		            txa
+.f8f1	bc 03 05	ldy $0503,x	            ldy     self.irq,x
+.f8f4	20 cd ed	jsr $edcd	            jsr     irq.install
+
+					          ; Enable our IRQ
+.f8f7	bd 03 05	lda $0503,x	            lda     self.irq,x
+.f8fa	20 d5 ed	jsr $edd5	            jsr     irq.enable
+
+.f8fd	da		phx		            phx
+.f8fe	8a		txa		            txa
+.f8ff	a8		tay		            tay
+
+					          ; Enable the port and interrupts
+.f900	5a		phy		            phy
+.f901	b9 02 05	lda $0502,y	            lda     self.upper,y
+.f904	aa		tax		            tax
+.f905	b9 04 05	lda $0504,y	            lda     self.port,y
+.f908	a8		tay		            tay
+.f909	20 b3 ea	jsr $eab3	            jsr     kernel.device.set
+.f90c	7a		ply		            ply
+.f90d	b0 24		bcs $f933	            bcs     _out
+
+					          ; Send a reset
+.f90f	a9 ff		lda #$ff	            lda     #$ff    ; Reset
+.f911	20 35 f9	jsr $f935	            jsr     send_cmd
+.f914	b0 1d		bcs $f933	            bcs     _out
+
+					          ; Wait for the state to change
+.f916	a5 a3		lda $a3		            lda     kernel.ticks
+.f918	99 06 05	sta $0506,y	            sta     self.wait,y
+.f91b	b9 05 05	lda $0505,y	_loop       lda     self.state,y
+.f91e	c9 00		cmp #$00	            cmp     #state.reset
+.f920	18		clc		            clc
+.f921	d0 10		bne $f933	            bne     _out
+.f923	20 00 e6	jsr $e600	            jsr     kernel.thread.yield
+.f926	a5 a3		lda $a3		            lda     kernel.ticks
+.f928	38		sec		            sec
+.f929	f9 06 05	sbc $0506,y	            sbc     self.wait,y
+.f92c	c9 b4		cmp #$b4	            cmp     #60*3
+.f92e	90 eb		bcc $f91b	            bcc     _loop
+
+					          ; Ugh, no response ... just send some enables.
+.f930	20 82 f9	jsr $f982	            jsr     report
+
+.f933	fa		plx		_out        plx
+.f934	60		rts		            rts
+
+.f935					send_cmd
+.f935	5a		phy		            phy
+.f936	48		pha		            pha
+
+.f937	b9 02 05	lda $0502,y	            lda     self.upper,y
+.f93a	aa		tax		            tax
+
+.f93b	b9 04 05	lda $0504,y	            lda     self.port,y
+.f93e	a8		tay		            tay
+
+.f93f	68		pla		            pla
+.f940	20 b6 ea	jsr $eab6	            jsr     kernel.device.send
+.f943	7a		ply		            ply
+
+.f944	60		rts		            rts
+
+.f945					dev_close
+.f945	bd 03 05	lda $0503,x	            lda     self.irq,x
+.f948	4c f7 ed	jmp $edf7	            jmp     irq.disable
+
+.f94b					dev_get
+.f94b					dev_set
+.f94b					dev_send
+.f94b					dev_status
+.f94b					dev_fetch
+.f94b	18		clc		            clc
+.f94c	60		rts		            rts
+
+.f94d					dev_data
+.f94d	8a		txa		            txa
+.f94e	a8		tay		            tay
+
+					          ; Spin the IRQ counter
+					.if false
+					.endif
+.f94f	be 02 05	ldx $0502,y	            ldx     self.upper,y
+.f952	20 b0 ea	jsr $eab0	            jsr     kernel.device.get
+
+.f955	be 05 05	ldx $0505,y	            ldx     self.state,y
+.f958	e0 0c		cpx #$0c	    cpx #state.end
+.f95a	90 02		bcc $f95e	    bcc _ok
+.f95c	a2 00		ldx #$00	    ldx #0
+.f95e					_ok
+.f95e	7c 61 f9	jmp ($f961,x)	            jmp     (_table,x)
+
+.f961					_table      .dstruct    state
+>f961	6d f9				reset       .word   wait_reset
+>f963	8c f9				ack         .word   wait_ack
+>f965	9b f9				data        .word   wait_data
+>f967	fb f9				kbd1        .word   state_kbd1      ; Mode-1 keyboard state machine
+>f969	ff f9				kbd2        .word   state_kbd2      ; Mode-2 keyboard state machine
+>f96b	03 fa				mouse0      .word   state_mouse0    ; Original 3-byte state machine
+.f96d					end         .ends
+
+.0000					state       .struct
+>0000	6d f9				reset       .word   wait_reset
+>0002	8c f9				ack         .word   wait_ack
+>0004	9b f9				data        .word   wait_data
+>0006	fb f9				kbd1        .word   state_kbd1      ; Mode-1 keyboard state machine
+>0008	ff f9				kbd2        .word   state_kbd2      ; Mode-2 keyboard state machine
+>000a	03 fa				mouse0      .word   state_mouse0    ; Original 3-byte state machine
+.000c					end         .ends
+
+
+
+.f96d					wait_reset
+					    ; Whatever we got, advance
+.f96d	4c 82 f9	jmp $f982	            jmp     report
+
+
+.f970	c9 aa		cmp #$aa	            cmp     #$aa        ; self test passed
+.f972	f0 0e		beq $f982	            beq     report
+
+.f974	c9 fc		cmp #$fc	            cmp     #$fc
+.f976	f0 09		beq $f981	            beq     _done   ; Reset failed, wait for user.
+.f978	c9 fd		cmp #$fd	            cmp     #$fd
+.f97a	f0 05		beq $f981	            beq     _done   ; Reset failed, wait for user.
+
+.f97c	a9 ff		lda #$ff	            lda     #$ff        ; reset
+.f97e	4c 35 f9	jmp $f935	            jmp     send_cmd    ; Resend requested
+
+.f981	60		rts		_done       rts
+
+.f982					report
+.f982	a9 04		lda #$04	            lda     #state.data
+.f984	99 05 05	sta $0505,y	            sta     self.state,y
+
+					          ; Request reporting
+.f987	a9 f4		lda #$f4	            lda     #$f4    ; Enable reporting
+.f989	4c 35 f9	jmp $f935	            jmp     send_cmd
+
+.f98c					wait_ack
+.f98c	c9 fa		cmp #$fa	            cmp     #$fa
+.f98e	f0 05		beq $f995	            beq     _next
+
+.f990	a9 d4		lda #$d4	            lda     #$d4
+.f992	4c 35 f9	jmp $f935	            jmp     send_cmd
+
+.f995	a9 04		lda #$04	_next       lda     #state.data
+.f997	99 05 05	sta $0505,y	            sta     self.state,y
+.f99a	60		rts		            rts
+
+.f99b					wait_data
+.f99b	80 03		bra $f9a0	            bra     wait_auto
+
+.f99d	c9 aa		cmp #$aa	            cmp     #$aa
+					            ;beq     report ; Hot-plug event
+.f99f	60		rts		            rts
+
+
+
+.f9a0					wait_auto
+.f9a0	48		pha		            pha
+.f9a1	b9 08 05	lda $0508,y	            lda     self.rx2,b,y
+.f9a4	99 07 05	sta $0507,y	            sta     self.rx1,b,y
+.f9a7	b9 09 05	lda $0509,y	            lda     self.rx3,b,y
+.f9aa	99 08 05	sta $0508,y	            sta     self.rx2,b,y
+.f9ad	68		pla		            pla
+.f9ae	99 09 05	sta $0509,y	            sta     self.rx3,b,y
+					.if false
+					.endif
+					          ; Mode2 keyboard?
+.f9b1	b9 08 05	lda $0508,y	_check2     lda     self.rx2,b,y
+.f9b4	c9 f0		cmp #$f0	            cmp     #$f0    ; release
+.f9b6	d0 08		bne $f9c0	            bne     _not2
+.f9b8	b9 07 05	lda $0507,y	            lda     self.rx1,b,y
+.f9bb	d9 09 05	cmp $0509,y	            cmp     self.rx3,b,y
+.f9be	f0 1d		beq $f9dd	            beq     _mode2
+.f9c0	ea		nop		_not2       nop
+
+					          ; Mouse?
+.f9c1	b9 07 05	lda $0507,y	            lda     self.rx1,b,y
+.f9c4	29 cf		and #$cf	            and     #$cf
+.f9c6	49 08		eor #$08	            eor     #$08
+.f9c8	f0 2b		beq $f9f5	            beq     _mouse
+
+.f9ca	60		rts		_out        rts
+
+.f9cb					_mode1
+					          ; Switch to the mode1 machine
+.f9cb	a9 06		lda #$06	            lda     #state.kbd1
+.f9cd	99 05 05	sta $0505,y	            sta     self.state,b,y
+
+					          ; Forward the last keypress to the machine.
+.f9d0	b9 08 05	lda $0508,y	            lda     self.rx2,b,y
+.f9d3	20 fb f9	jsr $f9fb	            jsr     state_kbd1
+.f9d6	b9 09 05	lda $0509,y	            lda     self.rx3,b,y
+.f9d9	20 fb f9	jsr $f9fb	            jsr     state_kbd1
+
+.f9dc	60		rts		            rts
+.f9dd					_mode2
+					          ; Switch to the mode2 machine.
+.f9dd	a9 08		lda #$08	            lda     #state.kbd2
+.f9df	99 05 05	sta $0505,y	            sta     self.state,b,y
+
+					          ; Forward the last keypress to the mode2 machine.
+.f9e2	b9 07 05	lda $0507,y	            lda     self.rx1,b,y
+.f9e5	20 ff f9	jsr $f9ff	            jsr     state_kbd2
+.f9e8	b9 08 05	lda $0508,y	            lda     self.rx2,b,y
+.f9eb	20 ff f9	jsr $f9ff	            jsr     state_kbd2
+.f9ee	b9 09 05	lda $0509,y	            lda     self.rx3,b,y
+.f9f1	20 ff f9	jsr $f9ff	            jsr     state_kbd2
+
+.f9f4	60		rts		            rts
+
+.f9f5					_mouse
+					          ; Discard the detected movement;
+					          ; switch to standard 3-byte mouse machine.
+.f9f5	a9 0a		lda #$0a	            lda     #state.mouse0
+.f9f7	99 05 05	sta $0505,y	            sta     self.state,b,y
+.f9fa	60		rts		            rts
+
+.f9fb					state_kbd1
+					        ; Replace with a local state machine.
+.f9fb	20 15 fa	jsr $fa15	            jsr     hardware.kbd1.accept
+.f9fe	60		rts		            rts
+
+.f9ff					state_kbd2
+					        ; Replace with a local state machine.
+.f9ff	20 20 fb	jsr $fb20	            jsr     hardware.kbd2.accept
+.fa02	60		rts		            rts
+
+.fa03					state_mouse0
+					        ; Just drop the byte for now
+.fa03	60		rts		            rts
+
+
+					            .send
+					            .endn
+					            .endn
+
+
+;******  Processing input file: hardware/ps2_kbd1.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; This file is from the w6502c TinyCore kernel by the same author.
+
+					        .cpu    "w65c02"
+
+					        .namespace hardware
+
+					kbd1    .namespace
+
+					        .section    kmem
+>03ac					e0      .byte   ?
+>03ad					flags   .fill   32
+					        .send
+
+					        .section kernel
+
+.fa04					init:
+.fa04	9c ac 03	stz $03ac	        stz e0
+.fa07	da		phx		        phx
+.fa08	a2 00		ldx #$00	        ldx #0
+.fa0a	9e ad 03	stz $03ad,x	_loop   stz flags,x
+.fa0d	e8		inx		        inx
+.fa0e	e0 20		cpx #$20	        cpx #32
+.fa10	d0 f8		bne $fa0a	        bne _loop
+.fa12	fa		plx		        plx
+.fa13	18		clc		        clc
+.fa14	60		rts		        rts
+
+.fa15					accept:
+.fa15	ae ac 03	ldx $03ac	        ldx e0
+.fa18	d0 3d		bne $fa57	        bne _e0_key
+
+.fa1a	c9 e0		cmp #$e0	        cmp #$e0
+.fa1c	f0 35		beq $fa53	        beq _set_e0
+
+.fa1e	a8		tay		        tay         ; Stash the release flag.
+.fa1f	29 7f		and #$7f	        and #$7f    ; Clear the release flag.
+
+.fa21	aa		tax		        tax
+.fa22	bd 5b fa	lda $fa5b,x	        lda mode1,x
+.fa25	f0 2f		beq $fa56	        beq _done   ; Unknown code; drop.
+
+.fa27	aa		tax		        tax         ; Save translated value.
+.fa28	29 f0		and #$f0	        and #$f0    ; Get code set.
+
+.fa2a	c0 00		cpy #$00	        cpy #0
+.fa2c	30 1f		bmi $fa4d	        bmi _release
+
+.fa2e	c9 10		cmp #$10	        cmp #$10
+.fa30	f0 17		beq $fa49	        beq _flags
+.fa32	8a		txa		        txa
+
+.fa33					_send
+.fa33	a2 02		ldx #$02	        ldx #2
+.fa35	86 01		stx $01		        stx $1
+.fa37	8d 1f c0	sta $c01f	        sta $c01f
+.fa3a	64 01		stz $01		        stz $1
+.fa3c	20 5c ea	jsr $ea5c	        jsr     kernel.keyboard.enque
+.fa3f	60		rts		        rts
+
+>fa40	01 01 02 02 04 04 08 08		_meta   .byte 1,1,2,2,4,4,8,8,1
+>fa48	01
+
+.fa49	9d ad 03	sta $03ad,x	_flags  sta flags,x
+.fa4c	60		rts		        rts
+
+.fa4d					_release
+.fa4d	38		sec		        sec
+.fa4e	e9 10		sbc #$10	        sbc #$10
+.fa50	f0 f7		beq $fa49	        beq _flags
+.fa52	60		rts		        rts
+
+.fa53	8d ac 03	sta $03ac	_set_e0 sta e0
+.fa56	60		rts		_done   rts
+
+.fa57	9c ac 03	stz $03ac	_e0_key stz e0
+.fa5a	60		rts		        rts
+
+
+
+.fa5b					mode1
+>fa5b	00 1b 31 32 33 34 35 36		        .byte   0, ESC, '1', '2', '3', '4', '5', '6'
+>fa63	37 38 39 30 2d 3d 08 09		        .byte   '7', '8', '9', '0', '-', '=', BKSP, TAB
+>fa6b	71 77 65 72 74 79 75 69		        .byte   'q', 'w', 'e', 'r', 't', 'y', 'u', 'i'
+>fa73	6f 70 5b 5d 0d 12 61 73		        .byte   'o', 'p', '[', ']', RETURN, LCTRL, 'a', 's'
+>fa7b	64 66 67 68 6a 6b 6c 3b		        .byte   'd', 'f', 'g', 'h', 'j', 'k', 'l', ';'
+>fa83	27 60 10 5c 7a 78 63 76		        .byte   "'", '`', LSHIFT, '\', 'z', 'x', 'c', 'v'
+>fa8b	62 6e 6d 2c 2e 2f 11 ac		        .byte   'b', 'n', 'm', ',', '.', '/', RSHIFT, KTIMES
+>fa93	14 20 18 81 82 83 84 85		        .byte   LALT, ' ', CAPS, F1, F2, F3, F4, F5
+>fa9b	86 87 88 89 8a b0 9d a7		        .byte   F6, F7, F8, F9, F10, NUM, SCROLL, K7
+>faa3	a8 a9 ab a4 a5 a6 aa a1		        .byte   K8, K9, KMINUS, K4, K5, K6, KPLUS, K1
+>faab	a2 a3 a0 ae 9e 00 00 8b		        .byte   K2, K3, K0, KPOINT, SYSREQ, 0, 0, F11
+>fab3	8c				        .byte   F12
+.fab4					mode1_end
+
+.fab4					e0_table
+>fab4	1c af				        .byte   $1c, KENTER
+>fab6	1d 13				        .byte   $1d, RCTRL
+>fab8	35 ad				        .byte   $35, KDIV
+>faba	37 b4				        .byte   $37, PRTSCR
+>fabc	38 15				        .byte   $38, RALT
+>fabe	46 9f				        .byte   $46, BREAK
+>fac0	47 96				        .byte   $47, HOME
+>fac2	48 99				        .byte   $48, UP
+>fac4	49 94				        .byte   $49, PUP
+>fac6	4b 9b				        .byte   $4b, LEFT
+>fac8	4d 9c				        .byte   $4d, RIGHT
+>faca	4f 97				        .byte   $4f, END
+>facc	50 9a				        .byte   $50, DOWN
+>face	51 95				        .byte   $51, PDN
+>fad0	52 98				        .byte   $52, INS
+>fad2	53 04				        .byte   $53, DEL
+>fad4	5b 16				        .byte   $5b, LMETA
+>fad6	5c 17				        .byte   $5c, RMETA
+>fad8	5d b5				        .byte   $5d, MENU
+>fada	5e b1				        .byte   $5e, POWER
+>fadc	5f b2				        .byte   $5f, SLEEP
+>fade	63 b3				        .byte   $63, WAKE
+
+					; 126	72	e1-1d-45	e1-11-0b	e1-14-77	e1-1d-45	62	77	Pause
+
+					        .send
+					        .endn
+					        .endn
+
+
+;******  Processing input file: hardware/ps2_kbd2.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; This file is from the w6502c TinyCore kernel by the same author.
+
+					        .cpu    "w65c02"
+
+					        .namespace  hardware
+
+					kbd2    .namespace
+
+					            .section    kmem
+>03cd					e0          .byte   ?
+>03ce					release     .byte   ?
+>03cf					flags:      .fill 32
+
+					            .send
+
+					            .section kernel
+
+.fae0					init
+.fae0	9c cd 03	stz $03cd	            stz     e0
+.fae3	9c ce 03	stz $03ce	            stz     release
+.fae6	da		phx		        phx
+.fae7	a2 00		ldx #$00	        ldx #0
+.fae9	9e cf 03	stz $03cf,x	_loop   stz flags,x
+.faec	e8		inx		        inx
+.faed	e0 20		cpx #$20	        cpx #32
+.faef	d0 f8		bne $fae9	        bne _loop
+.faf1	fa		plx		        plx
+.faf2	18		clc		        clc
+.faf3	60		rts		            rts
+
+.faf4					search
+					    ; Map keys prefixed with $e0.
+.faf4	a2 00		ldx #$00	            ldx     #0
+.faf6	dd 08 fb	cmp $fb08,x	_loop       cmp     _etab,x
+.faf9	f0 09		beq $fb04	            beq     _found
+.fafb	e8		inx		            inx
+.fafc	e8		inx		            inx
+.fafd	e0 18		cpx #$18	            cpx     #_end
+.faff	d0 f5		bne $faf6	            bne     _loop
+.fb01	a9 00		lda #$00	            lda #0  ; Ignore for the moment
+.fb03	60		rts		            rts
+
+.fb04	bd 09 fb	lda $fb09,x	_found      lda     _etab+1,x
+.fb07	60		rts		            rts
+
+.fb08					_etab
+>fb08	14 13				            .byte   $14, RCTRL
+>fb0a	6c 96				            .byte   $6c, HOME
+>fb0c	70 98				            .byte   $70, INS
+>fb0e	74 9c				            .byte   $74, RIGHT
+>fb10	11 15				            .byte   $11, RALT
+>fb12	69 97				            .byte   $69, END
+>fb14	71 04				            .byte   $71, DEL
+>fb16	75 99				            .byte   $75, UP
+>fb18	7d 94				            .byte   $7d, PUP
+>fb1a	72 9a				            .byte   $72, DOWN
+>fb1c	7a 95				            .byte   $7a, PDN
+>fb1e	6b 9b				            .byte   $6b, LEFT
+=24					_end        = * - _etab
+
+.fb20					accept:
+.fb20	c9 f0		cmp #$f0	            cmp #$f0
+.fb22	f0 35		beq $fb59	            beq _release
+
+.fb24	c9 e0		cmp #$e0	            cmp #$e0
+.fb26	f0 35		beq $fb5d	            beq _e0
+
+.fb28	c9 e1		cmp #$e1	            cmp #$e1
+.fb2a	f0 48		beq $fb74	            beq _send
+
+.fb2c	c9 84		cmp #$84	            cmp #$84
+.fb2e	b0 1d		bcs $fb4d	            bcs _drop
+
+.fb30	ae cd 03	ldx $03cd	            ldx e0,b
+.fb33	f0 05		beq $fb3a	            beq _std
+.fb35	20 f4 fa	jsr $faf4	            jsr search
+.fb38	80 04		bra $fb3e	            bra _code
+.fb3a					_std
+.fb3a	aa		tax		            tax
+.fb3b	bd fb fb	lda $fbfb,x	            lda keymap,b,x
+
+.fb3e	ae ce 03	ldx $03ce	_code       ldx release
+.fb41	f0 1e		beq $fb61	            beq _press
+
+					            ; Clear mode flags
+.fb43	aa		tax		            tax
+.fb44	29 f0		and #$f0	            and #$f0
+.fb46	c9 10		cmp #$10	            cmp #16
+.fb48	d0 03		bne $fb4d	            bne _drop
+.fb4a	9e cf 03	stz $03cf,x	            stz flags,b,x
+
+.fb4d	9c cd 03	stz $03cd	_drop       stz e0,b
+.fb50	9c ce 03	stz $03ce	            stz release,b
+.fb53	60		rts		            rts
+
+.fb54	20 f4 fa	jsr $faf4	_search     jsr     search
+.fb57	80 e5		bra $fb3e	            bra     _code
+
+
+.fb59	8d ce 03	sta $03ce	_release    sta release,b
+.fb5c	60		rts		            rts
+
+.fb5d	8d cd 03	sta $03cd	_e0         sta e0,b
+.fb60	60		rts		            rts
+
+.fb61	20 4d fb	jsr $fb4d	_press      jsr _drop
+.fb64	aa		tax		            tax
+.fb65	29 f0		and #$f0	            and #$f0
+.fb67	c9 10		cmp #$10	            cmp #16
+.fb69	d0 04		bne $fb6f	            bne _key
+.fb6b	9d cf 03	sta $03cf,x	            sta flags,b,x
+.fb6e	60		rts		            rts
+
+.fb6f	8a		txa		_key        txa
+.fb70	c9 00		cmp #$00	            cmp #0
+.fb72	f0 06		beq $fb7a	            beq _end
+.fb74	20 7b fb	jsr $fb7b	_send       jsr _flags
+
+					.if false
+					.endif
+.fb77	20 5c ea	jsr $ea5c	            jsr kernel.keyboard.enque
+
+.fb7a	60		rts		_end        rts
+
+.fb7b	48		pha		_flags      pha
+.fb7c	a9 00		lda #$00	            lda #0
+.fb7e	a2 00		ldx #$00	            ldx #0
+.fb80	bc df 03	ldy $03df,x	_loop       ldy flags+16,b,x
+.fb83	f0 03		beq $fb88	            beq _next
+.fb85	1d 98 fb	ora $fb98,x	            ora _meta,b,x
+.fb88	e8		inx		_next       inx
+.fb89	e0 09		cpx #$09	            cpx #9
+.fb8b	d0 f3		bne $fb80	            bne _loop
+.fb8d	ba		tsx		            tsx
+.fb8e	89 02		bit #$02	            bit #2
+.fb90	d0 0f		bne $fba1	            bne _ctrl
+.fb92	89 01		bit #$01	            bit #1
+.fb94	d0 15		bne $fbab	            bne _shift
+.fb96	68		pla		_out        pla
+.fb97	60		rts		            rts
+>fb98	01 01 02 02 04 04 08 08		_meta       .byte 1,1,2,2,4,4,8,8,1
+>fba0	01
+.fba1	bd 01 01	lda $0101,x	_ctrl       lda Stack+1,x
+.fba4	29 1f		and #$1f	            and #$1f
+.fba6	9d 01 01	sta $0101,x	            sta Stack+1,x
+.fba9	80 eb		bra $fb96	            bra _out
+.fbab	bd 01 01	lda $0101,x	_shift      lda Stack+1,x
+.fbae	20 b6 fb	jsr $fbb6	            jsr shift
+.fbb1	9d 01 01	sta $0101,x	            sta Stack+1,x
+.fbb4	80 e0		bra $fb96	            bra _out
+
+.fbb6					shift
+.fbb6	c9 61		cmp #$61	            cmp #'a'
+.fbb8	90 07		bcc $fbc1	            bcc _find
+.fbba	c9 7b		cmp #$7b	            cmp #'z'+1
+.fbbc	b0 03		bcs $fbc1	            bcs _find
+.fbbe	49 20		eor #$20	            eor #$20
+.fbc0	60		rts		            rts
+.fbc1					_find
+.fbc1	a0 00		ldy #$00	            ldy #0
+.fbc3	d9 d3 fb	cmp $fbd3,y	_loop       cmp _map,y
+.fbc6	f0 07		beq $fbcf	            beq _found
+.fbc8	c8		iny		            iny
+.fbc9	c8		iny		            iny
+.fbca	c0 28		cpy #$28	            cpy #_end
+.fbcc	d0 f5		bne $fbc3	            bne _loop
+.fbce	60		rts		            rts
+.fbcf	b9 d4 fb	lda $fbd4,y	_found      lda _map+1,y
+.fbd2	60		rts		            rts
+.fbd3					_map
+>fbd3	31 21				            .byte   '1', '!'
+>fbd5	32 40				            .byte   '2', '@'
+>fbd7	33 23				            .byte   '3', '#'
+>fbd9	34 24				            .byte   '4', '$'
+>fbdb	35 25				            .byte   '5', '%'
+>fbdd	36 5e				            .byte   '6', '^'
+>fbdf	37 26				            .byte   '7', '&'
+>fbe1	38 2a				            .byte   '8', '*'
+>fbe3	39 28				            .byte   '9', '('
+>fbe5	30 29				            .byte   '0', ')'
+>fbe7	2d 5f				            .byte   '-', '_'
+>fbe9	3d 2b				            .byte   '=', '+'
+
+>fbeb	5b 7b				            .byte   '[', '{'
+>fbed	5d 7d				            .byte   ']', '}'
+>fbef	5c 7c				            .byte   $5c, '|'
+
+>fbf1	3b 3a				            .byte   ';', ':'
+>fbf3	27 22				            .byte   $27, $22
+
+>fbf5	2c 3c				            .byte   ',', '<'
+>fbf7	2e 3e				            .byte   '.', '>'
+>fbf9	2f 3f				            .byte   '/', '?'
+
+=40					_end        = * - _map
+
+
+
+.fbfb					keymap:
+
+>fbfb	00 89 00 85 83 81 82 8c		            .byte 0, F9, 0, F5, F3, F1, F2, F12
+>fc03	00 8a 88 86 84 09 60 00		            .byte 0, F10, F8, F6, F4, 9, '`', 0
+>fc0b	00 14 10 00 12 71 31 00		            .byte 0, LALT, LSHIFT, 0, LCTRL, 'q', '1', 0
+>fc13	00 00 7a 73 61 77 32 00		            .byte 0, 0, 'z', 's', 'a', 'w', '2', 0
+>fc1b	00 63 78 64 65 34 33 00		            .byte 0, 'c', 'x', 'd', 'e', '4', '3', 0
+>fc23	00 20 76 66 74 72 35 00		            .byte 0, ' ', 'v', 'f', 't', 'r', '5', 0
+>fc2b	00 6e 62 68 67 79 36 00		            .byte 0, 'n', 'b', 'h', 'g', 'y', '6', 0
+>fc33	00 00 6d 6a 75 37 38 00		            .byte 0, 0, 'm', 'j', 'u', '7', '8', 0
+>fc3b	00 2c 6b 69 6f 30 39 00		            .byte 0, ',', 'k', 'i', 'o', '0', '9', 0
+>fc43	00 2e 2f 6c 3b 70 2d 00		            .byte 0, '.', '/', 'l', ';', 'p', '-', 0
+>fc4b	00 00 27 00 5b 3d 00 00		            .byte 0, 0, "'", 0, '[', '=', 0, 0
+>fc53	18 11 0d 5d 00 5c 00 00		            .byte CAPS, RSHIFT, RETURN, ']', 0, '\', 0, 0
+>fc5b	00 00 00 00 00 00 08 00		            .byte 0, 0, 0, 0, 0, 0, BKSP, 0
+>fc63	00 a1 00 a4 a7 00 00 00		            .byte 0, K1, 0, K4, K7, 0, 0, 0
+>fc6b	a0 ae a2 a5 a6 a8 1b b0		            .byte K0, KPOINT, K2, K5, K6, K8, ESC, NUM
+>fc73	8b aa a3 ab ac a9 9d 00		            .byte F11, KPLUS, K3, KMINUS, KTIMES, K9, SCROLL, 0
+>fc7b	00 00 00 87 9e 00 00 00		            .byte 0, 0, 0, F7, SYSREQ, 0, 0, 0, 0
+>fc83	00
+
+					            .send
+					            .endn
+					            .endn
+
+
+;******  Processing input file: hardware/keys.asm
+
+					; OpenKERNAL - a clean-room implementation of the C64's KERNAL ABI.
+					; Copyright 2022 Jessie Oberreuter <Gadget@HackwrenchLabs.com>.
+					; SPDX-License-Identifier: GPL-3.0-only
+
+					; This file is from the w6502c TinyCore kernel by the same author.
+
+=16					LSHIFT  = 16
+=17					RSHIFT  = 17
+=18					LCTRL   = 18
+=19					RCTRL   = 19
+=20					LALT    = 20
+=21					RALT    = 21
+=22					LMETA   = 22
+=23					RMETA   = 23
+=24					CAPS    = 24
+
+=$e1					PAUSE   = $e1
+=129					F1      = 129
+=130					F2      = 130
+=131					F3      = 131
+=132					F4      = 132
+=133					F5      = 133
+=134					F6      = 134
+=135					F7      = 135
+=136					F8      = 136
+=137					F9      = 137
+=138					F10     = 138
+=139					F11     = 139
+=140					F12     = 140
+
+=148					PUP     = 148
+=149					PDN     = 149
+=150					HOME    = 150
+=151					END     = 151
+=152					INS     = 152
+=153					UP      = 153
+=154					DOWN    = 154
+=155					LEFT    = 155
+=156					RIGHT   = 156
+=157					SCROLL  = 157
+=158					SYSREQ  = 158
+=159					BREAK   = 159
+
+=160					K0      = 160
+=161					K1      = 161
+=162					K2      = 162
+=163					K3      = 163
+=164					K4      = 164
+=165					K5      = 165
+=166					K6      = 166
+=167					K7      = 167
+=168					K8      = 168
+=169					K9      = 169
+=170					KPLUS   = 170
+=171					KMINUS  = 171
+=172					KTIMES  = 172
+=173					KDIV    = 173
+=174					KPOINT  = 174
+=175					KENTER  = 175
+=176					NUM     = 176
+
+=177					POWER   = 177
+=178					SLEEP   = 178
+=179					WAKE    = 179
+=180					PRTSCR  = 180
+=181					MENU    = 181
+
+=4					DEL     = 4
+=13					RETURN  = 13
+=27					ESC     = 27
+=9					TAB     = 9
+=8					BKSP    = 8
+
+
+
+;******  End of listing
