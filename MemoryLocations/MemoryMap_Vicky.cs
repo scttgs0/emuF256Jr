@@ -7,14 +7,16 @@
         public const int VICKY_BASE_ADDR = 0xAF_0000;
         public const int GAMMA_CTRL_REG = 0xAF_0002;
 
-        public const int BORDER_CTRL_REG = 0xAF_0004; // border is enabled if bit 0 is 1.
+        public const ushort BORDER_CTRL_REG = 0xD004;          // border is enabled if bit 0 is 1.
+        public const ushort BORDER_COLOR_B = 0xD005;
+        public const ushort BORDER_COLOR_G = 0xD006;
+        public const ushort BORDER_COLOR_R = 0xD007;
+        public const ushort BORDER_X_SIZE = 0xD008;            // X-  Values: 0 - 32 (Default: 32)
+        public const ushort BORDER_Y_SIZE = 0xD009;            // Y- Values 0 -32 (Default: 32)
 
-        public const int BORDER_X_SIZE = 0xAF_0008; // X-  Values: 0 - 32 (Default: 32)
-        public const int BORDER_Y_SIZE = 0xAF_0009; // Y- Values 0 -32 (Default: 32)
-
-        public const int BACKGROUND_COLOR_B = 0xAF_000D; // When in Graphic Mode, if a pixel is "0" then the Background pixel is chosen
-        public const int BACKGROUND_COLOR_G = 0xAF_000E;
-        public const int BACKGROUND_COLOR_R = 0xAF_000F;
+        public const ushort BACKGROUND_COLOR_B = 0xD00D;       // When in Graphic Mode, if a pixel is "0" then the Background pixel is chosen
+        public const ushort BACKGROUND_COLOR_G = 0xD00E;
+        public const ushort BACKGROUND_COLOR_R = 0xD00F;
 
         public const int VKY_TXT_CURSOR_CTRL_REG = 0xAF_0010;
         public const int VKY_TXT_CURSOR_CHAR_REG = 0xAF_0012;

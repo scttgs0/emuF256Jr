@@ -222,7 +222,7 @@ namespace FoenixToolkit.Display
 
             int lineStartAddress = MemoryMap.SCREEN_PAGE0 - VICKY.StartAddress;
             int colorStartAddress = MemoryMap.SCREEN_PAGE1 - VICKY.StartAddress;
-            int fontBaseAddress = MemoryMap.FONT_MEMORY_BANK_START - VICKY.StartAddress;    // TODO: Memory Bank-01
+            int fontBaseAddress = MemoryMap.FONT_MEMORY_BANK_START - VICKY.StartAddress;
 
             // Find which line of characters to display
             int txtline = (line - rowOffset) / CHAR_HEIGHT;
@@ -768,10 +768,10 @@ namespace FoenixToolkit.Display
                 }
 
                 // Default background color to border color
-                // In Text mode, the border color is stored at $AF:0005.
-                byte borderRed = VICKY.ReadByte(5);
+                // In Text mode, the border color is stored at D005:D007.
+                byte borderBlue = VICKY.ReadByte(5);
                 byte borderGreen = VICKY.ReadByte(6);
-                byte borderBlue = VICKY.ReadByte(7);
+                byte borderRed = VICKY.ReadByte(7);
 
                 if (gammaCorrection)
                 {
