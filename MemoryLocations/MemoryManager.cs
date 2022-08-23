@@ -23,14 +23,12 @@ namespace FoenixCore.MemoryLocations
         public KeyboardRegister KEYBOARD = null;
         public SDCardDevice SDCARD = null;
         public InterruptController INTERRUPT = null;
-        public UART UART1 = null;
-        public UART UART2 = null;
+        public UART UART = null;
         public OPL2 OPL2 = null;
         public MPU401 MPU401 = null;
         public VDMA VDMA = null;
         public TimerRegister TIMER0 = null;
         public TimerRegister TIMER1 = null;
-        public TimerRegister TIMER2 = null;
 
         public bool VectorPull = false;
 
@@ -82,13 +80,6 @@ namespace FoenixCore.MemoryLocations
                 return;
             }
 
-            if (Address >= MemoryMap.TIMER2_CTRL_REG && Address <= MemoryMap.TIMER2_CTRL_REG + 7)
-            {
-                Device = TIMER2;
-                DeviceAddress = Address - TIMER2.StartAddress;
-                return;
-            }
-
             if (Address >= RAM.StartAddress && Address <= RAM.StartAddress + RAM.Length - 1)
             {
                 Device = RAM;
@@ -103,17 +94,10 @@ namespace FoenixCore.MemoryLocations
                 return;
             }
 
-            if (Address >= MemoryMap.UART1_REGISTERS && Address < MemoryMap.UART1_REGISTERS + 8)
+            if (Address >= MemoryMap.UART_REGISTERS && Address < MemoryMap.UART_REGISTERS + 8)
             {
-                Device = UART1;
-                DeviceAddress = Address - MemoryMap.UART1_REGISTERS;
-                return;
-            }
-
-            if (Address >= MemoryMap.UART2_REGISTERS && Address < MemoryMap.UART2_REGISTERS + 8)
-            {
-                Device = UART2;
-                DeviceAddress = Address - MemoryMap.UART2_REGISTERS;
+                Device = UART;
+                DeviceAddress = Address - MemoryMap.UART_REGISTERS;
                 return;
             }
 

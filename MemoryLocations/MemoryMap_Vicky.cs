@@ -46,25 +46,6 @@
         public const int FPGA_MOR = 0xAF_070E;
         public const int FPGA_YOR = 0xAF_070F;
 
-        public const int RTC_SEC = 0xAF_0800; // Seconds Register
-        public const int RTC_SEC_ALARM = 0xAF_0801; // Seconds Alarm Register
-        public const int RTC_MIN = 0xAF_0802; // Minutes Register
-        public const int RTC_MIN_ALARM = 0xAF_0803; // Minutes Alarm Register
-        public const int RTC_HRS = 0xAF_0804; // Hours Register
-        public const int RTC_HRS_ALARM = 0xAF_0805; // Hours Alarm Register
-        public const int RTC_DAY = 0xAF_0806; // Day Register
-        public const int RTC_DAY_ALARM = 0xAF_0807; // Day Alarm Register
-        public const int RTC_DOW = 0xAF_0808; // Day of Week Register
-        public const int RTC_MONTH = 0xAF_0809; // Month Register
-        public const int RTC_YEAR = 0xAF_080A; // Year Register
-        public const int RTC_RATES = 0xAF_080B; // Rates Register
-        public const int RTC_ENABLE = 0xAF_080C; // Enables Register
-        public const int RTC_FLAGS = 0xAF_080D; // Flags Register
-        public const int RTC_CTRL = 0xAF_080E; // Control Register
-        public const int RTC_CENTURY = 0xAF_080F; // Century Register
-
-        public const int SUPERIO_START = 0xAF_1000;
-        public const int SUPERIO_END = 0xAF_13FF;
         public const int KBD_DATA_BUF_FMX = 0xAF_1060;     // FMX Keyboard input, output buffer
         public const int KBD_STATUS_PORT_FMX = 0xAF_1064;  // FMX keyboard status port
         public const int KBD_DATA_BUF_U = 0xAF_1803;       // U Keyboard input, output buffer
@@ -73,8 +54,7 @@
         // FDC  - $AF:13F0
         // LPT1 - $AF:1378
 
-        public const int UART1_REGISTERS = 0xAF_13F8;
-        public const int UART2_REGISTERS = 0xAF_12F8;
+        public const int UART_REGISTERS = 0xD630;
 
         // KBD  - $AF:1060
         // GAME - $AF:1200 - Not Connected
