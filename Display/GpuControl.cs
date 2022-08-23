@@ -222,7 +222,7 @@ namespace FoenixToolkit.Display
 
             int lineStartAddress = MemoryMap.SCREEN_PAGE0 - VICKY.StartAddress;
             int colorStartAddress = MemoryMap.SCREEN_PAGE1 - VICKY.StartAddress;
-            int fontBaseAddress = MemoryMap.FONT0_MEMORY_BANK_START - VICKY.StartAddress;
+            int fontBaseAddress = MemoryMap.FONT_MEMORY_BANK_START - VICKY.StartAddress;    // TODO: Memory Bank-01
 
             // Find which line of characters to display
             int txtline = (line - rowOffset) / CHAR_HEIGHT;
@@ -578,7 +578,7 @@ namespace FoenixToolkit.Display
             CharacterSet cs = new();
 
             // Load the data from the file into the  IO buffer - starting at address $AF8000
-            cs.Load(Filename, Offset, VICKY, MemoryMap.FONT0_MEMORY_BANK_START & 0xffff, CharSize);
+            cs.Load(Filename, Offset, VICKY, MemoryMap.FONT_MEMORY_BANK_START & 0xffff, CharSize);
         }
 
         private void on_GpuControl_map(object sender, EventArgs e)

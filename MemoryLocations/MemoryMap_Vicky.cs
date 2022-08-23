@@ -90,8 +90,7 @@
 
         public const int TILESET_BASE_ADDR = 0xAF_0280; // 8 tileset addresses, 4 bytes - 3 bytes address of tileset, 1 byte configuration
 
-        public const int FONT0_MEMORY_BANK_START = 0xAF_8000;
-        public const int FONT1_MEMORY_BANK_START = 0xAF_8800;
+        public const int FONT_MEMORY_BANK_START = 0x1_C000;     // TODO: Memory Bank-01
 
         public const int SCREEN_PAGE0 = 0xAF_A000; // 8192 Bytes First page of display RAM. This is used at boot time to display the welcome screen and the BASIC or MONITOR command screens. 
         public const int SCREEN_PAGE1 = 0xAF_C000; // 8192 Bytes Additional page of display RAM. This can be used for page flipping or to handle multiple edit buffers. 
