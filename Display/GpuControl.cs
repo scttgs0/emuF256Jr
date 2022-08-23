@@ -529,8 +529,8 @@ namespace FoenixToolkit.Display
 
             int pointerAddress =
                 (mouseReg & 2) == 0 ?
-                    MemoryMap.MOUSE_PTR_GRAP0 - MemoryMap.VICKY_BASE_ADDR :
-                    MemoryMap.MOUSE_PTR_GRAP1 - MemoryMap.VICKY_BASE_ADDR;
+                    MemoryMap.MOUSE_PTR0 - MemoryMap.VICKY_BASE_ADDR :
+                    MemoryMap.MOUSE_PTR1 - MemoryMap.VICKY_BASE_ADDR;
 
             for (int row = 0; row < 16; ++row)
                 for (int col = 0; col < 16; ++col)
