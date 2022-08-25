@@ -441,29 +441,35 @@ namespace FoenixToolkit.Display
 
         private void DrawSprites(ref byte[] buffer, bool gammaCorrection, byte layer, bool bkgrnd, int borderXSize, int borderYSize, int line, int width, int height)
         {
+            byte[] dimension = {32, 24, 16, 8};
+
             // There are 32 possible sprites to choose from.
-            for (int s = 63; s >= 0; --s)
+            for (int s = 31; s >= 0; --s)
             {
-                int addrSprite = MemoryMap.SPRITE_CONTROL_REGISTER_ADDR + s * 8 - MemoryMap.VICKY_BASE_ADDR;
+                ushort addrSprite = (ushort)(MemoryMap.SPRITE_CONTROL_REG + s * 8 - MemoryMap.VICKY_BASE_ADDR);
                 byte reg = VICKY.ReadByte(addrSprite);
+                if ((reg & 1) == 0)
+                    continue;
 
                 // if the set is not enabled, we're done.
-                byte spriteLayer = (byte)((reg & 0x70) >> 4);
-                int posY = VICKY.ReadWord(addrSprite + 6) - 32;
+                byte spriteLayer = (byte)((reg & 0x18) >> 3);
+                if (spriteLayer != layer)
+                    continue;
 
-                if ((reg & 1) != 0 && layer == spriteLayer && (line >= posY && line < posY + 32))
+                ushort posY = (ushort)(VICKY.ReadWord(addrSprite + 6) - 32);
+                byte size = (byte)((reg & 0x60) >> 5);
+                byte spriteDimension = dimension[size];
+                if (line >= posY && line < posY + spriteDimension)
                 {
-                    // TODO Fix this when Vicky II fixes the LUT issue
-                    byte lutIndex = (byte)(((reg & 14) >> 1));  // 8 possible LUTs 
-                    bool striding = (reg & 0x80) == 0x80;
+                    byte lutIndex = (byte)((reg & 0x06) >> 1);      // 4 possible LUTs
+                    //-- bool striding = (reg & 0x80) == 0x80;
 
                     int spriteAddress = VICKY.ReadLong(addrSprite + 1);
                     int posX = VICKY.ReadWord(addrSprite + 4) - 32;
-
                     if (posX >= (width - borderXSize) || posY >= (height - borderYSize) || posX < 0 || posY < 0)
                         continue;
 
-                    int spriteWidth = 32;
+                    int spriteWidth = spriteDimension;
                     int xOffset = 0;
 
                     // Check for sprite bleeding on the left-hand-side
@@ -471,14 +477,13 @@ namespace FoenixToolkit.Display
                     {
                         xOffset = borderXSize - posX;
                         posX = borderXSize;
-                        spriteWidth = 32 - xOffset;
-
+                        spriteWidth = spriteDimension - xOffset;
                         if (spriteWidth == 0)
                             continue;
                     }
 
                     // Check for sprite bleeding on the right-hand side
-                    if (posX + 32 > width - borderXSize)
+                    if (posX + spriteDimension > width - borderXSize)
                     {
                         spriteWidth = 640 - borderXSize - posX;
                         if (spriteWidth == 0)
@@ -488,7 +493,6 @@ namespace FoenixToolkit.Display
                     int value = 0;
                     byte pixelIndex = 0;
 
-                    // Sprites are 32 x 32
                     int sline = line - posY;
                     int lineOffset = line * (width << 2);
                     uint ptr = (uint)(line * (width << 2));
@@ -496,7 +500,7 @@ namespace FoenixToolkit.Display
                     for (int col = xOffset; col < xOffset + spriteWidth; col++)
                     {
                         // Lookup the pixel in the tileset - if the value is 0, it's transparent
-                        pixelIndex = VRAM.ReadByte(spriteAddress + col + sline * 32);
+                        pixelIndex = VRAM.ReadByte(spriteAddress + col + sline * spriteDimension);
 
                         if (pixelIndex != 0)
                         {
@@ -633,7 +637,7 @@ namespace FoenixToolkit.Display
 
             if (VICKY == null)
             {
-                cr.SetSourceColor(lightBlue); 
+                cr.SetSourceColor(lightBlue);
                 cr.MoveTo(20, daGpu.AllocatedHeight / 2);
                 cr.ShowText("VICKY is undefined.");
 
@@ -718,7 +722,7 @@ namespace FoenixToolkit.Display
             //-- g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
             // g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
 
-            // Bilinear interpolation has effect very similar to real HW 
+            // Bilinear interpolation has effect very similar to real HW
             //-- g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
             // g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
 
