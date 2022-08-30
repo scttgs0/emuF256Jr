@@ -45,7 +45,7 @@ namespace FoenixCore.MemoryLocations
         /// <param name="DeviceAddress"></param>
         public void GetDeviceAt(int Address, out IMappable Device, out int DeviceAddress)
         {
-            if (Address == MemoryMap.CODEC_WR_CTRL_FMX)
+            if (Address == MemoryMap.CODEC.BASE)
             {
                 Device = CODEC;
                 DeviceAddress = 0;
