@@ -834,14 +834,14 @@ namespace FoenixToolkit.UI
                 }
 
                 // write the time to memory - values are BCD
-                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC_SEC - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Second));
-                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC_MIN - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Minute));
-                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC_HRS - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Hour));
-                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC_DAY - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Day));
-                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC_MONTH - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Month));
-                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC_YEAR - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Year % 100));
-                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC_CENTURY - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Year / 100));
-                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC_DOW - kernel.MemMgr.VICKY.StartAddress, (byte)(currentTime.DayOfWeek + 1));
+                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC.SEC - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Second));
+                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC.MIN - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Minute));
+                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC.HRS - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Hour));
+                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC.DAY - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Day));
+                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC.MONTH - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Month));
+                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC.YEAR - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Year % 100));
+                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC.CENTURY - kernel.MemMgr.VICKY.StartAddress, MainProcess.BCD(currentTime.Year / 100));
+                kernel.MemMgr.VICKY.WriteByte(MemoryMap.RTC.DOW - kernel.MemMgr.VICKY.StartAddress, (byte)(currentTime.DayOfWeek + 1));
             }
             else
             {
