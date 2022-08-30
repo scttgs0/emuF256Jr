@@ -235,26 +235,25 @@ namespace FoenixToolkit.UI
         private void SetDipSwitchMemory()
         {
             // if kernel memory is available, set the memory
-            byte bootMode = (byte)((switches[0] ? 0 : 1) + (switches[1] ? 0 : 2));
-            byte userMode = (byte)((switches[2] ? 0 : 1) + (switches[3] ? 0 : 2) + (switches[4] ? 0 : 4));
+            byte bootMode = (byte)((switches[0] ? 0 : 1) +
+                                (switches[1] ? 0 : 2) +
+                                (switches[2] ? 0 : 4) +
+                                (switches[3] ? 0 : 8));
+
+            byte userMode = (byte)((switches[4] ? 0 : 1) +
+                                (switches[5] ? 0 : 2) + 
+                                (switches[6] ? 0 : 4));
+
+            byte gammaMode = (byte)(switches[7] ? 0 : 1);
 
             if (kernel.MemMgr != null)
             {
-                kernel.MemMgr.WriteByte(MemoryMap.DIP_BOOT_MODE, bootMode);
-                kernel.MemMgr.WriteByte(MemoryMap.DIP_USER_MODE, userMode);
-
-                // switch 5 - high-res mode
-                byte hiRes = kernel.MemMgr.ReadByte(MemoryMap.VICKY_BASE_ADDR + 1);
-                if (switches[4])
-                    hiRes |= 1;
-                else
-                    hiRes &= 0xFE;
-
-                kernel.MemMgr.WriteByte(MemoryMap.VICKY_BASE_ADDR + 1, hiRes);
+                kernel.MemMgr.WriteByte(MemoryMap.DIPSWITCH.BOOT_MODE, bootMode);
+                kernel.MemMgr.WriteByte(MemoryMap.DIPSWITCH.USER_MODE, userMode);
 
                 // switch 6 - Gamma
                 byte MCR = kernel.MemMgr.ReadByte(MemoryMap.VICKY_BASE_ADDR);
-                if (switches[6])
+                if (switches[7])
                     MCR |= 0x40;
                 else
                     MCR &= 0b1011_1111;
@@ -695,14 +694,14 @@ namespace FoenixToolkit.UI
 
         /*
          * DIP SWITCH Definition:
-            DIP1 - BOOT MODE0 - b0 : $AF:E80E
-            DIP2 - BOOT MODE1 - b1 : $AF:E80E
-            DIP3 - USER DEFINED2
-            DIP4 - USER DEFINED1
+            DIP1 - BOOT MODE b0
+            DIP2 - BOOT MODE b1
+            DIP3 - BOOT MODE b2
+            DIP4 - BOOT MODE b3
             DIP5 - USER DEFINED0
-            DIP6 - HIGH-RES @ Boot (800 x 600) (when it is instantiated in Vicky II)
-            DIP7 - GAMMA Correction ON/OFF
-            DIP8- HDD INSTALLED
+            DIP6 - USER DEFINED 1
+            DIP7 - USER DEFINED 2
+            DIP8 - GAMMA Correction ON/OFF
         */
         private readonly bool[] switches = new bool[8];
 
