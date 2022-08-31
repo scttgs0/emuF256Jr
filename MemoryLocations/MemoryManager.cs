@@ -9,8 +9,8 @@ namespace FoenixCore.MemoryLocations
     /// </summary>
     public class MemoryManager : IMappable
     {
-        public const int MinAddress = 0x00_0000;
-        public const int MaxAddress = 0xff_ffff;
+        public const int MinAddress = 0x0_0000;
+        public const int MaxAddress = 0xf_ffff;
 
         public MemoryRAM RAM = null;
         public MemoryRAM FLASH = null;
@@ -33,8 +33,8 @@ namespace FoenixCore.MemoryLocations
         public bool VectorPull = false;
 
         public int StartAddress => 0;
-        public int Length => 0x100_0000;
-        public int EndAddress => 0xFF_FFFF;
+        public int Length => 0x10_0000;
+        public int EndAddress => 0xF_FFFF;
 
         /// <summary>
         /// Determine whehter the address being read from or written to is an I/O device or a memory cell.
@@ -59,7 +59,7 @@ namespace FoenixCore.MemoryLocations
                 return;
             }
 
-            if (Address >= MemoryMap.INT_PENDING_REG0 && Address <= MemoryMap.INT_PENDING_REG0 + 3)
+            if (Address >= MemoryMap.INTR_CTRL.PENDING_L && Address <= MemoryMap.INTR_CTRL.PENDING_L + 3)
             {
                 Device = INTERRUPT;
                 DeviceAddress = Address - INTERRUPT.StartAddress;

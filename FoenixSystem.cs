@@ -51,7 +51,7 @@ namespace FoenixCore
                 MATH = new MathCoproRegister(MemoryMap.MATH_START, MemoryMap.MATH_END - MemoryMap.MATH_START + 1), // 48 bytes
                 KEYBOARD = new KeyboardRegister(keyboardAddress, 5),
                 SDCARD = sdcard,
-                INTERRUPT = new InterruptController(MemoryMap.INT_PENDING_REG0, 4),
+                INTERRUPT = new InterruptController(MemoryMap.INTR_CTRL.PENDING_L, 4),
                 UART = new UART(MemoryMap.UART.BASE, 8),
                 OPL2 = new OPL2(MemoryMap.OPL2_S_BASE, 256),
                 FLOAT = new MathFloatRegister(MemoryMap.FLOAT_START, MemoryMap.FLOAT_END - MemoryMap.FLOAT_START + 1),
@@ -100,12 +100,12 @@ namespace FoenixCore
 
         private void TimerEvent0()
         {
-            byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_MASK_REG0);
+            byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.INTR_CTRL.MASK_L);
 
             if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.INT04_TMR0) == (byte)Register0.INT04_TMR0))
             {
                 // Set the Timer0 Interrupt
-                byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_PENDING_REG0);
+                byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.INTR_CTRL.PENDING_L);
                 IRQ0 |= (byte)Register0.INT04_TMR0;
 
                 MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);
@@ -116,12 +116,12 @@ namespace FoenixCore
 
         private void TimerEvent1()
         {
-            byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_MASK_REG0);
+            byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.INTR_CTRL.MASK_L);
 
             if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.INT05_TMR1) == (byte)Register0.INT05_TMR1))
             {
                 // Set the Timer1 Interrupt
-                byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_PENDING_REG0);
+                byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.INTR_CTRL.PENDING_L);
                 IRQ0 |= (byte)Register0.INT05_TMR1;
 
                 MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);

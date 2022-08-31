@@ -271,11 +271,11 @@ namespace FoenixToolkit.UI
         public void SDCardInterrupt(CH376SInterrupt irq)
         {
             // Check if the SD Card interrupt is allowed
-            byte mask = kernel.MemMgr.ReadByte(MemoryMap.INT_MASK_REG1);
+            byte mask = kernel.MemMgr.ReadByte(MemoryMap.INTR_CTRL.MASK_H);
             if (!kernel.CoreCpu.DebugPause && (~mask & (byte)Register1.INT07_SDCARD) == (byte)Register1.INT07_SDCARD)
             {
                 // Set the SD Card Interrupt
-                byte IRQ1 = kernel.MemMgr.ReadByte(MemoryMap.INT_PENDING_REG1);
+                byte IRQ1 = kernel.MemMgr.ReadByte(MemoryMap.INTR_CTRL.PENDING_H);
                 IRQ1 |= (byte)Register1.INT07_SDCARD;
                 kernel.MemMgr.INTERRUPT.WriteFromGabe(1, IRQ1);
                 kernel.CoreCpu.Pins.IRQ = true;
@@ -777,11 +777,11 @@ namespace FoenixToolkit.UI
             TimeSpan ts = currentDT - pSof;
             pSof = currentDT;
 
-            byte mask = kernel.MemMgr.ReadByte(MemoryMap.INT_MASK_REG0);
+            byte mask = kernel.MemMgr.ReadByte(MemoryMap.INTR_CTRL.MASK_L);
             if (!kernel.CoreCpu.DebugPause)
             {
                 // Set the SOF Interrupt
-                byte IRQ0 = kernel.MemMgr.ReadByte(MemoryMap.INT_PENDING_REG0);
+                byte IRQ0 = kernel.MemMgr.ReadByte(MemoryMap.INTR_CTRL.PENDING_L);
                 IRQ0 |= (byte)Register0.INT00_SOF;
 
                 kernel.MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);
@@ -794,12 +794,12 @@ namespace FoenixToolkit.UI
         private void on_Gpu_SOL()
         {
             // Check if the interrupt is enabled
-            byte mask = kernel.MemMgr.ReadByte(MemoryMap.INT_MASK_REG0);
+            byte mask = kernel.MemMgr.ReadByte(MemoryMap.INTR_CTRL.MASK_L);
 
             if (!kernel.CoreCpu.DebugPause && ((~mask & (byte)Register0.INT01_SOL) == (byte)Register0.INT01_SOL))
             {
                 // Set the SOL Interrupt
-                byte IRQ0 = kernel.MemMgr.ReadByte(MemoryMap.INT_PENDING_REG0);
+                byte IRQ0 = kernel.MemMgr.ReadByte(MemoryMap.INTR_CTRL.PENDING_L);
                 IRQ0 |= (byte)Register0.INT01_SOL;
 
                 kernel.MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);
@@ -911,7 +911,7 @@ namespace FoenixToolkit.UI
             kernel.MemMgr.VICKY.WriteWord(0x704, (ushort)evtY);
 
             // Generate three interrupts - to emulate how the PS/2 controller works
-            byte mask = kernel.MemMgr.ReadByte(MemoryMap.INT_MASK_REG0);
+            byte mask = kernel.MemMgr.ReadByte(MemoryMap.INTR_CTRL.MASK_L);
 
             // The PS/2 packet is byte0, xm, ym
             if ((~mask & (byte)Register0.INT03_MOUSE) == (byte)Register0.INT03_MOUSE)

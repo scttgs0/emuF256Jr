@@ -126,7 +126,7 @@ namespace FoenixCore.Simulator.Devices
         public void WriteKey(ScanCode key)
         {
             // Check if the Keyboard interrupt is allowed
-            byte mask = _kernel.MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_MASK_REG0);
+            byte mask = _kernel.MemMgr.ReadByte(MemoryLocations.MemoryMap.INTR_CTRL.MASK_L);
             if ((~mask & (byte)Register0.INT02_KBD) == (byte)Register0.INT02_KBD)
             {
                 _kernel.MemMgr.KEYBOARD.WriteByte(0, (byte)key);
@@ -159,7 +159,7 @@ namespace FoenixCore.Simulator.Devices
                 throw new InvalidOperationException("Kernel is undefined");
 
             // Set the Mouse Interrupt
-            byte IRQ0 = _kernel.MemMgr.ReadByte(MemoryLocations.MemoryMap.INT_PENDING_REG0);
+            byte IRQ0 = _kernel.MemMgr.ReadByte(MemoryLocations.MemoryMap.INTR_CTRL.PENDING_L);
             IRQ0 |= (byte)Register0.INT03_MOUSE;
             _kernel.MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);
             _kernel.CoreCpu.Pins.IRQ = true;
