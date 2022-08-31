@@ -94,10 +94,10 @@ namespace FoenixCore.MemoryLocations
                 return;
             }
 
-            if (Address >= MemoryMap.UART_REGISTERS && Address < MemoryMap.UART_REGISTERS + 8)
+            if (Address >= MemoryMap.UART.BASE && Address < MemoryMap.UART.BASE + 8)
             {
                 Device = UART;
-                DeviceAddress = Address - MemoryMap.UART_REGISTERS;
+                DeviceAddress = Address - MemoryMap.UART.BASE;
                 return;
             }
 

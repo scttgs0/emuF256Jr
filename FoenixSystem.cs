@@ -52,7 +52,7 @@ namespace FoenixCore
                 KEYBOARD = new KeyboardRegister(keyboardAddress, 5),
                 SDCARD = sdcard,
                 INTERRUPT = new InterruptController(MemoryMap.INT_PENDING_REG0, 4),
-                UART = new UART(MemoryMap.UART_REGISTERS, 8),
+                UART = new UART(MemoryMap.UART.BASE, 8),
                 OPL2 = new OPL2(MemoryMap.OPL2_S_BASE, 256),
                 FLOAT = new MathFloatRegister(MemoryMap.FLOAT_START, MemoryMap.FLOAT_END - MemoryMap.FLOAT_START + 1),
                 MPU401 = new MPU401(MemoryMap.MPU401_REGISTERS, 2),
