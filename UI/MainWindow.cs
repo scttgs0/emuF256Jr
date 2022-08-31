@@ -197,7 +197,7 @@ namespace FoenixToolkit.UI
             }
 
             if (typeof(CH376SRegister) == kernel.MemMgr.SDCARD.GetType())
-                kernel.MemMgr.WriteByte(MemoryMap.SDCARD_STAT, sdCardStat);
+                kernel.MemMgr.WriteByte(MemoryMap.SDCARD.TRANSFER_STATUS, sdCardStat);
         }
 
         private void ShowDebugWindow()
