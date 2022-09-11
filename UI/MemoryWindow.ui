@@ -18,7 +18,7 @@
         <col id="0" translatable="yes">Bank $19</col>
       </row>
       <row>
-        <col id="0" translatable="yes">Bank $AF (Vicky)</col>
+        <col id="0" translatable="yes">$D000 (Vicky)</col>
       </row>
       <row>
         <col id="0" translatable="yes">Bank $B0 (Video)</col>
@@ -140,10 +140,8 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <items>
-                  <item id="000000" translatable="yes">Bank $00</item>
-                  <item id="180000" translatable="yes">Bank $18</item>
-                  <item id="190000" translatable="yes">Bank $19</item>
-                  <item id="AF0000" translatable="yes">Bank $AF (Vicky)</item>
+                  <item id="0000" translatable="yes">$0000 (Zero-Page)</item>
+                  <item id="D000" translatable="yes">$D000 (Vicky)</item>
                   <item id="B00000" translatable="yes">Bank $B0 (Video)</item>
                   <item id="AF0100" translatable="yes">Address $AF:0100 (Bitmap Registers)</item>
                   <item id="AF0200" translatable="yes">Address $AF:0200 (Tile Registers)</item>
@@ -402,9 +400,8 @@
             <property name="margin_right">4</property>
             <property name="margin_top">2</property>
             <property name="margin_bottom">2</property>
-            <property name="max_length">2</property>
             <property name="has_frame">False</property>
-            <property name="width_chars">2</property>
+            <property name="width_chars">3</property>
             <property name="max_width_chars">2</property>
             <property name="text" translatable="yes">FF</property>
             <property name="overwrite_mode">True</property>
@@ -421,7 +418,6 @@
             <property name="width_request">170</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes"></property>
             <property name="xalign">0.06</property>
           </object>
           <packing>

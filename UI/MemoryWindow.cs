@@ -325,7 +325,7 @@ namespace FoenixToolkit.UI
 
 #pragma warning disable CS0612  // deprecated warning
             HighlightPanel.ModifyFg(StateType.Normal, new Gdk.Color(255, 255, 255));
-            HighlightPanel.ModifyBg(StateType.Normal, new Gdk.Color(192, 0, 0));
+            HighlightPanel.ModifyBg(StateType.Normal, new Gdk.Color(0, 0, 192));
 
             _updateDisplayTimer = new()
             {
