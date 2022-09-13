@@ -815,6 +815,7 @@ namespace FoenixCore.Processor.wdc65c02
         {
             return bcd / 10000 * 256 * 256 + (bcd % 10000) / 1000 * 256 * 16 + ((bcd % 10000) % 1000) / 100 * 256 + (((bcd % 10000) % 1000) % 100) / 10 * 16 + (((bcd % 10000) % 1000) % 100) % 10;
         }
+
         public void ExecuteSTZ(byte instruction, AddressModes addressMode, int signature)
         {
             int addr = GetAddress(addressMode, signature);
