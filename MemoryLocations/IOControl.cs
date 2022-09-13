@@ -5,7 +5,6 @@ namespace FoenixCore.MemoryLocations
 {
     public class IOControl : Register<byte>
     {
-        //flags
         private byte _ioPage = 0b00;
         public bool isDisabled = true;
         public bool isColorMemory = true;
