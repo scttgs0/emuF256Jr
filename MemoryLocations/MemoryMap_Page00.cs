@@ -51,22 +51,6 @@
         public const int D1_REMAINDER = 0x000116; // 2 Bytes Signed remainder of A/B ex: 1 in 7/2=3 r 1
         public const int MATH_END = 0x00_012F;
 
-        // Pending Interrupt (Read and Write Back to Clear)
-        public const ushort INT_PENDING_REG0 = 0xD660;
-        public const ushort INT_PENDING_REG1 = 0xD661;
-
-        // Polarity Set
-        public const ushort INT_POL_REG0 = 0xD664;
-        public const ushort INT_POL_REG1 = 0xD665;
-
-        // Edge Detection Enable
-        public const ushort INT_EDGE_REG0 = 0xD668;
-        public const ushort INT_EDGE_REG1 = 0xD669;
-
-        // Mask
-        public const ushort INT_MASK_REG0 = 0xD66C;
-        public const ushort INT_MASK_REG1 = 0xD66D;
-
         public const int TIMER0_CTRL_REG = 0x00_0160;
         public const int TIMER0_CHARGE = 0x00_0161;
         public const int TIMER0_CMP_REG = 0x00_0164;
