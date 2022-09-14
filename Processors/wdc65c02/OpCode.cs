@@ -11,7 +11,7 @@ namespace FoenixCore.Processor.wdc65c02
         public byte Value;
         public string Mnemonic;
         public AddressModes AddressMode;
-        public delegate void ExecuteDelegate(byte Instruction, AddressModes AddressMode, int Signature);
+        public delegate void ExecuteDelegate(byte Instruction, AddressModes AddressMode, uint Signature);
         public event ExecuteDelegate ExecuteOp;
         public int Length8Bit;
         public Register<byte> ActionRegister = null;
@@ -39,7 +39,7 @@ namespace FoenixCore.Processor.wdc65c02
             Debug.WriteLine("public const int " + Mnemonic + "_" + Mode.ToString() + "=0x" + Value.ToString("X2") + ";");
         }
 
-        public void Execute(int SignatureBytes)
+        public void Execute(uint SignatureBytes)
         {
             if (ExecuteOp == null)
                 throw new NotImplementedException("Tried to execute " + Mnemonic + " but it is not implemented.");
@@ -60,7 +60,7 @@ namespace FoenixCore.Processor.wdc65c02
             return Mnemonic + " " + AddressMode.ToString();
         }
 
-        public string ToString(int Signature)
+        public string ToString(uint Signature)
         {
             string sig;
 

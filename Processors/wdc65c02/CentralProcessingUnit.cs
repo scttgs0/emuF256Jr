@@ -148,7 +148,7 @@ namespace FoenixCore.Processor.wdc65c02
                 SignatureBytes = ReadSignature(OpcodeLength, PC);
 
                 PC += (ushort)OpcodeLength;
-                CurrentOpcode.Execute((int)SignatureBytes);
+                CurrentOpcode.Execute(SignatureBytes);
                 clockCyles += OpcodeCycles;
             }
             catch (Exception) {

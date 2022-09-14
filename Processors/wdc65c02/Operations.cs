@@ -102,23 +102,23 @@ namespace FoenixCore.Processor.wdc65c02
         /// <param name="isCode">Assume the address is code and uses the Program Bank Register.
         /// Otherwise uses the Data Bank Register, if appropriate.</param>
         /// <returns></returns>
-        public int GetValue(AddressModes mode, int signatureBytes, int width)
+        public int GetValue(AddressModes mode, uint signatureBytes, int width)
         {
             return mode switch
             {
                 AddressModes.Accumulator => cpu.A.Value,
-                AddressModes.Absolute => GetAbsolute(signatureBytes, width),
-                AddressModes.AbsoluteIndexedWithX => GetIndexed(signatureBytes, cpu.X, width),// LDA $2000,X
-                AddressModes.AbsoluteIndexedWithY => GetIndexed(signatureBytes, cpu.Y, width),
-                AddressModes.ZeroPage => GetAbsolute(signatureBytes, width),
-                AddressModes.ZeroPageIndexedWithX => GetIndexed(signatureBytes, cpu.X, width),
-                AddressModes.ZeroPageIndexedWithY => GetIndexed(signatureBytes, cpu.Y, width),
-                AddressModes.ZeroPageIndexedIndirectWithX => GetDirectIndexedIndirect(signatureBytes, cpu.X),//LDA(dp, X)
-                AddressModes.ZeroPageIndirect => GetDirectIndirect(signatureBytes),//LDA (dp)
-                AddressModes.ZeroPageIndirectIndexedWithY => GetZeroPageIndirectIndexed(signatureBytes, cpu.Y),//LDA(dp),Y
+                AddressModes.Absolute => GetAbsolute((int)signatureBytes, width),
+                AddressModes.AbsoluteIndexedWithX => GetIndexed((int)signatureBytes, cpu.X, width),// LDA $2000,X
+                AddressModes.AbsoluteIndexedWithY => GetIndexed((int)signatureBytes, cpu.Y, width),
+                AddressModes.ZeroPage => GetAbsolute((int)signatureBytes, width),
+                AddressModes.ZeroPageIndexedWithX => GetIndexed((int)signatureBytes, cpu.X, width),
+                AddressModes.ZeroPageIndexedWithY => GetIndexed((int)signatureBytes, cpu.Y, width),
+                AddressModes.ZeroPageIndexedIndirectWithX => GetDirectIndexedIndirect((int)signatureBytes, cpu.X),//LDA(dp, X)
+                AddressModes.ZeroPageIndirect => GetDirectIndirect((int)signatureBytes),//LDA (dp)
+                AddressModes.ZeroPageIndirectIndexedWithY => GetZeroPageIndirectIndexed((int)signatureBytes, cpu.Y),//LDA(dp),Y
                 AddressModes.ProgramCounterRelative => cpu.PC + 2 + MakeSignedByte((byte)signatureBytes),
                 AddressModes.StackImplied => cpu.Stack.Value,
-                _ => signatureBytes,
+                _ => (int)signatureBytes,
             };
         }
 
@@ -208,7 +208,7 @@ namespace FoenixCore.Processor.wdc65c02
         /// <param name="instruction"></param>
         /// <param name="addressMode"></param>
         /// <param name="signature"></param>
-        public void ExecuteInterrupt(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteInterrupt(byte instruction, AddressModes addressMode, uint signature)
         {
             cpu.OpcodeLength = 2;
             cpu.OpcodeCycles = 8;
@@ -220,7 +220,7 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        public void ExecuteORA(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteORA(byte instruction, AddressModes addressMode, uint signature)
         {
             byte val = (byte)GetValue(addressMode, signature, 1);
             cpu.A.Value |= val;
@@ -235,7 +235,7 @@ namespace FoenixCore.Processor.wdc65c02
         /// <param name="instruction"></param>
         /// <param name="addressMode"></param>
         /// <param name="signature"></param>
-        public void ExecuteTSBTRB(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteTSBTRB(byte instruction, AddressModes addressMode, uint signature)
         {
             int val = GetValue(addressMode, signature, 1);
             int test = val & cpu.A.Value;
@@ -264,7 +264,7 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        public void ExecuteShift(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteShift(byte instruction, AddressModes addressMode, uint signature)
         {
             int val = GetValue(addressMode, signature, 1);
 
@@ -332,7 +332,7 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        public void ExecuteStack(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteStack(byte instruction, AddressModes addressMode, uint signature)
         {
             switch (instruction)
             {
@@ -376,19 +376,19 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        public void ExecuteRMB(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteRMB(byte instruction, AddressModes addressMode, uint signature)
         {}
 
-        public void ExecuteSMB(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteSMB(byte instruction, AddressModes addressMode, uint signature)
         {}
 
-        public void ExecuteBBR(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteBBR(byte instruction, AddressModes addressMode, uint signature)
         {}
 
-        public void ExecuteBBS(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteBBS(byte instruction, AddressModes addressMode, uint signature)
         {}
 
-        public void ExecuteBranch(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteBranch(byte instruction, AddressModes addressMode, uint signature)
         {
             bool takeBranch;
             switch (instruction)
@@ -437,7 +437,7 @@ namespace FoenixCore.Processor.wdc65c02
                 BranchNear((byte)signature);
         }
 
-        public void ExecuteStatusReg(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteStatusReg(byte instruction, AddressModes addressMode, uint signature)
         {
             switch (instruction)
             {
@@ -474,7 +474,7 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        public void ExecuteINCDEC(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteINCDEC(byte instruction, AddressModes addressMode, uint signature)
         {
             int addr;
             int bval;
@@ -547,7 +547,7 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        private int GetAddress(AddressModes addressMode, int SignatureBytes)
+        private int GetAddress(AddressModes addressMode, uint SignatureBytes)
         {
             int addr;
             int ptr;
@@ -562,35 +562,35 @@ namespace FoenixCore.Processor.wdc65c02
                     return ADDRESS_IMPLIED;
 
                 case AddressModes.Absolute:
-                    return SignatureBytes;
+                    return (int)SignatureBytes;
 
                 case AddressModes.AbsoluteIndexedWithX:
-                    return SignatureBytes + cpu.X.Value;
+                    return (int)SignatureBytes + cpu.X.Value;
 
                 case AddressModes.AbsoluteIndexedWithY:
-                    return SignatureBytes + cpu.Y.Value;
+                    return (int)SignatureBytes + cpu.Y.Value;
 
                 case AddressModes.ZeroPage:
-                    return SignatureBytes;
+                    return (int)SignatureBytes;
 
                 case AddressModes.ZeroPageIndexedWithX:
-                    return SignatureBytes + cpu.X.Value;
+                    return (int)SignatureBytes + cpu.X.Value;
 
                 case AddressModes.ZeroPageIndexedWithY:
-                    return SignatureBytes + cpu.Y.Value;
+                    return (int)SignatureBytes + cpu.Y.Value;
 
                 case AddressModes.ZeroPageIndexedIndirectWithX:
-                    addr = SignatureBytes + cpu.X.Value;
+                    addr = (int)SignatureBytes + cpu.X.Value;
                     ptr = cpu.MemMgr.ReadWord(addr);
                     return (cpu.PC & 0xFF_0000) + ptr;
 
                 case AddressModes.ZeroPageIndirect:
-                    addr = SignatureBytes;
+                    addr = (int)SignatureBytes;
                     ptr = cpu.MemMgr.ReadWord(addr);
                     return ptr;
 
                 case AddressModes.ZeroPageIndirectIndexedWithY:
-                    addr = SignatureBytes;
+                    addr = (int)SignatureBytes;
                     ptr = cpu.MemMgr.ReadWord(addr) + cpu.Y.Value;
                     return (cpu.PC & 0xFF_0000) + ptr;
 
@@ -610,7 +610,7 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        public void ExecuteTransfer(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteTransfer(byte instruction, AddressModes addressMode, uint signature)
         {
             int transWidth;
 
@@ -659,7 +659,7 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        public void ExecuteJumpReturn(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteJumpReturn(byte instruction, AddressModes addressMode, uint signature)
         {
             ushort addr = (ushort)GetAddress(addressMode, signature);
 
@@ -692,14 +692,14 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        public void ExecuteAND(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteAND(byte instruction, AddressModes addressMode, uint signature)
         {
             byte data = (byte)GetValue(addressMode, signature, 1);
             cpu.A.Value &= data;
             cpu.Flags.SetNZ(cpu.A.Value, 1);
         }
 
-        public void ExecuteBIT(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteBIT(byte instruction, AddressModes addressMode, uint signature)
         {
             int data = GetValue(addressMode, signature, 1);
             int result = cpu.A.Value & data;
@@ -712,14 +712,14 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        public void ExecuteEOR(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteEOR(byte instruction, AddressModes addressMode, uint signature)
         {
             byte val = (byte)GetValue(addressMode, signature, 1);
             cpu.A.Value ^= val;
             cpu.Flags.SetNZ(cpu.A.Value, 1);
         }
 
-        public void ExecuteMisc(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteMisc(byte instruction, AddressModes addressMode, uint signature)
         {
             switch (instruction)
             {
@@ -735,16 +735,16 @@ namespace FoenixCore.Processor.wdc65c02
             }
         }
 
-        private void OnSimulatorCommand(int signature)
+        private void OnSimulatorCommand(uint signature)
         {
             if (SimulatorCommand == null)
                 return;
 
-            SimulatorCommand(signature);
+            SimulatorCommand((int)signature);
         }
 
 
-        public void ExecuteADC(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteADC(byte instruction, AddressModes addressMode, uint signature)
         {
             ushort val = (ushort)GetValue(addressMode, signature, 1);
             ushort nv;
@@ -770,7 +770,7 @@ namespace FoenixCore.Processor.wdc65c02
         /// <param name="instruction"></param>
         /// <param name="addressMode"></param>
         /// <param name="signature"></param>
-        public void ExecuteSBC(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteSBC(byte instruction, AddressModes addressMode, uint signature)
         {
             ushort val = (ushort)GetValue(addressMode, signature, 1);
             ushort nv;
@@ -805,67 +805,67 @@ namespace FoenixCore.Processor.wdc65c02
             return bcd / 10000 * 256 * 256 + (bcd % 10000) / 1000 * 256 * 16 + ((bcd % 10000) % 1000) / 100 * 256 + (((bcd % 10000) % 1000) % 100) / 10 * 16 + (((bcd % 10000) % 1000) % 100) % 10;
         }
 
-        public void ExecuteSTZ(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteSTZ(byte instruction, AddressModes addressMode, uint signature)
         {
             int addr = GetAddress(addressMode, signature);
             cpu.MemMgr.Write(addr, 0, 1);
         }
 
-        public void ExecuteSTA(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteSTA(byte instruction, AddressModes addressMode, uint signature)
         {
             int addr = GetAddress(addressMode, signature);
             cpu.MemMgr.Write(addr, cpu.A.Value, 1);
         }
 
-        public void ExecuteSTY(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteSTY(byte instruction, AddressModes addressMode, uint signature)
         {
             int addr = GetAddress(addressMode, signature);
             cpu.MemMgr.Write(addr, cpu.Y.Value, 1);
         }
 
-        public void ExecuteSTX(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteSTX(byte instruction, AddressModes addressMode, uint signature)
         {
             int addr = GetAddress(addressMode, signature);
             cpu.MemMgr.Write(addr, cpu.X.Value, 1);
         }
 
-        public void ExecuteLDA(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteLDA(byte instruction, AddressModes addressMode, uint signature)
         {
             byte val = (byte)GetValue(addressMode, signature, 1);
             cpu.A.Value = val;
             cpu.Flags.SetNZ(cpu.A.Value, 1);
         }
 
-        public void ExecuteLDX(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteLDX(byte instruction, AddressModes addressMode, uint signature)
         {
             byte val = (byte)GetValue(addressMode, signature, 1);
             cpu.X.Value = val;
             cpu.Flags.SetNZ(cpu.X.Value, 1);
         }
 
-        public void ExecuteLDY(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteLDY(byte instruction, AddressModes addressMode, uint signature)
         {
             byte val = (byte)GetValue(addressMode, signature, 1);
             cpu.Y.Value = val;
             cpu.Flags.SetNZ(cpu.Y.Value, 1);
         }
 
-        public void ExecuteCPX(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteCPX(byte instruction, AddressModes addressMode, uint signature)
         {
             Compare(addressMode, signature, cpu.X);
         }
 
-        public void ExecuteCPY(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteCPY(byte instruction, AddressModes addressMode, uint signature)
         {
             Compare(addressMode, signature, cpu.Y);
         }
 
-        public void ExecuteCMP(byte instruction, AddressModes addressMode, int signature)
+        public void ExecuteCMP(byte instruction, AddressModes addressMode, uint signature)
         {
             Compare(addressMode, signature, cpu.A);
         }
 
-        public void Compare(AddressModes addressMode, int signature, Register<byte> Reg)
+        public void Compare(AddressModes addressMode, uint signature, Register<byte> Reg)
         {
             int val = GetValue(addressMode, signature, 1);
             val = val & 0xFF;
@@ -876,7 +876,7 @@ namespace FoenixCore.Processor.wdc65c02
             cpu.Flags.Negative = (subResult & 0x80) == 0x80;
         }
 
-        public void ExecuteWAI(byte Instruction, AddressModes AddressMode, int Signature)
+        public void ExecuteWAI(byte Instruction, AddressModes AddressMode, uint Signature)
         {
             cpu.Waiting = true;
         }
