@@ -246,10 +246,11 @@ namespace FoenixToolkit.UI
 
             byte gammaMode = (byte)(switches[7] ? 0 : 1);
 
+            byte value = (byte)((gammaMode == 1 ? 0b10000000 : 0) + (userMode << 4) + bootMode);
+
             if (kernel.MemMgr != null)
             {
-                kernel.MemMgr.WriteByte(MemoryMap.DIPSWITCH.BOOT_MODE, bootMode);
-                kernel.MemMgr.WriteByte(MemoryMap.DIPSWITCH.USER_MODE, userMode);
+                kernel.MemMgr.WriteByte(MemoryMap.DIPSWITCH.BASE, value);
 
                 // switch 6 - Gamma
                 byte MCR = kernel.MemMgr.ReadByte(MemoryMap.VICKY_BASE_ADDR);

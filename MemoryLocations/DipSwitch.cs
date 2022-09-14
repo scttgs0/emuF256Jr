@@ -2,13 +2,35 @@ namespace FoenixCore.MemoryLocations
 {
     public static partial class MemoryMap
     {
-        public static class DIPSWITCH
+        public class DIPSWITCH
         {
-            // Dip switch Ports
-            public const ushort BASE = 0xD670;       // (R)
+            // Dip switch Port
+            public const ushort BASE = 0xD670;
 
-            public const int USER_MODE = 0xAF_E80D;    // TODO:
-            public const int BOOT_MODE = 0xAF_E80E;
+            private byte _bootMode = 0b1111;
+            private byte _userMode = 0b111;
+            public bool isGammaCorrection = true;
+
+            public byte BootMode
+            {
+                get => _bootMode;
+            }
+
+            public byte UserMode
+            {
+                get => _bootMode;
+            }
+
+            public byte Value
+            {
+                get => (byte)((isGammaCorrection ? 0b10000000 : 0) + (_userMode << 4) + _bootMode);
+                set
+                {
+                    _bootMode = (byte)(value & 0x0F);
+                    _userMode = (byte)((value >> 4) & 0x07);
+                    isGammaCorrection = (value & 0x80) == 0x80;
+                }
+            }
         }
     }
 }
