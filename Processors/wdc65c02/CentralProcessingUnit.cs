@@ -19,7 +19,7 @@ namespace FoenixCore.Processor.wdc65c02
         private readonly OpcodeList opcodes = null;
 
         public OpCode CurrentOpcode = null;
-        public int SignatureBytes = 0;
+        public uint SignatureBytes = 0;
 
         public Processor.Generic.CpuPins Pins = new();
 
@@ -32,7 +32,7 @@ namespace FoenixCore.Processor.wdc65c02
         /// <summary>
         /// Length of the currently executing opcode
         /// </summary>
-        public int OpcodeLength;
+        public byte OpcodeLength;
 
         /// <summary>
         /// Number of clock cycles used by the currently exeucting instruction
@@ -143,12 +143,12 @@ namespace FoenixCore.Processor.wdc65c02
             // TODO - if pc > RAM size, then throw an exception
             try {
                 CurrentOpcode = opcodes[MemMgr.RAM.ReadByte(PC)];
-                OpcodeLength = CurrentOpcode.Length;
+                OpcodeLength = (byte)CurrentOpcode.Length;
                 OpcodeCycles = 1;
                 SignatureBytes = ReadSignature(OpcodeLength, PC);
 
                 PC += (ushort)OpcodeLength;
-                CurrentOpcode.Execute(SignatureBytes);
+                CurrentOpcode.Execute((int)SignatureBytes);
                 clockCyles += OpcodeCycles;
             }
             catch (Exception) {
@@ -206,12 +206,12 @@ namespace FoenixCore.Processor.wdc65c02
             return opcodes[MemMgr[PC]];
         }
 
-        public int ReadSignature(int length, int pc)
+        public uint ReadSignature(byte length, int pc)
         {
             return length switch
             {
                 2 => MemMgr.RAM.ReadByte(pc + 1),
-                3 => MemMgr.RAM.ReadWord(pc + 1),
+                3 => (uint)MemMgr.RAM.ReadWord(pc + 1),
                 _ => 0,
             };
         }

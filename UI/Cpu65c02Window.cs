@@ -504,7 +504,7 @@ namespace FoenixToolkit.UI
             for (int i = 0; i < ocLength; ++i)
                 command[i] = _kernel.MemMgr.RAM.ReadByte(pc + i);
 
-            string opcodes = oc.ToString(_kernel.CoreCpu.ReadSignature(ocLength, pc));
+            string opcodes = oc.ToString((int)_kernel.CoreCpu.ReadSignature((byte)ocLength, pc));
 
             //string status = "";
 
