@@ -141,14 +141,19 @@ namespace FoenixCore.Processor.wdc65c02
                 return false;
 
             // TODO - if pc > RAM size, then throw an exception
-            CurrentOpcode = opcodes[MemMgr.RAM.ReadByte(PC)];
-            OpcodeLength = CurrentOpcode.Length;
-            OpcodeCycles = 1;
-            SignatureBytes = ReadSignature(OpcodeLength, PC);
+            try {
+                CurrentOpcode = opcodes[MemMgr.RAM.ReadByte(PC)];
+                OpcodeLength = CurrentOpcode.Length;
+                OpcodeCycles = 1;
+                SignatureBytes = ReadSignature(OpcodeLength, PC);
 
-            PC += (ushort)OpcodeLength;
-            CurrentOpcode.Execute(SignatureBytes);
-            clockCyles += OpcodeCycles;
+                PC += (ushort)OpcodeLength;
+                CurrentOpcode.Execute(SignatureBytes);
+                clockCyles += OpcodeCycles;
+            }
+            catch (Exception) {
+                throw new Exception("PC: " + PC.ToString("X4"));
+            }
 
             return false;
         }
@@ -252,22 +257,6 @@ namespace FoenixCore.Processor.wdc65c02
             int pointer = MemMgr.ReadWord(addr);
 
             return pointer;
-        }
-
-        /// <summary>
-        /// Gets the address pointed to by a pointer referenced by a long address.
-        /// </summary>
-        /// <param name="baseAddress">24-bit address</param>
-        /// <param name="Index"></param>
-        /// <returns></returns>
-        private int GetPointerLong(int baseAddress, Register<byte> Index = null)
-        {
-            int addr = baseAddress;
-
-            if (Index != null)
-                addr += Index.Value;
-
-            return MemMgr.ReadWord(addr);
         }
 
         #endregion
