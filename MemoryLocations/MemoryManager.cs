@@ -210,23 +210,6 @@ namespace FoenixCore.MemoryLocations
             return (ushort)(device.ReadByte(deviceAddress) | (device.ReadByte(deviceAddress + 1) << 8));
         }
 
-        /// <summary>
-        /// Reads 3 bytes from memory and builds a 24-bit unsigned integer.
-        /// </summary>
-        /// <param name="addr"></param>
-        /// <returns></returns>
-        public int ReadLong(int Address)
-        {
-            GetDeviceAt(Address, out IMappable device, out int deviceAddress);
-
-            if (device == null)
-                return 0x40_4040;
-
-            return device.ReadByte(deviceAddress)
-                | (device.ReadByte(deviceAddress + 1) << 8)
-                | (device.ReadByte(deviceAddress + 2) << 16);
-        }
-
         public virtual void WriteByte(int Address, byte Value)
         {
             GetDeviceAt(Address, out IMappable device, out int deviceAddress);

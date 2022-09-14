@@ -212,7 +212,6 @@ namespace FoenixCore.Processor.wdc65c02
             {
                 2 => MemMgr.RAM.ReadByte(pc + 1),
                 3 => MemMgr.RAM.ReadWord(pc + 1),
-                4 => MemMgr.RAM.ReadLong(pc + 1),
                 _ => 0,
             };
         }

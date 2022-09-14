@@ -129,13 +129,6 @@ namespace FoenixCore.Processor.wdc65c02
             return cpu.MemMgr.ReadWord(ptr);
         }
 
-        private int GetDirectIndirectLong(int Address)
-        {
-            int addr = Address;
-            int ptr = cpu.MemMgr.ReadLong(addr);
-            return cpu.MemMgr.ReadWord(ptr);
-        }
-
         /// <summary>
         /// LDA (D),Y - returns value pointed to by (D),Y, where D is in Direct page. Final value will be in Data bank.
         /// </summary>
@@ -204,7 +197,6 @@ namespace FoenixCore.Processor.wdc65c02
         {
             int addr = Address + Index.Value;
             int ptr = cpu.MemMgr.ReadWord(addr);
-            //return cpu.ProgramBank.GetLongAddress(ptr);
 
             return (cpu.PC & 0xFF_0000) + ptr;
         }
@@ -517,7 +509,6 @@ namespace FoenixCore.Processor.wdc65c02
                 case OpcodeList.INC_Absolute:
                 case OpcodeList.INC_ZeroPageIndexedWithX:
                 case OpcodeList.INC_AbsoluteIndexedWithX:
-                    //addr = cpu.ZeroPage.GetLongAddress(addr);
                     bval = GetValue(addressMode, signature, 1);
                     addr = GetAddress(addressMode, signature);
                     bval++;
@@ -591,7 +582,6 @@ namespace FoenixCore.Processor.wdc65c02
                 case AddressModes.ZeroPageIndexedIndirectWithX:
                     addr = SignatureBytes + cpu.X.Value;
                     ptr = cpu.MemMgr.ReadWord(addr);
-                    //return cpu.ProgramBank.GetLongAddress(ptr);
                     return (cpu.PC & 0xFF_0000) + ptr;
 
                 case AddressModes.ZeroPageIndirect:
@@ -602,7 +592,6 @@ namespace FoenixCore.Processor.wdc65c02
                 case AddressModes.ZeroPageIndirectIndexedWithY:
                     addr = SignatureBytes;
                     ptr = cpu.MemMgr.ReadWord(addr) + cpu.Y.Value;
-                    //return cpu.ProgramBank.GetLongAddress(ptr);
                     return (cpu.PC & 0xFF_0000) + ptr;
 
                 case AddressModes.ProgramCounterRelative:
