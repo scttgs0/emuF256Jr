@@ -203,7 +203,7 @@ namespace FoenixToolkit.UI
 
         public void UpdateMCRButtons()
         {
-            byte value = Memory.ReadByte(0xAF_0000);
+            byte value = Memory.ReadByte(0x0000);
 
             // Determine if Gamma was changed, if so, toggle the dip switch
             bool oldGamma = btnMCRBit6.Active;
@@ -223,7 +223,7 @@ namespace FoenixToolkit.UI
             btnMCRBit0.Active = (value & 0x01) != 0;
 
             // High-res and double-pixels
-            value = Memory.ReadByte(0xAF_0001);
+            value = Memory.ReadByte(0x0001);    // TODO: wrong address
 
             // Determine if the Hi-Res was changed, if so toggle the dip switch
             bool oldHires = btnMCRBit8.Active;
@@ -423,11 +423,11 @@ namespace FoenixToolkit.UI
                 value |= (btnMCRBit5.Active ? 1 : 0) << 5;
                 value |= (btnMCRBit6.Active ? 1 : 0) << 6;
                 value |= (btnMCRBit7.Active ? 1 : 0) << 7;
-                Memory.WriteByte(0xAF_0000, (byte)value);
+                Memory.WriteByte(0x0000, (byte)value);
 
                 value = btnMCRBit8.Active ? 1 : 0;
                 value |= (btnMCRBit9.Active ? 1 : 0) << 1;
-                Memory.WriteByte(0xAF_0001, (byte)value);
+                Memory.WriteByte(0x0001, (byte)value);      // TODO: wrong address
             }
 
             if (txtStartAddress.Text.StartsWith("AF", false, null))
