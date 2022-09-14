@@ -14,25 +14,6 @@
         public const int JOYSTICK2 = 0xAF_E802; // (R) Joystick 2 - J9
         public const int JOYSTICK3 = 0xAF_E803; // (R) Joystick 3 - J10(next to SD Card)
 
-        // Dip switch Ports
-        public const int DIPSWITCH = 0xAF_E804; // (R) $AFE804...$AFE807
-
-        public const int SDCARD_START = 0xAF_E808;  // Start of SDCARD memory range
-
-        public const int DIP_USER_MODE = 0xAF_E80D;
-        public const int DIP_BOOT_MODE = 0xAF_E80E;
-
-        public const int SDCARD_END = 0xAF_E81F;    // End of SDCARD memory range
-        public const int SDCARD_SIZE = 0x09;        // Size of SD Card memory range
-        public const int SDCARD_DATA = 0xAF_E808;
-        public const int SDCARD_CMD = 0xAF_E809;
-        public const int SDCARD_STAT = 0xAF_E810;
-
-        // Handling code in CODEC_RAM
-        public const int CODEC_START = 0xAF_E820;     // Start of CODEC memory range
-        public const int CODEC_SIZE = 0x04;           // Size of CODEC memory range
-        public const int CODEC_WR_CTRL = 0xAF_E822;   // codec write address
-
         // GABE
         /* 
             GABE_CTRL_PWR_LED   = $01     ; Controls the LED in the Front of the case (Next to the reset button)
@@ -73,9 +54,6 @@
             GABE_SYS_STAT_CPUX  = $80   ; Indicates the(8bit/16bit) Size of the Accumulator
         */
         public const int GABE_SYS_STAT = 0xAF_E887;
-
-        public const int CODEC_START_FMX = 0xAF_E900;    // Start of CODEC for FMX
-        public const int CODEC_WR_CTRL_FMX = 0xAF_E902;  // codec write address for FMX
 
         public const int GABE_SDC_CTRL_START = 0xAF_EA00;
         public const int GABE_SDC_CTRL_SIZE = 0x28;

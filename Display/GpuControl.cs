@@ -113,7 +113,8 @@ namespace FoenixToolkit.Display
 
             if (value == 0)
             {
-                int lutAddress = MemoryMap.GRP_LUT_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + (lutIndex * 256 + color) * 4;
+                // BUG: int lutAddress = MemoryMap.GRPH_LUT_BASE - MemoryMap.VICKY_BASE_ADDR + (lutIndex * 256 + color) * 4;
+                int lutAddress = MemoryMap.GRPH_LUT_BASE - MemoryMap.VICKY_BASE_ADDR + lutIndex * 256 + color * 4;
 
                 byte red = VICKY.ReadByte(lutAddress);
                 byte green = VICKY.ReadByte(lutAddress + 1);
@@ -121,7 +122,7 @@ namespace FoenixToolkit.Display
 
                 if (gamma)
                 {
-                    int baseAddr = MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR;
+                    int baseAddr = MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR;
                     blue = VICKY.ReadByte(baseAddr + blue);           // gammaCorrection[fgValueBlue];
                     green = VICKY.ReadByte(baseAddr + 0x100 + green); // gammaCorrection[0x100 + fgValueGreen];
                     red = VICKY.ReadByte(baseAddr + 0x200 + red);     // gammaCorrection[0x200 + fgValueRed];
@@ -142,7 +143,7 @@ namespace FoenixToolkit.Display
             if (fgt[fg] == 0)
             {
                 // Read the color lookup tables
-                int fgLUTAddress = MemoryMap.FG_CHAR_LUT_PTR - VICKY.StartAddress;
+                int fgLUTAddress = MemoryMap.TEXT_COLOR_FG - VICKY.StartAddress;
 
                 // In order to reduce the load of applying Gamma correction, load single bytes
                 byte fgValueRed = VICKY.ReadByte(fgLUTAddress + fg * 4);
@@ -151,7 +152,7 @@ namespace FoenixToolkit.Display
 
                 if (gamma)
                 {
-                    int baseAddr = MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR;
+                    int baseAddr = MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR;
                     fgValueBlue = VICKY.ReadByte(baseAddr + fgValueBlue); //gammaCorrection[fgValueBlue];
                     fgValueGreen = VICKY.ReadByte(baseAddr + 0x100 + fgValueGreen);//gammaCorrection[0x100 + fgValueGreen];
                     fgValueRed = VICKY.ReadByte(baseAddr + 0x200 + fgValueRed);//gammaCorrection[0x200 + fgValueRed];
@@ -167,7 +168,7 @@ namespace FoenixToolkit.Display
             if (bgt[bg] == 0)
             {
                 // Read the color lookup tables
-                int bgLUTAddress = MemoryMap.BG_CHAR_LUT_PTR - VICKY.StartAddress;
+                int bgLUTAddress = MemoryMap.TEXT_COLOR_BG - VICKY.StartAddress;
 
                 byte bgValueRed = VICKY.ReadByte(bgLUTAddress + bg * 4);
                 byte bgValueGreen = VICKY.ReadByte(bgLUTAddress + bg * 4 + 1);
@@ -175,7 +176,7 @@ namespace FoenixToolkit.Display
 
                 if (gamma)
                 {
-                    int baseAddr = MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR;
+                    int baseAddr = MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR;
                     bgValueBlue = VICKY.ReadByte(baseAddr + bgValueBlue); //gammaCorrection[bgValueBlue];
                     bgValueGreen = VICKY.ReadByte(baseAddr + 0x100 + bgValueGreen); //gammaCorrection[0x100 + bgValueGreen];
                     bgValueRed = VICKY.ReadByte(baseAddr + 0x200 + bgValueRed); //gammaCorrection[0x200 + bgValueRed];
@@ -220,9 +221,9 @@ namespace FoenixToolkit.Display
         {
             bool overlayBitSet = (MCR & 0x02) == 0x02;
 
-            int lineStartAddress = MemoryMap.SCREEN_PAGE0 - VICKY.StartAddress;
-            int colorStartAddress = MemoryMap.SCREEN_PAGE1 - VICKY.StartAddress;
-            int fontBaseAddress = MemoryMap.FONT_MEMORY_BANK_START - VICKY.StartAddress;
+            int lineStartAddress = MemoryMap.TEXT_CHAR_BASE;    //--  - VICKY.StartAddress;
+            int colorStartAddress = MemoryMap.TEXT_COLOR_BASE;  //--  - VICKY.StartAddress;
+            int fontBaseAddress = MemoryMap.FONT_BASE;          //--  - VICKY.StartAddress;
 
             // Find which line of characters to display
             int txtline = (line - rowOffset) / CHAR_HEIGHT;
@@ -296,7 +297,7 @@ namespace FoenixToolkit.Display
         private void DrawBitmap(ref byte[] buffer, bool gammaCorrection, int layer, bool bkgrnd, int bgndColor, int borderXSize, int borderYSize, int line, int width, int height)
         {
             // Bitmap Controller is located at $AF:0100 and $AF:0108
-            int regAddr = MemoryMap.BITMAP_CONTROL_REGISTER_ADDR - MemoryMap.VICKY_BASE_ADDR + layer * 8;
+            int regAddr = MemoryMap.BITMAP_CTRL_REG - MemoryMap.VICKY_BASE_ADDR + layer * 8;
 
             byte reg = VICKY.ReadByte(regAddr);
             if ((reg & 0x01) == 00)
@@ -318,7 +319,7 @@ namespace FoenixToolkit.Display
 
             VRAM.CopyIntoBuffer(offsetAddress, width, pixVals);
 
-            int lutAddress = MemoryMap.GRP_LUT_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + lutIndex * 1024;
+            int lutAddress = MemoryMap.GRPH_LUT_BASE - MemoryMap.VICKY_BASE_ADDR + lutIndex * 1024;
 
             for (uint col = (uint)borderXSize; col < width - borderXSize; ++col)
             {
@@ -340,7 +341,7 @@ namespace FoenixToolkit.Display
         private void DrawTiles(ref byte[] buffer, bool gammaCorrection, byte TextColumns, int layer, bool bkgrnd, in int borderXSize, in int line, in int width)
         {
             // There are four possible tilemaps to choose from
-            int addrTileCtrlReg = MemoryMap.TILE_CONTROL_REGISTER_ADDR - MemoryMap.VICKY_BASE_ADDR + layer * 12;
+            int addrTileCtrlReg = MemoryMap.TILEMAP_CTRL_REG - MemoryMap.VICKY_BASE_ADDR + layer * 12;
             int reg = VICKY.ReadByte(addrTileCtrlReg);
 
             // if the set is not enabled, we're done.
@@ -412,7 +413,7 @@ namespace FoenixToolkit.Display
             {
                 byte tilesetReg = tiles[t * 2 + 1];
                 byte lutIndex = (byte)((tilesetReg & 0x38) >> 3);
-                int lutAddress = MemoryMap.GRP_LUT_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + lutIndex * 1024;
+                int lutAddress = MemoryMap.GRPH_LUT_BASE - MemoryMap.VICKY_BASE_ADDR + lutIndex * 1024;
                 int tilesetOffsetAddress = tilesetOffsets[t];  // + startOffset
 
                 VRAM.CopyIntoBuffer(tilesetOffsetAddress, 16, tilepix);
@@ -446,7 +447,7 @@ namespace FoenixToolkit.Display
             // There are 32 possible sprites to choose from.
             for (int s = 31; s >= 0; --s)
             {
-                ushort addrSprite = (ushort)(MemoryMap.SPRITE_CONTROL_REG + s * 8 - MemoryMap.VICKY_BASE_ADDR);
+                ushort addrSprite = (ushort)(MemoryMap.SPRITE_CTRL_REG + s * 8 - MemoryMap.VICKY_BASE_ADDR);
                 byte reg = VICKY.ReadByte(addrSprite);
                 if ((reg & 1) == 0)
                     continue;
@@ -551,9 +552,9 @@ namespace FoenixToolkit.Display
                     {
                         if (gammaCorrection)
                         {
-                            pixelIndexB = VICKY.ReadByte(MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + pixelIndexR);          // gammaCorrection[pixelIndexR];
-                            pixelIndexG = VICKY.ReadByte(MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + 0x100 + pixelIndexR);  // gammaCorrection[0x100 + pixelIndexR];
-                            pixelIndexR = VICKY.ReadByte(MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + 0x200 + pixelIndexR);  // gammaCorrection[0x200 + pixelIndexR];
+                            pixelIndexB = VICKY.ReadByte(MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR + pixelIndexR);          // gammaCorrection[pixelIndexR];
+                            pixelIndexG = VICKY.ReadByte(MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR + 0x100 + pixelIndexR);  // gammaCorrection[0x100 + pixelIndexR];
+                            pixelIndexR = VICKY.ReadByte(MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR + 0x200 + pixelIndexR);  // gammaCorrection[0x200 + pixelIndexR];
                         }
 
                         buffer[bitplane++] = pixelIndexB;
@@ -582,7 +583,7 @@ namespace FoenixToolkit.Display
             CharacterSet cs = new();
 
             // Load the data from the file into the  IO buffer - starting at address $AF8000
-            cs.Load(Filename, Offset, VICKY, MemoryMap.FONT_MEMORY_BANK_START & 0xffff, CharSize);
+            cs.Load(Filename, Offset, VICKY, MemoryMap.FONT_BASE & 0xffff, CharSize);
         }
 
         private void on_GpuControl_map(object sender, EventArgs e)
@@ -779,9 +780,9 @@ namespace FoenixToolkit.Display
 
                 if (gammaCorrection)
                 {
-                    borderRed = VICKY.ReadByte(MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + 0x200 + borderRed);      // gammaCorrection[0x200 + borderGreen];
-                    borderGreen = VICKY.ReadByte(MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + 0x100 + borderGreen);  // gammaCorrection[0x100 + borderGreen];
-                    borderBlue = VICKY.ReadByte(MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + borderBlue);            // gammaCorrection[borderBlue];
+                    borderRed = VICKY.ReadByte(MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR + 0x200 + borderRed);      // gammaCorrection[0x200 + borderGreen];
+                    borderGreen = VICKY.ReadByte(MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR + 0x100 + borderGreen);  // gammaCorrection[0x100 + borderGreen];
+                    borderBlue = VICKY.ReadByte(MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR + borderBlue);            // gammaCorrection[borderBlue];
                 }
 
                 int borderColor = (int)(0xFF000000 + (borderBlue << 16) + (borderGreen << 8) + borderRed);
@@ -804,9 +805,9 @@ namespace FoenixToolkit.Display
 
                         if (gammaCorrection)
                         {
-                            backRed = VICKY.ReadByte(MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + 0x200 + backRed);      // gammaCorrection[0x200 + backRed];
-                            backGreen = VICKY.ReadByte(MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + 0x100 + backGreen);  // gammaCorrection[0x100 + backGreen];
-                            backBlue = VICKY.ReadByte(MemoryMap.GAMMA_BASE_ADDR - MemoryMap.VICKY_BASE_ADDR + backBlue);            // gammaCorrection[backBlue];
+                            backRed = VICKY.ReadByte(MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR + 0x200 + backRed);      // gammaCorrection[0x200 + backRed];
+                            backGreen = VICKY.ReadByte(MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR + 0x100 + backGreen);  // gammaCorrection[0x100 + backGreen];
+                            backBlue = VICKY.ReadByte(MemoryMap.GAMMA_BASE - MemoryMap.VICKY_BASE_ADDR + backBlue);            // gammaCorrection[backBlue];
                         }
 
                         backgroundColor = (int)(0xFF000000 + (backBlue << 16) + (backGreen << 8) + backRed);
