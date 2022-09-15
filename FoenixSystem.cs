@@ -41,14 +41,14 @@ namespace FoenixCore
 
             MemMgr = new MemoryManager
             {
-                RAM = new MemoryRAM(MemoryMap.RAM_START, MemoryMap.RAM_SIZE),                        // RAM: 2MB Rev B & U, 4MB Rev C & U+
-                VICKY = new MemoryRAM(MemoryMap.VICKY_START, MemoryMap.VICKY_SIZE),       // 60K
-                VIDEO = new MemoryRAM(MemoryMap.VIDEO_START, MemoryMap.VIDEO_SIZE),       // 4MB Video
-                FLASH = new MemoryRAM(MemoryMap.FLASH_START, MemoryMap.FLASH_SIZE),       // 8MB RAM
-                GABE = new GabeRAM(MemoryMap.GABE_START, MemoryMap.GABE_SIZE),            // 4K 
+                RAM = new MemoryRAM(MemoryMap.RAM_START, MemoryMap.RAM_SIZE),
+                VICKY = new MemoryRAM(MemoryMap.VICKY_START, MemoryMap.VICKY_SIZE),
+                VIDEO = new MemoryRAM(MemoryMap.VIDEO_START, MemoryMap.VIDEO_SIZE),
+                FLASH = new MemoryRAM((int)MemoryMap.FLASH_START, (int)MemoryMap.FLASH_SIZE),
+                GABE = new GabeRAM(MemoryMap.GABE_START, MemoryMap.GABE_SIZE),
 
                 // Special devices
-                MATH = new MathCoproRegister(MemoryMap.MATH_START, MemoryMap.MATH_END - MemoryMap.MATH_START + 1), // 48 bytes
+                MATH = new MathCoproRegister(MemoryMap.MATH.BASE, 8),
                 KEYBOARD = new KeyboardRegister(keyboardAddress, 5),
                 SDCARD = sdcard,
                 INTERRUPT = new InterruptController(MemoryMap.INTR_CTRL.PENDING_L, 4),
@@ -56,8 +56,8 @@ namespace FoenixCore
                 SID = new SID(MemoryMap.SID_S_BASE, 256),
                 FLOAT = new MathFloatRegister(MemoryMap.FLOAT_START, MemoryMap.FLOAT_END - MemoryMap.FLOAT_START + 1),
                 VDMA = new VDMA(MemoryMap.VDMA_START, MemoryMap.VDMA_SIZE),
-                TIMER0 = new TimerRegister(MemoryMap.TIMER0_CTRL_REG, 8),
-                TIMER1 = new TimerRegister(MemoryMap.TIMER1_CTRL_REG, 8)
+                TIMER0 = new TimerRegister(MemoryMap.TIMER0.CTRL, 8),
+                TIMER1 = new TimerRegister(MemoryMap.TIMER1.CTRL, 8)
             };
 
             MemMgr.CODEC = codec;

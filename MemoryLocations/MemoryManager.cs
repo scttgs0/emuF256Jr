@@ -51,7 +51,7 @@ namespace FoenixCore.MemoryLocations
                 return;
             }
 
-            if (Address >= MemoryMap.MATH_START && Address <= MemoryMap.MATH_END)
+            if (Address >= MemoryMap.MATH.BASE && Address <= MemoryMap.MATH.BASE + 7)
             {
                 Device = MATH;
                 DeviceAddress = Address - MATH.StartAddress;
@@ -65,14 +65,14 @@ namespace FoenixCore.MemoryLocations
                 return;
             }
 
-            if (Address >= MemoryMap.TIMER0_CTRL_REG && Address <= MemoryMap.TIMER0_CTRL_REG + 7)
+            if (Address >= MemoryMap.TIMER0.BASE && Address <= MemoryMap.TIMER0.BASE + 7)
             {
                 Device = TIMER0;
                 DeviceAddress = Address - TIMER0.StartAddress;
                 return;
             }
 
-            if (Address >= MemoryMap.TIMER1_CTRL_REG && Address <= MemoryMap.TIMER1_CTRL_REG + 7)
+            if (Address >= MemoryMap.TIMER1.BASE && Address <= MemoryMap.TIMER1.BASE + 7)
             {
                 Device = TIMER1;
                 DeviceAddress = Address - TIMER1.StartAddress;
