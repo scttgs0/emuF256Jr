@@ -78,7 +78,6 @@ namespace FoenixToolkit.UI
         //[GUI] CheckButton chkIrq0_SOL;
         //[GUI] CheckButton chkIrq0_SOF;
         //[GUI] CheckButton chkIrq1_SDC;
-        //[GUI] CheckButton chkIrq1_MPU401;
         //[GUI] CheckButton chkIrq1_COM1;
         //[GUI] CheckButton chkIrq1_COM2;
         //[GUI] CheckButton chkIrq1_KBD;
@@ -249,7 +248,6 @@ namespace FoenixToolkit.UI
             // chkIrq1_KBD.Visible = visible;
             // chkIrq1_COM2.Visible = visible;
             // chkIrq1_COM1.Visible = visible;
-            // chkIrq1_MPU401.Visible = visible;
             // chkIrq1_SDC.Visible = visible;
 // 
             // chkIrq2_OPL2L.Visible = visible;

@@ -25,7 +25,6 @@ namespace FoenixCore.MemoryLocations
         public InterruptController INTERRUPT = null;
         public UART UART = null;
         public OPL2 OPL2 = null;
-        public MPU401 MPU401 = null;
         public VDMA VDMA = null;
         public TimerRegister TIMER0 = null;
         public TimerRegister TIMER1 = null;
@@ -98,13 +97,6 @@ namespace FoenixCore.MemoryLocations
             {
                 Device = UART;
                 DeviceAddress = Address - MemoryMap.UART.BASE;
-                return;
-            }
-
-            if (Address >= MemoryMap.MPU401_DATA_REG && Address <= MemoryMap.MPU401_STATUS_REG)
-            {
-                Device = MPU401;
-                DeviceAddress = Address - MPU401.StartAddress;
                 return;
             }
 

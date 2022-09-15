@@ -29,12 +29,6 @@
 
         // KBD  - $AF:1060
         // GAME - $AF:1200 - Not Connected
-        // MPU  - $AF:1330
-
-        public const int MPU401_REGISTERS = 0xAF_1330;  // 2 bytes
-        public const int MPU401_DATA_REG = 0xAF_1330;
-        public const int MPU401_STATUS_REG = 0xAF_1331;
-
 
         public const int TILESET_BASE_ADDR = 0xAF_0280; // 8 tileset addresses, 4 bytes - 3 bytes address of tileset, 1 byte configuration
 
