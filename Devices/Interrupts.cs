@@ -15,11 +15,11 @@
     enum Register1
     {
         INT00_UART      = 0x01,     // Serial Port
-        INT01_COL0      = 0x02,     // Collsion Detection
-        INT02_COL1      = 0x04,     // Collsion Detection
-        INT03_COL2      = 0x08,     // Collsion Detection
+        INT01_COL0      = 0x02,     // Collision Detection
+        INT02_COL1      = 0x04,     // Collision Detection
+        INT03_COL2      = 0x08,     // Collision Detection
         INT04_RTC       = 0x10,     // Real-Time Clock
-        INT05_VIA       = 0x20,     // MIDI Port
+        INT05_VIA       = 0x20,     // VIA Port
         INT06_IEC       = 0x40,     // Parallel Port
         INT07_SDCARD    = 0x80      // SDCard Insert
     }
