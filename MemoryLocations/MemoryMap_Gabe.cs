@@ -6,7 +6,7 @@
         public const int FLOAT_START = 0xAF_E200;
         public const int FLOAT_END = 0xAF_E20F;
 
-        public const int OPL2_S_BASE = 0xAF_E700;   // Start of OPL2 Stereo range
+        public const int SID_S_BASE = 0xAF_E700;   // Start of SID Stereo range
 
         // Joystick Ports
         public const int JOYSTICK0 = 0xAF_E800; // (R) Joystick 0 - J7(Next to Buzzer)

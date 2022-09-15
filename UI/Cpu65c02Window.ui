@@ -592,11 +592,11 @@
                               <placeholder/>
                             </child>
                             <child>
-                              <object class="GtkCheckButton" id="chkIrq2_OPL2L">
+                              <object class="GtkCheckButton" id="chkIrq2_SID_L">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="tooltip_text" translatable="yes">Break on OPL2 Left Interrupts</property>
+                                <property name="tooltip_text" translatable="yes">Break on SID Left Interrupts</property>
                                 <property name="use_stock">True</property>
                                 <property name="draw_indicator">True</property>
                               </object>
@@ -607,11 +607,11 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkCheckButton" id="chkIrq2_OPL2R">
+                              <object class="GtkCheckButton" id="chkIrq2_SID_R">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="tooltip_text" translatable="yes">Break on OPL2 Right Interrupts</property>
+                                <property name="tooltip_text" translatable="yes">Break on SID Right Interrupts</property>
                                 <property name="use_stock">True</property>
                                 <property name="draw_indicator">True</property>
                               </object>

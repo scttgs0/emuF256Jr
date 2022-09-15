@@ -15,9 +15,6 @@ For more information on the project, go to [C256 Foenix Computer](https://www.c2
 The FoenixIDE is a work in progress.
 
 The C256 Foenix and its associated materials are owned by Stefany Allaire. There are three versions of the Foenix: 
-* RevB (2 MB RAM, 2xOPL2)
-* RevC - aka FMX (4 MB RAM, OPL3, OPN2, OPM and SN76489)
-* RevU
 
 The FoenixIDE looks for kernel.hex and kernel.lst files in the ROMs folder colocated with the executable.  Obtain the Kernel from the sister repository: https://github.com/Trinity-11/Kernel_FMX
 

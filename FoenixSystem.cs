@@ -53,7 +53,7 @@ namespace FoenixCore
                 SDCARD = sdcard,
                 INTERRUPT = new InterruptController(MemoryMap.INTR_CTRL.PENDING_L, 4),
                 UART = new UART(MemoryMap.UART.BASE, 8),
-                OPL2 = new OPL2(MemoryMap.OPL2_S_BASE, 256),
+                SID = new SID(MemoryMap.SID_S_BASE, 256),
                 FLOAT = new MathFloatRegister(MemoryMap.FLOAT_START, MemoryMap.FLOAT_END - MemoryMap.FLOAT_START + 1),
                 VDMA = new VDMA(MemoryMap.VDMA_START, MemoryMap.VDMA_SIZE),
                 TIMER0 = new TimerRegister(MemoryMap.TIMER0_CTRL_REG, 8),

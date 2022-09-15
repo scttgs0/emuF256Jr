@@ -81,8 +81,8 @@ namespace FoenixToolkit.UI
         //[GUI] CheckButton chkIrq1_COM1;
         //[GUI] CheckButton chkIrq1_COM2;
         //[GUI] CheckButton chkIrq1_KBD;
-        //[GUI] CheckButton chkIrq2_OPL2L;
-        //[GUI] CheckButton chkIrq2_OPL2R;
+        //[GUI] CheckButton chkIrq2_SID_L;
+        //[GUI] CheckButton chkIrq2_SID_R;
         //[GUI] ComboBoxText cboBreakpoint;
         [GUI] Entry txtAddress;
         [GUI] Entry txtLastLine;
@@ -235,7 +235,7 @@ namespace FoenixToolkit.UI
         private void RefreshIrqDisplay()
         {
             // bool visible = chkBreakOnIRQ.Active;
-// 
+
             // chkIrq0_SOF.Visible = visible;
             // chkIrq0_SOL.Visible = visible;
             // chkIrq0_TMR0.Visible = visible;
@@ -244,14 +244,14 @@ namespace FoenixToolkit.UI
             // chkIrq0_RTC.Visible = visible;
             // chkIrq0_FDC.Visible = visible;
             // chkIrq0_Mouse.Visible = visible;
-// 
+
             // chkIrq1_KBD.Visible = visible;
             // chkIrq1_COM2.Visible = visible;
             // chkIrq1_COM1.Visible = visible;
             // chkIrq1_SDC.Visible = visible;
-// 
-            // chkIrq2_OPL2L.Visible = visible;
-            // chkIrq2_OPL2R.Visible = visible;
+
+            // chkIrq2_SID_L.Visible = visible;
+            // chkIrq2_SID_R.Visible = visible;
         }
 
         private void RefreshStatus()

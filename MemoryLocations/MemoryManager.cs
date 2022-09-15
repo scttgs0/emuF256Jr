@@ -24,7 +24,7 @@ namespace FoenixCore.MemoryLocations
         public SDCardDevice SDCARD = null;
         public InterruptController INTERRUPT = null;
         public UART UART = null;
-        public OPL2 OPL2 = null;
+        public SID SID = null;
         public VDMA VDMA = null;
         public TimerRegister TIMER0 = null;
         public TimerRegister TIMER1 = null;
@@ -128,10 +128,10 @@ namespace FoenixCore.MemoryLocations
                 return;
             }
 
-            if (Address >= MemoryMap.OPL2_S_BASE && Address <= MemoryMap.OPL2_S_BASE + 255)
+            if (Address >= MemoryMap.SID_S_BASE && Address <= MemoryMap.SID_S_BASE + 255)
             {
-                Device = OPL2;
-                DeviceAddress = Address - OPL2.StartAddress;
+                Device = SID;
+                DeviceAddress = Address - SID.StartAddress;
                 return;
             }
 
