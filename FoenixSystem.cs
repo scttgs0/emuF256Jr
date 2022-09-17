@@ -51,7 +51,7 @@ namespace FoenixCore
                 MATH = new MathCoproRegister(MemoryMap.MATH.BASE, 8),
                 KEYBOARD = new KeyboardRegister(keyboardAddress, 5),
                 SDCARD = sdcard,
-                INTERRUPT = new InterruptController(MemoryMap.INTR_CTRL.PENDING_L, 4),
+                INTERRUPT = new InterruptController(MemoryMap.IRQ_CTRL.PENDING, 4),
                 UART = new UART(MemoryMap.UART.BASE, 8),
                 SID = new SID(MemoryMap.SID_S_BASE, 256),
                 FLOAT = new MathFloatRegister(MemoryMap.FLOAT_START, MemoryMap.FLOAT_END - MemoryMap.FLOAT_START + 1),
@@ -84,7 +84,7 @@ namespace FoenixCore
             // Set the Vicky rev and subrev
             MemMgr.VICKY.WriteWord(0x1C, 0x7654);
             MemMgr.VICKY.WriteWord(0x1E, 0x3456);
-            MemMgr.VICKY.WriteByte(MemoryMap.GAMMA_CTRL_REG - MemoryMap.VICKY_BASE_ADDR, 0x11); // Gamma and hi-res are off
+            // MemMgr.VICKY.WriteByte(MemoryMap.GAMMA_CTRL_REG - MemoryMap.VICKY_BASE_ADDR, 0x11); // Gamma and hi-res are off
 
             // set the date
             // MemMgr.VICKY.WriteByte(MemoryMap.FPGA_DOR - MemoryMap.VICKY_BASE_ADDR, 0x1);
@@ -99,12 +99,12 @@ namespace FoenixCore
 
         private void TimerEvent0()
         {
-            byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.INTR_CTRL.MASK_L);
+            byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.IRQ_CTRL.MASK);
 
             if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.INT04_TMR0) == (byte)Register0.INT04_TMR0))
             {
                 // Set the Timer0 Interrupt
-                byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.INTR_CTRL.PENDING_L);
+                byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.IRQ_CTRL.PENDING);
                 IRQ0 |= (byte)Register0.INT04_TMR0;
 
                 MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);
@@ -115,12 +115,12 @@ namespace FoenixCore
 
         private void TimerEvent1()
         {
-            byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.INTR_CTRL.MASK_L);
+            byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.IRQ_CTRL.MASK);
 
             if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.INT05_TMR1) == (byte)Register0.INT05_TMR1))
             {
                 // Set the Timer1 Interrupt
-                byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.INTR_CTRL.PENDING_L);
+                byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.IRQ_CTRL.PENDING);
                 IRQ0 |= (byte)Register0.INT05_TMR1;
 
                 MemMgr.INTERRUPT.WriteFromGabe(0, IRQ0);

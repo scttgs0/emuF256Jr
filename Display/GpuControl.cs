@@ -233,9 +233,9 @@ namespace FoenixToolkit.Display
             BGTextLUT = new int[16];
 
             // Cursor Values
-            byte CursorY = RAM.ReadByte(MemoryMap.CURSORY);
-            byte CursorX = RAM.ReadByte(MemoryMap.CURSORX);
-            bool CursorEnabled = (VICKY.ReadByte(MemoryMap.VKY_TXT_CURSOR_CTRL_REG - MemoryMap.VICKY_START) & 1) != 0;
+            byte CursorY = RAM.ReadByte(MemoryMap.CURSOR_Y);
+            byte CursorX = RAM.ReadByte(MemoryMap.CURSOR_X);
+            bool CursorEnabled = (VICKY.ReadByte(MemoryMap.CURSOR_CTRL - MemoryMap.VICKY_START) & 1) != 0;
 
             // Each character is defined by 8 bytes
             int fontRaster = (line - rowOffset) % CHAR_HEIGHT;
@@ -261,7 +261,7 @@ namespace FoenixToolkit.Display
 
                 // Display the cursor
                 if (CursorX == col && CursorY == txtline && CursorState && CursorEnabled)
-                    character = VICKY.ReadByte(MemoryMap.VKY_TXT_CURSOR_CHAR_REG - VICKY.StartAddress);
+                    character = VICKY.ReadByte(MemoryMap.CURSOR_CHAR - VICKY.StartAddress);
 
                 byte fgColor = (byte)((color & 0xF0) >> 4);
                 byte bgColor = (byte)(color & 0x0F);
@@ -297,7 +297,7 @@ namespace FoenixToolkit.Display
         private void DrawBitmap(ref byte[] buffer, bool gammaCorrection, int layer, bool bkgrnd, int bgndColor, int borderXSize, int borderYSize, int line, int width, int height)
         {
             // Bitmap Controller is located at $AF:0100 and $AF:0108
-            int regAddr = MemoryMap.BITMAP_CTRL_REG - MemoryMap.VICKY_BASE_ADDR + layer * 8;
+            int regAddr = MemoryMap.BITMAP0_CTRL - MemoryMap.VICKY_BASE_ADDR + layer * 8;
 
             byte reg = VICKY.ReadByte(regAddr);
             if ((reg & 0x01) == 00)
@@ -341,7 +341,7 @@ namespace FoenixToolkit.Display
         private void DrawTiles(ref byte[] buffer, bool gammaCorrection, byte TextColumns, int layer, bool bkgrnd, in int borderXSize, in int line, in int width)
         {
             // There are four possible tilemaps to choose from
-            int addrTileCtrlReg = MemoryMap.TILEMAP_CTRL_REG - MemoryMap.VICKY_BASE_ADDR + layer * 12;
+            int addrTileCtrlReg = MemoryMap.TILEMAP0_CTRL - MemoryMap.VICKY_BASE_ADDR + layer * 12;
             int reg = VICKY.ReadByte(addrTileCtrlReg);
 
             // if the set is not enabled, we're done.
@@ -744,9 +744,9 @@ namespace FoenixToolkit.Display
                 drawBuffer[i] = 0x00;
 
             // Load the SOL register - a lines
-            int SOLRegAddr = MemoryMap.VKY_LINE_IRQ_CTRL_REG - MemoryMap.VICKY_BASE_ADDR;
-            int SOLLine0Addr = MemoryMap.VKY_LINE0_CMP_VALUE_LO - MemoryMap.VICKY_BASE_ADDR;
-            int SOLLine1Addr = MemoryMap.VKY_LINE1_CMP_VALUE_LO - MemoryMap.VICKY_BASE_ADDR;
+            int SOLRegAddr = MemoryMap.LINE_IRQ_CTRL - MemoryMap.VICKY_BASE_ADDR;
+            int SOLLine0Addr = MemoryMap.LINE_IRQ_LINENBR - MemoryMap.VICKY_BASE_ADDR;
+            //int SOLLine1Addr = MemoryMap.VKY_LINE1_CMP_VALUE_LO - MemoryMap.VICKY_BASE_ADDR;
 
             // Reset LUT Cache
             lutCache = new int[256 * 8]; // 8 LUTs
@@ -765,12 +765,12 @@ namespace FoenixToolkit.Display
                         StartOfLine?.Invoke();
                 }
 
-                if ((SOLRegister & 2) != 0)
-                {
-                    int SOLLine1 = VICKY.ReadWord(SOLLine1Addr);
-                    if (line == SOLLine1)
-                        StartOfLine?.Invoke();
-                }
+                // if ((SOLRegister & 2) != 0)
+                // {
+                //     int SOLLine1 = VICKY.ReadWord(SOLLine1Addr);
+                //     if (line == SOLLine1)
+                //         StartOfLine?.Invoke();
+                // }
 
                 // Default background color to border color
                 // In Text mode, the border color is stored at D005:D007.

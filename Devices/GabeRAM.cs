@@ -15,13 +15,24 @@ namespace FoenixCore.Simulator.Devices
 
         override public byte ReadByte(int Address)
         {
-            if (Address == (MemoryMap.GABE_RNG_SEED_LO - MemoryMap.GABE_START))
-                return (byte)rng.Next(255);
+            var rnd = rng.Next(0xFFFF);
 
-            if (Address == (MemoryMap.GABE_RNG_SEED_HI - MemoryMap.GABE_START))
-                return (byte)rng.Next(255);
+            if (Address == (MemoryMap.SYSTEM_CTRL.RANDOM - MemoryMap.VICKY_START))
+                return (byte)(rnd & 0xFF);
+
+            if (Address == (MemoryMap.SYSTEM_CTRL.RANDOM+1 - MemoryMap.VICKY_START))
+                return (byte)((rnd >> 8) & 0xFF);
 
             return data[Address];
+        }
+
+        override public int ReadWord(int Address)
+        {
+
+            if (Address == (MemoryMap.SYSTEM_CTRL.RANDOM - MemoryMap.VICKY_START))
+                return rng.Next(0xFFFF);
+
+            return (data[Address+1] << 8) + data[Address];
         }
     }
 }

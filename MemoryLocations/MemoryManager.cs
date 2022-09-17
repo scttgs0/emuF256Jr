@@ -58,7 +58,7 @@ namespace FoenixCore.MemoryLocations
                 return;
             }
 
-            if (Address >= MemoryMap.INTR_CTRL.PENDING_L && Address <= MemoryMap.INTR_CTRL.PENDING_L + 3)
+            if (Address >= MemoryMap.IRQ_CTRL.PENDING && Address <= MemoryMap.IRQ_CTRL.PENDING + 3)
             {
                 Device = INTERRUPT;
                 DeviceAddress = Address - INTERRUPT.StartAddress;
@@ -192,7 +192,7 @@ namespace FoenixCore.MemoryLocations
         /// </summary>
         /// <param name="Address"></param>
         /// <returns></returns>
-        public ushort ReadWord(int Address)
+        public virtual ushort ReadWord(int Address)
         {
             GetDeviceAt(Address, out IMappable device, out int deviceAddress);
 

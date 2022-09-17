@@ -47,8 +47,10 @@ namespace FoenixToolkit.UI
         {
             builder.Autoconnect(this);
 
+#pragma warning disable CS0612  // is obsolete
             bit0.ModifyBg(StateType.Normal, new Gdk.Color(0, 192, 44));
             bit2.ModifyBg(StateType.Normal, new Gdk.Color(0, 192, 64));
+#pragma warning restore CS0612
         }
 
         public CentralProcessingUnit CPU

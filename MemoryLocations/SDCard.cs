@@ -16,9 +16,8 @@ namespace FoenixCore.MemoryLocations
             public const ushort ADDRESS         = 0xDD07;       // [dword]
             public const ushort SPI_CLK_DEL     = 0xDD0B;
 
-            public const ushort RX_DATA         = 0xDD10;
-            public const ushort RX_DATA_COUNT_H = 0xDD12;
-            public const ushort RX_DATA_COUNT_L = 0xDD13;
+            public const ushort RX_DATA         = 0xDD10;       // read-only
+            public const ushort RX_DATA_COUNT   = 0xDD12;       // [word]
             public const ushort RX_CTRL         = 0xDD14;
 
             public const ushort TX_DATA         = 0xDD20;

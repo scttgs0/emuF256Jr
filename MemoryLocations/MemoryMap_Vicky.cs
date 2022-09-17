@@ -4,18 +4,6 @@
     {
         #region Vicky Memory Map
 
-
-        public const int VKY_TXT_CURSOR_CTRL_REG = 0xAF_0010;
-        public const int VKY_TXT_CURSOR_CHAR_REG = 0xAF_0012;
-
-        // Line Interrupt Registers
-        public const int VKY_LINE_IRQ_CTRL_REG = 0xAF001B; // [0] - Enable Line 0, [1] -Enable Line 1
-        public const int VKY_LINE0_CMP_VALUE_LO = 0xAF001C; // Write Only[7:0]
-        public const int VKY_LINE0_CMP_VALUE_HI = 0xAF001D; // Write Only[3:0]
-        public const int VKY_LINE1_CMP_VALUE_LO = 0xAF001E; // Write Only[7:0]
-        public const int VKY_LINE1_CMP_VALUE_HI = 0xAF001F; // Write Only[3:0]
-
-
         public const int VDMA_START = 0xAF_0400;
         public const int VDMA_SIZE = 0x31; // from $af:0400 to $af:0430
 

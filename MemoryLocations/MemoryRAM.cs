@@ -48,7 +48,7 @@ namespace FoenixCore.MemoryLocations
         /// </summary>
         /// <param name="Address"></param>
         /// <returns></returns>
-        public int ReadWord(int Address)
+        public virtual int ReadWord(int Address)
         {
             return BitConverter.ToUInt16(data, Address);
         }

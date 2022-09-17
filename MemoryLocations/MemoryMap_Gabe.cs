@@ -31,10 +31,6 @@
         public const int GABE_RNG_DAT_LO = 0xAF_E884; // Low Part of 16Bit RNG Generator
         public const int GABE_RNG_DAT_HI = 0xAF_E885; // High Part of 16Bit RNG Generator
 
-        // WRITE
-        public const int GABE_RNG_SEED_LO = 0xAF_E884; // Low Part of 16Bit RNG Generator
-        public const int GABE_RNG_SEED_HI = 0xAF_E885; // High Part of 16Bit RNG Generator
-
         // READ
         //GABE_RNG_LFSR_DONE  = $80     ; indicates that Output = SEED Database
         public const int GABE_RNG_STAT = 0xAF_E886;
