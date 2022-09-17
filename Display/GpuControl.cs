@@ -447,7 +447,7 @@ namespace FoenixToolkit.Display
             // There are 32 possible sprites to choose from.
             for (int s = 31; s >= 0; --s)
             {
-                ushort addrSprite = (ushort)(MemoryMap.SPRITE_CTRL_REG + s * 8 - MemoryMap.VICKY_BASE_ADDR);
+                ushort addrSprite = (ushort)(MemoryMap.SPRITE00_CTRL + s * 8 - MemoryMap.VICKY_BASE_ADDR);
                 byte reg = VICKY.ReadByte(addrSprite);
                 if ((reg & 1) == 0)
                     continue;
