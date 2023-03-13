@@ -39,7 +39,7 @@ namespace FoenixToolkit.UI
         private readonly ResourceChecker ResChecker = new();
         private delegate void TransmitByteFunction(byte Value);
         private delegate void ShowFormFunction();
-        private readonly String defaultKernel = "roms/C256jr.hex";
+        private readonly String defaultKernel = "roms/kernel_F256jr.hex";
         private readonly int jumpStartAddress;
         private readonly bool disabledIRQs = false;
         private BoardVersion version = BoardVersion.RevJr;
