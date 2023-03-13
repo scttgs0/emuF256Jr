@@ -1,9 +1,10 @@
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
-using System.Timers;
 using System.Text;
+using sysTimer = System.Timers;
 
 using Gtk;
 using GUI = Gtk.Builder.ObjectAttribute;
@@ -23,7 +24,7 @@ namespace FoenixToolkit.UI
         private FoenixSystem _kernel = null;
         bool isRunning = false;
 
-        System.Timers.Timer traceTimer = null;
+        sysTimer.Timer traceTimer = null;
 
         private int StepCounter = 0;
         private bool isStepOver = false;
@@ -287,7 +288,7 @@ namespace FoenixToolkit.UI
                 // int i = _kernel.CoreCpu.Stack.TopOfStack - _kernel.CoreCpu.Stack.Value;
                 // if (i > 28)
                     // i = 28;
-// 
+//
                 // while (i > 0)
                 // {
                     // int address = _kernel.CoreCpu.Stack.Value + i;
@@ -612,7 +613,7 @@ namespace FoenixToolkit.UI
                 cr.Rectangle(rec.X, rec.Y, rec.Width, rec.Height);
                 cr.Fill();
 
-                cr.SetSourceColor(black); 
+                cr.SetSourceColor(black);
                 cr.SelectFontFace("Consolas", Cairo.FontSlant.Normal, Cairo.FontWeight.Bold);
                 cr.SetFontSize(14);
                 cr.MoveTo(20, tvwDisassembly.AllocatedHeight / 2);
@@ -974,7 +975,7 @@ namespace FoenixToolkit.UI
         }
 
         // Don't try to display the CPU information too often
-        private void on_traceTimer_tick(object sender, ElapsedEventArgs e)
+        private void on_traceTimer_tick(object sender, sysTimer.ElapsedEventArgs e)
         {
            RefreshStatus();
         }
@@ -1044,7 +1045,7 @@ namespace FoenixToolkit.UI
                     {
                         DebugLine line = codeList[TopLineIndex + row];
 
-                        // try to highlight the word we are over 
+                        // try to highlight the word we are over
                         if (line.HasAddress())
                         {
                             ActiveLine[0] = line.PC;

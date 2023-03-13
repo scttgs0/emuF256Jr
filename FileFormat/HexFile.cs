@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+using System;
+using System.IO;
 
 using Gtk;
 
@@ -18,7 +20,7 @@ namespace FoenixCore.Simulator.FileFormat
             startAddress = -1;
             length = -1;
 
-            if (!System.IO.File.Exists(Filename))
+            if (!File.Exists(Filename))
             {
                 FileChooserDialog filechooser =
                     new("Select a kernel file", null,
@@ -39,7 +41,7 @@ namespace FoenixCore.Simulator.FileFormat
                     filechooser.AddFilter(ff2);
                 }
 
-                if (filechooser.Run() == (int)ResponseType.Accept) 
+                if (filechooser.Run() == (int)ResponseType.Accept)
                     processedFileName = filechooser.Filename;
                 else
                 {
@@ -50,7 +52,7 @@ namespace FoenixCore.Simulator.FileFormat
                 filechooser.Destroy();
             }
 
-            string[] lines = System.IO.File.ReadAllLines(processedFileName);
+            string[] lines = File.ReadAllLines(processedFileName);
 
             foreach (string l in lines)
             {
@@ -98,8 +100,8 @@ namespace FoenixCore.Simulator.FileFormat
                             bank = GetByte(data, 0, 2) * 16;
                             break;
 
-                        // extended linear address 
-                        // lower byte will populate the bank number. 
+                        // extended linear address
+                        // lower byte will populate the bank number.
                         case "04":
                             bank = GetByte(data, 0, 2) << 16;
                             break;

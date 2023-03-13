@@ -1,4 +1,6 @@
+
 using System.Diagnostics;
+using System.Reflection;
 
 
 namespace FoenixCore
@@ -7,7 +9,7 @@ namespace FoenixCore
     {
         public static string AppVersion()
         {
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 
             return fvi.FileVersion;

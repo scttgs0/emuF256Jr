@@ -1,6 +1,8 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 
 namespace FoenixCore.Simulator.FileFormat
@@ -23,9 +25,11 @@ namespace FoenixCore.Simulator.FileFormat
             string Filename = KernelFilename.Substring(0, lastDot + 1) + "lst";
             int CommandOffset = 1;
 
-            if (System.IO.File.Exists(Filename))
+            if (!File.Exists(Filename))
+                Debug.WriteLine("List file '" + Filename + "' not found");
+            else
             {
-                string[] lines = System.IO.File.ReadAllLines(Filename);
+                string[] lines = File.ReadAllLines(Filename);
                 int pc = 0;
 
                 DbgLines.Clear();
@@ -78,8 +82,6 @@ namespace FoenixCore.Simulator.FileFormat
                     }
                 }
             }
-            else
-                Debug.WriteLine("List file '" + Filename + "' not found");
         }
     }
 }

@@ -1,8 +1,10 @@
+
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
-﻿using FoenixCore.Simulator.Devices.SDCard;
+using FoenixCore.Simulator.Devices.SDCard;
 
 
 namespace FoenixCore.Simulator.Devices
@@ -330,7 +332,7 @@ namespace FoenixCore.Simulator.Devices
                 ShortLongFileName slf = new()
                 {
                     longName = file,
-                    shortName = ShortFilename(file[path.Length..]) + (char)(byte)FileAttributes.Archive + spaces + spaces + System.Text.Encoding.Default.GetString(sizeB)
+                    shortName = ShortFilename(file[path.Length..]) + (char)(byte)FileAttributes.Archive + spaces + spaces + Encoding.Default.GetString(sizeB)
                 };
 
                 while (ListContains(dircontent, slf.shortName.Substring(0, 11)))

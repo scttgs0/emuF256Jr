@@ -1,6 +1,6 @@
+
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
+using sysDrawing = System.Drawing;
 using System.Timers;
 
 using Cairo;
@@ -52,9 +52,9 @@ namespace FoenixToolkit.Display
         public const int BLINK_RATE = 30;
 
         // To provide a better contrast when writing on top of bitmaps
-        private Cairo.Color lightBlue = new(System.Drawing.Color.LightBlue.R / 255.0, System.Drawing.Color.LightBlue.G / 255.0, System.Drawing.Color.LightBlue.B / 255.0);
-        private Cairo.Color blue = new(System.Drawing.Color.Blue.R / 255.0, System.Drawing.Color.Blue.G / 255.0, System.Drawing.Color.Blue.B / 255.0);
-        private Cairo.Color black = new(System.Drawing.Color.Black.R / 255.0, System.Drawing.Color.Black.G / 255.0, System.Drawing.Color.Black.B / 255.0);
+        private Cairo.Color lightBlue = new(sysDrawing.Color.LightBlue.R / 255.0, sysDrawing.Color.LightBlue.G / 255.0, sysDrawing.Color.LightBlue.B / 255.0);
+        private Cairo.Color blue = new(sysDrawing.Color.Blue.R / 255.0, sysDrawing.Color.Blue.G / 255.0, sysDrawing.Color.Blue.B / 255.0);
+        private Cairo.Color black = new(sysDrawing.Color.Black.R / 255.0, sysDrawing.Color.Black.G / 255.0, sysDrawing.Color.Black.B / 255.0);
 
         const int STRIDE = 800;
         readonly Image<Bgra32> frameBuffer = new(STRIDE, 600);
@@ -82,11 +82,11 @@ namespace FoenixToolkit.Display
             builder.Autoconnect(this);
         }
 
-        public System.Drawing.Point GetScreenSize()
+        public sysDrawing.Point GetScreenSize()
         {
             byte MCRHigh = (byte)(VICKY.ReadByte(1) & 3); // Reading address $AF:0001
 
-            System.Drawing.Point p = new(640, 480);
+            sysDrawing.Point p = new(640, 480);
 
             switch (MCRHigh)
             {
@@ -271,7 +271,7 @@ namespace FoenixToolkit.Display
                 byte bgColor = (byte)(color & 0x0F);
 
                 int[] textColors = GetTextLUT(fgColor, bgColor, gammaCorrection);
-                // System.Console.WriteLine($"fg: {textColors[0].ToString("X4")}  bg: {textColors[1].ToString("X4")}");
+                // Console.WriteLine($"fg: {textColors[0].ToString("X4")}  bg: {textColors[1].ToString("X4")}");
 
                 byte fontRasterBits = VICKY.ReadByte(fontBaseAddress + character * 8 + fontRaster);
 
@@ -714,7 +714,7 @@ namespace FoenixToolkit.Display
             if (drawing)
             {
                 // drop the frame
-                System.Console.WriteLine("Skipped Frame");
+                Console.WriteLine("Skipped Frame");
                 return;
             }
 
@@ -724,12 +724,12 @@ namespace FoenixToolkit.Display
             if (MCRegister != 0 && MCRegister != 0x80)
                 StartOfFrame?.Invoke();
 
-            //-- g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
-            // g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+            //-- g.CompositingMode = sysDrawing.Drawing2D.CompositingMode.SourceCopy;
+            // g.CompositingQuality = sysDrawing.Drawing2D.CompositingQuality.HighSpeed;
 
             // Bilinear interpolation has effect very similar to real HW
-            //-- g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            // g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+            //-- g.InterpolationMode = sysDrawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            // g.SmoothingMode = sysDrawing.Drawing2D.SmoothingMode.HighSpeed;
 
             // Determine if we display a border
             byte border_register = VICKY.ReadByte(MemoryMap.BORDER_CTRL_REG - MemoryMap.VICKY_BASE_ADDR);
@@ -738,7 +738,7 @@ namespace FoenixToolkit.Display
             int borderXSize = displayBorder ? VICKY.ReadByte(MemoryMap.BORDER_X_SIZE - MemoryMap.VICKY_BASE_ADDR) : 0;
             int borderYSize = displayBorder ? VICKY.ReadByte(MemoryMap.BORDER_Y_SIZE - MemoryMap.VICKY_BASE_ADDR) : 0;
 
-            System.Drawing.Rectangle rect = new(0, 0, resX - 1, resY - 1);
+            sysDrawing.Rectangle rect = new(0, 0, resX - 1, resY - 1);
             //---BitmapData bitmapData = frameBuffer.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
             //---int* bitmapPointer = (int*)bitmapData.Scan0.ToPointer();
 

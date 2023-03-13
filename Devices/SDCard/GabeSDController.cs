@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -45,7 +46,7 @@ namespace FoenixCore.Simulator.Devices
         private readonly Dictionary<int, FileEntry> FAT = new();
         private readonly string spaces = "        ";
         private bool mbrPresent = false;
-        
+
         FileEntry voidEntry = null; // this is a "newfile" entry that gets used when creating a new file.
 
         private GabeCtrlCommand currentCommand = GabeCtrlCommand.DIRECT;
@@ -61,7 +62,7 @@ namespace FoenixCore.Simulator.Devices
             return Address switch
             {
                 MemoryMap.GABE_SDC_TRANS_STATUS_REG - MemoryMap.GABE_SDC_CTRL_START => (isPresent && (waitCounter-- > 0)) ? (byte)1 : (byte)0,// fake the wait time
-                MemoryMap.GABE_SDC_TRANS_ERROR_REG - MemoryMap.GABE_SDC_CTRL_START => isPresent ? data[5] : (byte)1,// return 
+                MemoryMap.GABE_SDC_TRANS_ERROR_REG - MemoryMap.GABE_SDC_CTRL_START => isPresent ? data[5] : (byte)1,// return
                 MemoryMap.GABE_SDC_RX_FIFO_DATA_REG - MemoryMap.GABE_SDC_CTRL_START => isPresent ? (readBlock != null ? readBlock[blockPtr++] : (byte)0xEF) : (byte)0,
                 _ => data[Address],
             };
@@ -402,7 +403,7 @@ namespace FoenixCore.Simulator.Devices
                             sectors_per_fat = req_cluster / 128;
                             break;
                     }
-                    
+
                     sector_count += sectors_per_fat * 2;
 
                     switch (FileSystemType)
@@ -439,7 +440,7 @@ namespace FoenixCore.Simulator.Devices
                     Array.Copy(Encoding.ASCII.GetBytes("MSDOS5.0"), 0, boot_sector, 3, 8);
 
                     boot_sector[0xC] = 0x2; // 512 bytes per sector
-                    boot_sector[0xD] = sectors_per_cluster; // must be a factor of 2 
+                    boot_sector[0xD] = sectors_per_cluster; // must be a factor of 2
                     boot_sector[0xE] = reserved_sectors;
                     boot_sector[0xF] = 0;
                     boot_sector[0x10] = 0x2; // Number of FATs
@@ -510,7 +511,7 @@ namespace FoenixCore.Simulator.Devices
 
                     // DATA offset
                     DATA_OFFSET_START = ROOT_OFFSET_START + ROOT_SIZE; // the root area is always 32 sectors
-                    DATA_SIZE = small_sectors != 0 ? small_sectors * 512 : large_sectors * 512;                    
+                    DATA_SIZE = small_sectors != 0 ? small_sectors * 512 : large_sectors * 512;
                 }
             }
         }
@@ -545,7 +546,7 @@ namespace FoenixCore.Simulator.Devices
 
             if (FileSystemType == FSType.FAT32)
                 currentCluster = 2 + 32 * 512 / ClusterSize;
-            
+
             foreach (string dir in dirs)
             {
                 FileInfo info = new(dir);
@@ -553,7 +554,7 @@ namespace FoenixCore.Simulator.Devices
                 string dirname = info.Name.Replace(" ", "").ToUpper();
                 if (dirname.Length < 8)
                     dirname += spaces.Substring(0, 8 - dirname.Length);
-                
+
                 Array.Copy(Encoding.ASCII.GetBytes(dirname), 0, root, pointer, 8);
                 root[pointer + 11] = 0x10;
                 pointer += 32;
@@ -583,7 +584,7 @@ namespace FoenixCore.Simulator.Devices
                     }
                     while (AlreadyExists(shortFilename) && count < 10);
 
-                    filename = shortFilename;                    
+                    filename = shortFilename;
                 }
 
                 if (filename.Length < 8)
@@ -658,8 +659,8 @@ namespace FoenixCore.Simulator.Devices
                             continue;
                         }
 
-                        string name = System.Text.Encoding.UTF8.GetString(writeBlock, i, 8);
-                        string ext = System.Text.Encoding.UTF8.GetString(writeBlock, i + 8, 3);
+                        string name = Encoding.UTF8.GetString(writeBlock, i, 8);
+                        string ext = Encoding.UTF8.GetString(writeBlock, i + 8, 3);
 
                         if (byte0 != 0xE5 && entry == voidEntry)
                         {
@@ -680,13 +681,13 @@ namespace FoenixCore.Simulator.Devices
                                 }
 
                                 entry.fqpn = newFileName;
-                                entry.shortname = name; 
+                                entry.shortname = name;
                             }
                             catch (Exception e)
                             {
                                 // controller error
                                 data[5] = 1;
-                                System.Console.WriteLine(e.ToString());
+                                Console.WriteLine(e.ToString());
                             }
                             finally
                             {
@@ -713,7 +714,7 @@ namespace FoenixCore.Simulator.Devices
 
             switch (FileSystemType)
             {
-                case FSType.FAT12: 
+                case FSType.FAT12:
                     fatCount = 513 / 3 * 2; //341
 
                     if (page % 3 != 0)
@@ -731,7 +732,7 @@ namespace FoenixCore.Simulator.Devices
                     byteOffset = 0;
                     break;
             }
-            
+
             if (page == 0)
             {
                 switch (FileSystemType)
@@ -925,7 +926,7 @@ namespace FoenixCore.Simulator.Devices
                     {
                         // controller error
                         data[5] = 1;
-                        System.Console.WriteLine(e.ToString());
+                        Console.WriteLine(e.ToString());
 
                         return null;
                     }
@@ -971,7 +972,7 @@ namespace FoenixCore.Simulator.Devices
                 {
                     // controller error
                     data[5] = 1;
-                    System.Console.WriteLine(e.ToString());
+                    Console.WriteLine(e.ToString());
                 }
                 finally
                 {
@@ -1087,7 +1088,7 @@ namespace FoenixCore.Simulator.Devices
                 {
                     // controller error
                     data[5] = 1;
-                    System.Console.WriteLine(e.ToString());
+                    Console.WriteLine(e.ToString());
 
                     return null;
                 }
@@ -1117,7 +1118,7 @@ namespace FoenixCore.Simulator.Devices
                 {
                     // controller error
                     data[5] = 1;
-                    System.Console.WriteLine(e.ToString());
+                    Console.WriteLine(e.ToString());
 
                     return;
                 }

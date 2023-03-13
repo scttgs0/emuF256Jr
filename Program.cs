@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 
@@ -75,7 +76,7 @@ namespace FoenixToolkit.UI
                         try {
                             value = Convert.ToInt32(args[i + 1].Replace("$:", ""), 16);
                         }
-                        catch (System.FormatException) {}
+                        catch (FormatException) {}
 
                         if (value > 0)
                         {

@@ -1,4 +1,6 @@
+
 using System;
+using sysDrawing = System.Drawing;
 using System.Timers;
 
 using Gtk;
@@ -13,7 +15,7 @@ namespace FoenixToolkit.UI
     {
         Timer refreshTimer = null;
 
-        private Cairo.Color lightBlue = new(System.Drawing.Color.LightBlue.R / 255.0, System.Drawing.Color.LightBlue.G / 255.0, System.Drawing.Color.LightBlue.B / 255.0);
+        private Cairo.Color lightBlue = new(sysDrawing.Color.LightBlue.R / 255.0, sysDrawing.Color.LightBlue.G / 255.0, sysDrawing.Color.LightBlue.B / 255.0);
 
 #pragma warning disable CS0649  // never assigned
         [GUI] Label bit0;
