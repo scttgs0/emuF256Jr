@@ -32,7 +32,7 @@ namespace FoenixToolkit.UI
         private Breakpoints knl_breakpoints;
         private List<DebugLine> codeList = null;
 
-        private readonly int[] ActiveLine = { 0, 0, 0 };  // PC, startofline, width - the point of this is to underline the ADDRESS name
+        private readonly int[] ActiveLine = { 0, 0, 0 };  // PC, start-of-line, width - the point of this is to underline the ADDRESS name
 
         const int ROW_HEIGHT = 14;
         const int BASELINE_OFFSET = ROW_HEIGHT - 2;
@@ -372,7 +372,7 @@ namespace FoenixToolkit.UI
         private delegate void nullParamMethod();
 
         /// <summary>
-        /// Executes next step of 65C816 code, logs dubeugging data
+        /// Executes next step of code, logs debugging data
         /// if debugging check box is set on CPU Window
         /// </summary>
         public void ExecuteStep()

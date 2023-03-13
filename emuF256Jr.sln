@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "C256Jr", "C256Jr.csproj", "{EFB1B817-A17C-4FB8-BDDF-E0F0848C7275}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "emuF256Jr", "emuF256Jr.csproj", "{EFB1B817-A17C-4FB8-BDDF-E0F0848C7275}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

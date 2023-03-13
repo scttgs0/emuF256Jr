@@ -7,6 +7,9 @@ using Cairo;
 using Gtk;
 using GUI = Gtk.Builder.ObjectAttribute;
 
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+
 using FoenixCore.Display;
 using FoenixCore.MemoryLocations;
 
@@ -54,7 +57,8 @@ namespace FoenixToolkit.Display
         private Cairo.Color black = new(System.Drawing.Color.Black.R / 255.0, System.Drawing.Color.Black.G / 255.0, System.Drawing.Color.Black.B / 255.0);
 
         const int STRIDE = 800;
-        readonly Bitmap frameBuffer = new(STRIDE, 600, PixelFormat.Format32bppArgb);
+        readonly Image<Bgra32> frameBuffer = new(STRIDE, 600);
+
         private bool drawing = false;
         byte[] pixVals = null;
 
@@ -735,8 +739,8 @@ namespace FoenixToolkit.Display
             int borderYSize = displayBorder ? VICKY.ReadByte(MemoryMap.BORDER_Y_SIZE - MemoryMap.VICKY_BASE_ADDR) : 0;
 
             System.Drawing.Rectangle rect = new(0, 0, resX - 1, resY - 1);
-            BitmapData bitmapData = frameBuffer.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-            int* bitmapPointer = (int*)bitmapData.Scan0.ToPointer();
+            //---BitmapData bitmapData = frameBuffer.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            //---int* bitmapPointer = (int*)bitmapData.Scan0.ToPointer();
 
             uint drawBufferLength = (uint)(resX * 4 * resY);
             var drawBuffer = new byte[drawBufferLength];
@@ -787,7 +791,7 @@ namespace FoenixToolkit.Display
 
                 int borderColor = (int)(0xFF000000 + (borderBlue << 16) + (borderGreen << 8) + borderRed);
 
-                int* ptr = bitmapPointer + line * STRIDE;
+                int* ptr = null; //---bitmapPointer + line * STRIDE;
 
                 if (line < borderYSize || line >= resY - borderYSize)   // bug??
                     for (int x = 0; x < resX; ++x)
@@ -906,7 +910,7 @@ namespace FoenixToolkit.Display
                     }
             }
 
-            frameBuffer.UnlockBits(bitmapData);
+            //--frameBuffer.UnlockBits(bitmapData);
 
             drawing = false;
         }

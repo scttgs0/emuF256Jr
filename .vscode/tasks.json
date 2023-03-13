@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Main/FoenixToolkit.csproj",
+                "${workspaceFolder}/emuF256Jr.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -21,7 +21,7 @@
                 "build",
                 "-c",
                 "Release",
-                "${workspaceFolder}/Main/FoenixToolkit.csproj",
+                "${workspaceFolder}/emuF256Jr.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/Main/FoenixToolkit.csproj",
+                "${workspaceFolder}/emuF256Jr.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -46,7 +46,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/Main/FoenixToolkit.csproj",
+                "${workspaceFolder}/emuF256Jr.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
