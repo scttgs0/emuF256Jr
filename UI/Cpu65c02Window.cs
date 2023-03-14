@@ -35,8 +35,8 @@ namespace FoenixToolkit.UI
 
         private readonly int[] ActiveLine = { 0, 0, 0 };  // PC, start-of-line, width - the point of this is to underline the ADDRESS name
 
-        const int ROW_HEIGHT = 14;
-        const int BASELINE_OFFSET = ROW_HEIGHT - 2;
+        const int ROW_HEIGHT = 16;
+        const int BASELINE_OFFSET = ROW_HEIGHT - 3;
         private int IRQPC = 0; // we only keep track of a single interrupt
         private int TopLineIndex = 0; // this is to help us track which line is the current one being executed
 

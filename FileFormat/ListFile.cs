@@ -21,8 +21,8 @@ namespace FoenixCore.Simulator.FileFormat
 
         public ListFile(String KernelFilename)
         {
-            int lastDot = KernelFilename.LastIndexOf(".");
-            string Filename = KernelFilename.Substring(0, lastDot + 1) + "lst";
+            int lastDot = KernelFilename.LastIndexOf(".") + 1;
+            string Filename = $"{KernelFilename[..lastDot]}lst";
             int CommandOffset = 1;
 
             if (!File.Exists(Filename))

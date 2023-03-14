@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Text;
 
 using FoenixCore.Processor.wdc65c02;
@@ -108,6 +109,10 @@ namespace FoenixCore.Simulator.FileFormat
 
         public void SetLabel(string value)
         {
+            int idx = value.IndexOf(':');
+            if (idx > -1)
+                value = value[..idx];
+
             label = value;
         }
 
