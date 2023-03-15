@@ -1,4 +1,5 @@
-﻿namespace FoenixCore.Simulator.Devices
+﻿
+namespace FoenixCore.Simulator.Devices
 {
     public class InterruptController : MemoryLocations.MemoryRAM
     {

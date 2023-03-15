@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 
 using FoenixIDE.Basic;
 
@@ -80,7 +81,7 @@ namespace FoenixCore.Simulator.Devices
                             data[4] = 1;
                             break;
 
-                        case 0xFF:  // reset 
+                        case 0xFF:  // reset
                             data[4] = 0xAA;
                             break;
 

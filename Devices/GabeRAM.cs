@@ -1,6 +1,7 @@
+
 using System;
 
-﻿using FoenixCore.MemoryLocations;
+using FoenixCore.MemoryLocations;
 
 
 namespace FoenixCore.Simulator.Devices

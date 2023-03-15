@@ -1,4 +1,5 @@
-﻿namespace FoenixCore.Simulator.FileFormat
+﻿
+namespace FoenixCore.Simulator.FileFormat
 {
     public class WatchedMemory
     {

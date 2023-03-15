@@ -1,4 +1,5 @@
-﻿#if WINFORM
+﻿
+#if WINFORM
 using System.Windows.Forms;
 
 

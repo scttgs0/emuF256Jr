@@ -1,4 +1,5 @@
-﻿namespace FoenixCore.Simulator.Devices
+﻿
+namespace FoenixCore.Simulator.Devices
 {
     public class VDMA : MemoryLocations.MemoryRAM
     {
@@ -83,7 +84,7 @@
                 {
                     destAddr = ReadLong(0x25); // Address $AF:0425
                     destMemory = destAddr < 0x40_0000 ? System : Vicky;
-                    
+
                     if (destMemory == Vicky)
                         destAddr -= Vicky.StartAddress;
 
@@ -103,7 +104,7 @@
                     byte transferByte = ReadByte(1); // Address $AF:0401
 
                     // Linear or 2D
-                    if (!isDestTransfer2D) 
+                    if (!isDestTransfer2D)
                     {
                         int size1DTransfer = isSystemDest ? ReadLong(0x28) : ReadLong(8); // Address $AF:0408 - maximum 4MB
                         if (destMemory != null)
@@ -148,7 +149,7 @@
                             }
                         }
                     }
-                    
+
                     // Transfer data from memory to VRAM
                     if (!isDestTransfer2D)
                         if (destMemory != null)

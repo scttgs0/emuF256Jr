@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.IO;
 
 
@@ -43,7 +44,7 @@ namespace FoenixCore.Display
         private readonly int charHeight = 8;
 
         /// <summary>
-        /// Returns a single row (byte) in the character data. 
+        /// Returns a single row (byte) in the character data.
         /// </summary>
         /// <param name="CharacterCode">Character code</param>
         /// <param name="Row">Row in glpyh</param>
