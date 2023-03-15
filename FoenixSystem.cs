@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿
+using System.Collections.Generic;
 
 using FoenixCore.MemoryLocations;
 using FoenixCore.Simulator.Devices;
@@ -9,7 +10,7 @@ namespace FoenixCore
 {
     public class FoenixSystem
     {
-        public Processor.wdc65c02.CentralProcessingUnit CoreCpu = null;
+        public Processor.mc6809.CentralProcessingUnit CoreCpu = null;
         public MemoryManager MemMgr = null;
 
         public ResourceChecker Resources;
@@ -64,7 +65,7 @@ namespace FoenixCore
             MemMgr.KEYBOARD.SetKernel(this);
 
             // Assign memory variables used by other processes
-            CoreCpu = new Processor.wdc65c02.CentralProcessingUnit(MemMgr);
+            CoreCpu = new Processor.mc6809.CentralProcessingUnit(MemMgr);
 
             MemMgr.VDMA.SetVideoRam(MemMgr.VIDEO);
             MemMgr.VDMA.SetSystemRam(MemMgr.RAM);
@@ -101,7 +102,7 @@ namespace FoenixCore
         {
             byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.IRQ_CTRL.MASK);
 
-            if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.INT04_TMR0) == (byte)Register0.INT04_TMR0))
+            if (!CoreCpu.DebugPause && !CoreCpu.Flags.Irq && ((~mask & (byte)Register0.INT04_TMR0) == (byte)Register0.INT04_TMR0))
             {
                 // Set the Timer0 Interrupt
                 byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.IRQ_CTRL.PENDING);
@@ -117,7 +118,7 @@ namespace FoenixCore
         {
             byte mask = MemMgr.ReadByte(MemoryLocations.MemoryMap.IRQ_CTRL.MASK);
 
-            if (!CoreCpu.DebugPause && !CoreCpu.Flags.IrqDisable && ((~mask & (byte)Register0.INT05_TMR1) == (byte)Register0.INT05_TMR1))
+            if (!CoreCpu.DebugPause && !CoreCpu.Flags.Irq && ((~mask & (byte)Register0.INT05_TMR1) == (byte)Register0.INT05_TMR1))
             {
                 // Set the Timer1 Interrupt
                 byte IRQ0 = MemMgr.ReadByte(MemoryLocations.MemoryMap.IRQ_CTRL.PENDING);

@@ -2,7 +2,7 @@
 
 Development and Debugging Suite for the Foenix F256jr-family of Computers.
 
-This is a virtual 65c02 powered computer. It is intended to be used as a software development tool and learning platform for assembly language and BASIC programming. The software will be released with an open source license and may be used for whatever purpose you want, including personal projects, education, and commercial use.
+This is a virtual mc6809 powered computer. It is intended to be used as a software development tool and learning platform for assembly language and BASIC programming. The software will be released with an open source license and may be used for whatever purpose you want, including personal projects, education, and commercial use.
 
 The F256jr is loosely based around the concept of the world's most popular computer, the Commodore 64. When you turn on the system, you see a BASIC screen, with the READY prompt. You can type in BASIC commands, enter programs, or load programs from disk, tape or cartridge.
 

@@ -106,7 +106,7 @@
                       <object class="GtkMenuItem" id="menuWindowsCPU">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">CPU wdc65c02</property>
+                        <property name="label" translatable="yes">CPU mc6809</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_menuWindowsCPU_Activate" swapped="no"/>
                       </object>
@@ -236,7 +236,7 @@
                       <object class="GtkLabel" id="lblCpu">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">wdc65c02</property>
+                        <property name="label" translatable="yes">mc6809</property>
                         <property name="width_chars">9</property>
                       </object>
                     </child>

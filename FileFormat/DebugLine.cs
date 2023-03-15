@@ -2,13 +2,13 @@
 using System;
 using System.Text;
 
-using FoenixCore.Processor.wdc65c02;
+using FoenixCore.Processor.mc6809;
 
 
 namespace FoenixCore.Simulator.FileFormat
 {
     /// <summary>
-    /// Container to hold one line of 65c02 code debugging data
+    /// Container to hold one line of mc6809 code debugging data
     /// </summary>
     public class DebugLine : ICloneable
     {
@@ -22,29 +22,41 @@ namespace FoenixCore.Simulator.FileFormat
         private string evaled = null;
 
         private static readonly byte[] BranchJmpOpcodes = {
-            OpcodeList.BCC_ProgramCounterRelative,
-            OpcodeList.BCS_ProgramCounterRelative,
-            OpcodeList.BEQ_ProgramCounterRelative,
-            OpcodeList.BMI_ProgramCounterRelative,
-            OpcodeList.BNE_ProgramCounterRelative,
-            OpcodeList.BPL_ProgramCounterRelative,
-            OpcodeList.BVC_ProgramCounterRelative,
-            OpcodeList.BVS_ProgramCounterRelative,
-            OpcodeList.JSR_Absolute,
+            OpcodeList.LBRA_Relative,
+            OpcodeList.LBSR_Relative,
+            OpcodeList.BRA_Relative,
+            OpcodeList.BHI_Relative,
+            OpcodeList.BLS_Relative,
+            OpcodeList.BCC_Relative,
+            OpcodeList.BCS_Relative,
+            OpcodeList.BNE_Relative,
+            OpcodeList.BEQ_Relative,
+            OpcodeList.BVC_Relative,
+            OpcodeList.BVS_Relative,
+            OpcodeList.BPL_Relative,
+            OpcodeList.BMI_Relative,
+            OpcodeList.BGE_Relative,
+            OpcodeList.BLT_Relative,
+            OpcodeList.BGT_Relative,
+            OpcodeList.BLE_Relative,
+            OpcodeList.BSR_Relative,
+            OpcodeList.JMP_Direct,
+            OpcodeList.JMP_Indexed,
+            OpcodeList.JMP_Extended
         };
 
         private static readonly byte[] NonImmediateOpcodes = {
-            OpcodeList.LDA_Absolute,
-            OpcodeList.LDA_AbsoluteIndexedWithX,
-            OpcodeList.LDA_AbsoluteIndexedWithY,
-            OpcodeList.LDA_ZeroPage,
-            OpcodeList.LDA_ZeroPageIndirect,
+            // OpcodeList.LDA_Absolute,
+            // OpcodeList.LDA_AbsoluteIndexedWithX,
+            // OpcodeList.LDA_AbsoluteIndexedWithY,
+            // OpcodeList.LDA_ZeroPage,
+            // OpcodeList.LDA_ZeroPageIndirect,
 
-            OpcodeList.STA_Absolute,
-            OpcodeList.STA_AbsoluteIndexedWithX,
-            OpcodeList.STA_AbsoluteIndexedWithY,
-            OpcodeList.STA_ZeroPage,
-            OpcodeList.STA_ZeroPageIndirect
+            // OpcodeList.STA_Absolute,
+            // OpcodeList.STA_AbsoluteIndexedWithX,
+            // OpcodeList.STA_AbsoluteIndexedWithY,
+            // OpcodeList.STA_ZeroPage,
+            // OpcodeList.STA_ZeroPageIndirect
         };
 
         // Only expand when it's going to be displayed

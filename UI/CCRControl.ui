@@ -27,7 +27,7 @@
                   <object class="GtkLabel" id="bit7">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">N</property>
+                    <property name="label" translatable="yes">E</property>
                     <property name="width_chars">2</property>
                     <property name="max_width_chars">2</property>
                   </object>
@@ -41,7 +41,7 @@
                   <object class="GtkLabel" id="bit6">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">V</property>
+                    <property name="label" translatable="yes">F</property>
                     <property name="width_chars">2</property>
                     <property name="max_width_chars">2</property>
                   </object>
@@ -55,7 +55,9 @@
                   <object class="GtkLabel" id="bit5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="width_chars">1</property>
+                    <property name="label" translatable="yes">H</property>
+                    <property name="width_chars">2</property>
+                    <property name="max_width_chars">2</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -67,7 +69,7 @@
                   <object class="GtkLabel" id="bit4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">B</property>
+                    <property name="label" translatable="yes">I</property>
                     <property name="width_chars">2</property>
                     <property name="max_width_chars">2</property>
                   </object>
@@ -81,7 +83,7 @@
                   <object class="GtkLabel" id="bit3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">D</property>
+                    <property name="label" translatable="yes">N</property>
                     <property name="width_chars">2</property>
                     <property name="max_width_chars">2</property>
                   </object>
@@ -95,7 +97,7 @@
                   <object class="GtkLabel" id="bit2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">I</property>
+                    <property name="label" translatable="yes">Z</property>
                     <property name="width_chars">2</property>
                     <property name="max_width_chars">2</property>
                   </object>
@@ -109,7 +111,7 @@
                   <object class="GtkLabel" id="bit1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Z</property>
+                    <property name="label" translatable="yes">V</property>
                     <property name="width_chars">2</property>
                     <property name="max_width_chars">2</property>
                   </object>

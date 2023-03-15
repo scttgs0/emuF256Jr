@@ -8,7 +8,7 @@ namespace FoenixCore
     {
         //--private FoenixSystem kernel;
         //--private BoardVersion version = BoardVersion.RevJr;
-        //--private Cpu65c02Window cpuWindow;
+        //--private Cpu6809Window cpuWindow;
 
         public static byte BCD(int val)
         {

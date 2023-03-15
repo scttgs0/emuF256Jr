@@ -26,7 +26,7 @@ namespace FoenixToolkit.UI
         private FoenixSystem kernel;
 
         //  Windows
-        public Cpu65c02Window debugWindow;
+        public Cpu6809Window debugWindow;
         public MemoryWindow memoryWindow;
         private readonly WatchWindow watchWindow = new();
         private readonly SDCardWindow sdCardWindow = new();
@@ -206,7 +206,7 @@ namespace FoenixToolkit.UI
             {
                 kernel.CoreCpu.DebugPause = true;
 
-                debugWindow = new Cpu65c02Window();
+                debugWindow = new Cpu6809Window();
                 debugWindow.SetKernel(kernel);
             }
 

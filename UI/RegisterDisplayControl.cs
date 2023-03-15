@@ -4,7 +4,7 @@ using System.Timers;
 using Gtk;
 using GUI = Gtk.Builder.ObjectAttribute;
 
-using FoenixCore.Processor.wdc65c02;
+using FoenixCore.Processor.mc6809;
 
 
 namespace FoenixToolkit.UI
