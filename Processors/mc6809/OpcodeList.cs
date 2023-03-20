@@ -286,10 +286,10 @@ namespace FoenixCore.Processor.mc6809
         {
             Add(new OpCode(0x00, "NEG", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteInterrupt)));
             Add(new OpCode(0x03, "COM", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteInterrupt)));
-            Add(new OpCode(0x04, "LSR", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteTSBTRB)));
+            Add(new OpCode(0x04, "LSR", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
             Add(new OpCode(0x06, "ROR", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
-            Add(new OpCode(0x07, "ASR", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x08, "ASL", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteStack)));
+            Add(new OpCode(0x07, "ASR", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
+            Add(new OpCode(0x08, "ASL", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
             Add(new OpCode(0x09, "ROL", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteORA)));
             Add(new OpCode(0x0A, "DEC", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
             Add(new OpCode(0x0C, "INC", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteTSBTRB)));
@@ -297,10 +297,12 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0x0E, "JMP", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteJumpReturn)));
             Add(new OpCode(0x0F, "CLR", 2, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
 
+            Add(new OpCode(0x10, "EXT10", 1, AddressModes.WORDOpcode, new OpCode.ExecuteDelegate(operations.ExecuteOpcode10)));
+            Add(new OpCode(0x11, "EXT11", 1, AddressModes.WORDOpcode, new OpCode.ExecuteDelegate(operations.ExecuteOpcode11)));
             Add(new OpCode(0x12, "NOP", 1, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteORA)));
             Add(new OpCode(0x13, "SYNC", 1, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteORA)));
-            Add(new OpCode(0x16, "LBRA", 3, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
-            Add(new OpCode(0x17, "LBSR", 3, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0x16, "LBRA", 3, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteFarBranch)));
+            Add(new OpCode(0x17, "LBSR", 3, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteFarBranch)));
             Add(new OpCode(0x19, "DAA", 1, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteORA)));
             Add(new OpCode(0x1A, "ORCC", 2, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteINCDEC)));
             Add(new OpCode(0x1C, "ANDCC", 2, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteTSBTRB)));
@@ -308,33 +310,33 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0x1E, "EXG", 2, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
             Add(new OpCode(0x1F, "TFR", 2, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
 
-            Add(new OpCode(0x20, "BRA", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x21, "BRN", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
-            Add(new OpCode(0x22, "BHI", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x23, "BLS", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x24, "BCC", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x25, "BCS", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x26, "BNE", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x27, "BEQ", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x28, "BVC", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x29, "BVS", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x2A, "BPL", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x2B, "BMI", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x2C, "BGE", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x2D, "BLT", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x2E, "BGT", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x2F, "BLE", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0x20, "BRA", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x21, "BRN", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x22, "BHI", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x23, "BLS", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x24, "BCC", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x25, "BCS", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x26, "BNE", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x27, "BEQ", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x28, "BVC", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x29, "BVS", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x2A, "BPL", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x2B, "BMI", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x2C, "BGE", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x2D, "BLT", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x2E, "BGT", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
+            Add(new OpCode(0x2F, "BLE", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
 
-            Add(new OpCode(0x30, "LEAX", 2, cpu.X, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0x30, "LEAX", 2, cpu.X, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
             Add(new OpCode(0x31, "LEAY", 2, cpu.Y, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteAND)));
             Add(new OpCode(0x32, "LEAS", 2, cpu.S, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteAND)));
             Add(new OpCode(0x33, "LEAU", 2, cpu.U, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteAND)));
             Add(new OpCode(0x34, "PSHS", 2, cpu.S, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteBIT)));
             Add(new OpCode(0x35, "PULS", 2, cpu.S, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteAND)));
             Add(new OpCode(0x36, "PSHU", 2, cpu.U, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
-            Add(new OpCode(0x37, "PULU", 2, cpu.U, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0x37, "PULU", 2, cpu.U, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
             Add(new OpCode(0x39, "RTS", 1, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteJumpReturn)));
-            Add(new OpCode(0x3A, "ABX", 1, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteINCDEC)));
+            Add(new OpCode(0x3A, "ABX", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteABX)));
             Add(new OpCode(0x3B, "RTI", 1, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteJumpReturn)));
             Add(new OpCode(0x3C, "CWAI", 2, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteBIT)));
             Add(new OpCode(0x3D, "MUL", 1, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteAND)));
@@ -344,7 +346,7 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0x43, "COMA", 1, cpu.A, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteEOR)));
             Add(new OpCode(0x44, "LSRA", 1, cpu.A, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteEOR)));
             Add(new OpCode(0x46, "RORA", 1, cpu.A, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
-            Add(new OpCode(0x47, "ASRA", 1, cpu.A, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0x47, "ASRA", 1, cpu.A, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
             Add(new OpCode(0x48, "ASLA", 1, cpu.A, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteStack)));
             Add(new OpCode(0x49, "ROLA", 1, cpu.A, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteEOR)));
             Add(new OpCode(0x4A, "DECA", 1, cpu.A, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
@@ -352,12 +354,12 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0x4D, "TSTA", 1, cpu.A, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteEOR)));
             Add(new OpCode(0x4F, "CLRA", 1, cpu.A, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
 
-            Add(new OpCode(0x50, "NEGB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0x50, "NEGB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
             Add(new OpCode(0x53, "COMB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteEOR)));
             Add(new OpCode(0x54, "LSRB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteEOR)));
             Add(new OpCode(0x56, "RORB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
-            Add(new OpCode(0x57, "ASRB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x58, "ASLB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteStatusReg)));
+            Add(new OpCode(0x57, "ASRB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
+            Add(new OpCode(0x58, "ASLB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
             Add(new OpCode(0x59, "ROLB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteEOR)));
             Add(new OpCode(0x5A, "DECB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteStack)));
             Add(new OpCode(0x5C, "INCB", 1, cpu.B, AddressModes.Inherent, new OpCode.ExecuteDelegate(operations.ExecuteStack)));
@@ -368,8 +370,8 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0x63, "COM", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteADC)));
             Add(new OpCode(0x64, "LSR", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteSTZ)));
             Add(new OpCode(0x66, "ROR", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
-            Add(new OpCode(0x67, "ASR", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x68, "ASL", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteStack)));
+            Add(new OpCode(0x67, "ASR", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
+            Add(new OpCode(0x68, "ASL", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
             Add(new OpCode(0x69, "ROL", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteADC)));
             Add(new OpCode(0x6A, "DEC", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
             Add(new OpCode(0x6C, "INC", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteJumpReturn)));
@@ -377,12 +379,12 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0x6E, "JMP", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteJumpReturn)));
             Add(new OpCode(0x6F, "CLR", 2, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
 
-            Add(new OpCode(0x70, "NEG", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0x70, "NEG", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
             Add(new OpCode(0x73, "COM", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteADC)));
-            Add(new OpCode(0x74, "LSR", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteSTZ)));
+            Add(new OpCode(0x74, "LSR", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
             Add(new OpCode(0x76, "ROR", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
-            Add(new OpCode(0x77, "ASR", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
-            Add(new OpCode(0x78, "ASL", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteStatusReg)));
+            Add(new OpCode(0x77, "ASR", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
+            Add(new OpCode(0x78, "ASL", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteShift)));
             Add(new OpCode(0x79, "ROL", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteADC)));
             Add(new OpCode(0x7A, "DEC", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteStack)));
             Add(new OpCode(0x7C, "INC", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteJumpReturn)));
@@ -390,7 +392,7 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0x7E, "JMP", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteJumpReturn)));
             Add(new OpCode(0x7F, "CLR", 3, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
 
-            Add(new OpCode(0x80, "SUBA", 2, cpu.A, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0x80, "SUBA", 2, cpu.A, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
             Add(new OpCode(0x81, "CMPA", 2, cpu.A, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0x82, "SBCA", 2, cpu.A, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0x83, "SUBD", 3, cpu.D, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
@@ -402,10 +404,10 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0x8A, "ORA", 2, cpu.A, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteTransfer)));
             Add(new OpCode(0x8B, "ADDA", 2, cpu.A, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteTransfer)));
             Add(new OpCode(0x8C, "CMPX", 3, cpu.X, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteSTY)));
-            Add(new OpCode(0x8D, "BSR", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0x8D, "BSR", 2, AddressModes.Relative, new OpCode.ExecuteDelegate(operations.ExecuteNearBranch)));
             Add(new OpCode(0x8E, "LDX", 3, cpu.X, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteSTX)));
 
-            Add(new OpCode(0x90, "SUBA", 2, cpu.A, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0x90, "SUBA", 2, cpu.A, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
             Add(new OpCode(0x91, "CMPA", 2, cpu.A, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0x92, "SBCA", 2, cpu.A, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0x93, "SUBD", 2, cpu.D, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
@@ -456,7 +458,7 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0xBE, "LDX", 3, cpu.X, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteLDX)));
             Add(new OpCode(0xBF, "STX", 3, cpu.X, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
 
-            Add(new OpCode(0xC0, "SUBB", 2, cpu.B, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0xC0, "SUBB", 2, cpu.B, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
             Add(new OpCode(0xC1, "CMPB", 2, cpu.B, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0xC2, "SBCB", 2, cpu.B, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0xC3, "ADDD", 3, cpu.D, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
@@ -470,7 +472,7 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0xCC, "LDD", 3, cpu.D, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteSTY)));
             Add(new OpCode(0xCE, "LDU", 3, cpu.U, AddressModes.Immediate, new OpCode.ExecuteDelegate(operations.ExecuteSTX)));
 
-            Add(new OpCode(0xD0, "SUBB", 2, cpu.B, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0xD0, "SUBB", 2, cpu.B, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
             Add(new OpCode(0xD1, "CMPB", 2, cpu.B, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0xD2, "SBCB", 2, cpu.B, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0xD3, "ADDD", 2, cpu.D, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
@@ -487,7 +489,7 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0xDE, "LDU", 2, cpu.U, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteSTZ)));
             Add(new OpCode(0xDF, "STU", 2, cpu.U, AddressModes.Direct, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
 
-            Add(new OpCode(0xE0, "SUBB", 2, cpu.B, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0xE0, "SUBB", 2, cpu.B, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
             Add(new OpCode(0xE1, "CMPB", 2, cpu.B, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0xE2, "SBCB", 2, cpu.B, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0xE3, "ADDD", 2, cpu.D, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
@@ -504,7 +506,7 @@ namespace FoenixCore.Processor.mc6809
             Add(new OpCode(0xEE, "LDU", 2, cpu.U, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteSTZ)));
             Add(new OpCode(0xEF, "STU", 2, cpu.U, AddressModes.Indexed, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
 
-            Add(new OpCode(0xF0, "SUBB", 3, cpu.B, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteBranch)));
+            Add(new OpCode(0xF0, "SUBB", 3, cpu.B, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteMisc)));
             Add(new OpCode(0xF1, "CMPB", 3, cpu.B, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0xF2, "SBCB", 3, cpu.B, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));
             Add(new OpCode(0xF3, "ADDD", 3, cpu.D, AddressModes.Extended, new OpCode.ExecuteDelegate(operations.ExecuteSTA)));

@@ -33,8 +33,8 @@ namespace FoenixCore.Processor.mc6809
             cpu.A = new Register<byte>();
             cpu.B = new Register<byte>();
             cpu.D = new Register<ushort>();
-            cpu.X = new Register<byte>();
-            cpu.Y = new Register<byte>();
+            cpu.X = new Register<ushort>();
+            cpu.Y = new Register<ushort>();
             cpu.Flags.Reset();
             //cpu.PC.Reset();
 
@@ -73,23 +73,17 @@ namespace FoenixCore.Processor.mc6809
         /// <param name="b"></param>
         public void BranchNear(byte b)
         {
-            ushort offset = (ushort)MakeSignedByte(b);
-            cpu.PC += offset;
+            cpu.PC = (ushort)(cpu.PC + (sbyte)b);
+        }
+
+        public void BranchFar(ushort w)
+        {
+            cpu.PC = (ushort)(cpu.PC + (short)w);
         }
 
         public sbyte MakeSignedByte(byte b)
         {
             return (sbyte)b;
-        }
-
-        public Int16 MakeSignedInt(UInt16 b)
-        {
-            return (Int16)b;
-        }
-
-        public Int16 MakeSignedWord(UInt16 b)
-        {
-            return (Int16)b;
         }
 
         /// <summary>
@@ -379,54 +373,58 @@ namespace FoenixCore.Processor.mc6809
             }
         }
 
-        public void ExecuteBranch(byte instruction, AddressModes addressMode, uint signature)
+        public void ExecuteNearBranch(byte instruction, AddressModes addressMode, uint signature)
         {
-            //-- bool takeBranch;
+            bool takeBranch = instruction switch {
+                OpcodeList.BRA_Relative => true,
+                OpcodeList.BSR_Relative => true,
+                OpcodeList.BRN_Relative => false,
+                OpcodeList.BHI_Relative => !cpu.Flags.Carry && !cpu.Flags.Zero,
+                OpcodeList.BLS_Relative => cpu.Flags.Carry || cpu.Flags.Zero,
+                OpcodeList.BCC_Relative => !cpu.Flags.Carry,
+                OpcodeList.BCS_Relative => cpu.Flags.Carry,
+                OpcodeList.BNE_Relative => !cpu.Flags.Zero,
+                OpcodeList.BEQ_Relative => cpu.Flags.Zero,
+                OpcodeList.BVC_Relative => !cpu.Flags.oVerflow,
+                OpcodeList.BVS_Relative => cpu.Flags.oVerflow,
+                OpcodeList.BPL_Relative => !cpu.Flags.Negative,
+                OpcodeList.BMI_Relative => cpu.Flags.Negative,
+                OpcodeList.BGE_Relative => cpu.Flags.Negative == cpu.Flags.oVerflow,
+                OpcodeList.BLT_Relative => (cpu.Flags.Negative && !cpu.Flags.oVerflow) || (!cpu.Flags.Negative && cpu.Flags.oVerflow),
+                OpcodeList.BGT_Relative => (cpu.Flags.Negative == cpu.Flags.oVerflow) && !cpu.Flags.Zero,
+                OpcodeList.BLE_Relative => (cpu.Flags.Negative ^ cpu.Flags.oVerflow) || !cpu.Flags.Zero,
+                _ => false
+            };
 
-            switch (instruction)
-            {
-                //-- case OpcodeList.BCC_ProgramCounterRelative:
-                //     takeBranch = !cpu.Flags.Carry;
-                //     break;
+            if (takeBranch)
+                BranchNear((byte)signature);
+        }
 
-                // case OpcodeList.BCS_ProgramCounterRelative:
-                //     takeBranch = cpu.Flags.Carry;
-                //     break;
+        public void ExecuteFarBranch(byte instruction, AddressModes addressMode, uint signature)
+        {
+            bool takeBranch = instruction switch {
+                OpcodeList.LBRA_Relative => true,
+                OpcodeList.LBSR_Relative => true,
+                OpcodeList10.LBRN_Relative => false,
+                OpcodeList10.LBHI_Relative => !cpu.Flags.Carry && !cpu.Flags.Zero,
+                OpcodeList10.LBLS_Relative => cpu.Flags.Carry || cpu.Flags.Zero,
+                OpcodeList10.LBCC_Relative => !cpu.Flags.Carry,
+                OpcodeList10.LBCS_Relative => cpu.Flags.Carry,
+                OpcodeList10.LBNE_Relative => !cpu.Flags.Zero,
+                OpcodeList10.LBEQ_Relative => cpu.Flags.Zero,
+                OpcodeList10.LBVC_Relative => !cpu.Flags.oVerflow,
+                OpcodeList10.LBVS_Relative => cpu.Flags.oVerflow,
+                OpcodeList10.LBPL_Relative => !cpu.Flags.Negative,
+                OpcodeList10.LBMI_Relative => cpu.Flags.Negative,
+                OpcodeList10.LBGE_Relative => cpu.Flags.Negative == cpu.Flags.oVerflow,
+                OpcodeList10.LBLT_Relative => (cpu.Flags.Negative && !cpu.Flags.oVerflow) || (!cpu.Flags.Negative && cpu.Flags.oVerflow),
+                OpcodeList10.LBGT_Relative => (cpu.Flags.Negative == cpu.Flags.oVerflow) && !cpu.Flags.Zero,
+                OpcodeList10.LBLE_Relative => (cpu.Flags.Negative ^ cpu.Flags.oVerflow) || !cpu.Flags.Zero,
+                _ => false
+            };
 
-                // case OpcodeList.BEQ_ProgramCounterRelative:
-                //     takeBranch = cpu.Flags.Zero;
-                //     break;
-
-                // case OpcodeList.BMI_ProgramCounterRelative:
-                //     takeBranch = cpu.Flags.Negative;
-                //     break;
-
-                // case OpcodeList.BNE_ProgramCounterRelative:
-                //     takeBranch = !cpu.Flags.Zero;
-                //     break;
-
-                // case OpcodeList.BPL_ProgramCounterRelative:
-                //     takeBranch = !cpu.Flags.Negative;
-                //     break;
-
-                // case OpcodeList.BRA_ProgramCounterRelative:
-                //     takeBranch = true;
-                //     break;
-
-                // case OpcodeList.BVC_ProgramCounterRelative:
-                //     takeBranch = !cpu.Flags.oVerflow;
-                //     break;
-
-                // case OpcodeList.BVS_ProgramCounterRelative:
-                //     takeBranch = cpu.Flags.oVerflow;
-                //     break;
-
-                default:
-                    throw new NotImplementedException("opcode not implemented: " + instruction.ToString("X2"));
-            }
-
-            //-- if (takeBranch)
-            //     BranchNear((byte)signature);
+            if (takeBranch)
+                BranchFar((ushort)signature);
         }
 
         public void ExecuteStatusReg(byte instruction, AddressModes addressMode, uint signature)
@@ -735,16 +733,19 @@ namespace FoenixCore.Processor.mc6809
             SimulatorCommand((int)signature);
         }
 
+        public void ExecuteABX(byte instruction, AddressModes addressMode, uint signature)
+        {
+            cpu.X.Value = (ushort)((ushort)cpu.B.Value + cpu.X.Value);
+
+            // no flags
+        }
 
         public void ExecuteADC(byte instruction, AddressModes addressMode, uint signature)
         {
             ushort val = (ushort)GetValue(addressMode, signature, 1);
             ushort nv;
 
-            //-- if (cpu.Flags.Decimal)
-            //  nv = (ushort)HexVal(BCDVal(val) + BCDVal(cpu.A.Value) + cpu.Flags.CarryBit);
-            // else
-                nv = (ushort)(val + cpu.A.Value + cpu.Flags.CarryBit);
+            nv = (ushort)(val + cpu.A.Value + cpu.Flags.CarryBit);
 
             cpu.Flags.Carry = (nv < 0 || nv > 0xFFFF);
 
@@ -868,9 +869,52 @@ namespace FoenixCore.Processor.mc6809
             cpu.Flags.Negative = (subResult & 0x80) == 0x80;
         }
 
+        public void Compare(AddressModes addressMode, uint signature, Register<ushort> Reg)
+        {
+            int val = GetValue(addressMode, signature, 1);
+            val = val & 0xFF;
+
+            int subResult = Reg.Value - val;
+            cpu.Flags.Zero = subResult == 0;
+            cpu.Flags.Carry = Reg.Value >= val;
+            cpu.Flags.Negative = (subResult & 0x80) == 0x80;
+        }
+
         public void ExecuteWAI(byte Instruction, AddressModes AddressMode, uint Signature)
         {
             cpu.Waiting = true;
+        }
+
+        public void ExecuteOpcode10(byte instruction, AddressModes addressMode, uint signature)
+        {
+            switch (instruction)
+            {
+                // case OpcodeList.NOP_Implied:
+                //     break;
+
+                // case OpcodeList.STP_Implied: //stop
+                //     cpu.Halt();
+                //     break;
+
+                default:
+                    throw new NotImplementedException("opcode not implemented: " + instruction.ToString("X2"));
+            }
+        }
+
+        public void ExecuteOpcode11(byte instruction, AddressModes addressMode, uint signature)
+        {
+            switch (instruction)
+            {
+                // case OpcodeList.NOP_Implied:
+                //     break;
+
+                // case OpcodeList.STP_Implied: //stop
+                //     cpu.Halt();
+                //     break;
+
+                default:
+                    throw new NotImplementedException("opcode not implemented: " + instruction.ToString("X2"));
+            }
         }
     }
 }
