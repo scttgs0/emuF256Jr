@@ -13,42 +13,42 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="yes">W:PC</col>
+        <col id="0" translatable="yes">w:PC</col>
         <col id="1" translatable="yes">=</col>
         <col id="2" translatable="yes">$0</col>
       </row>
       <row>
-        <col id="0" translatable="yes">B:A</col>
+        <col id="0" translatable="yes">b:A</col>
         <col id="1" translatable="yes">=</col>
         <col id="2" translatable="yes">$0</col>
       </row>
       <row>
-        <col id="0" translatable="yes">B:B</col>
+        <col id="0" translatable="yes">b:B</col>
         <col id="1" translatable="yes">=</col>
         <col id="2" translatable="yes">$0</col>
       </row>
       <row>
-        <col id="0" translatable="yes">W:D</col>
+        <col id="0" translatable="yes">w:D</col>
         <col id="1" translatable="yes">=</col>
         <col id="2" translatable="yes">$0</col>
       </row>
       <row>
-        <col id="0" translatable="yes">W:X</col>
+        <col id="0" translatable="yes">w:X</col>
         <col id="1" translatable="yes">=</col>
         <col id="2" translatable="yes">$0</col>
       </row>
       <row>
-        <col id="0" translatable="yes">W:Y</col>
+        <col id="0" translatable="yes">w:Y</col>
         <col id="1" translatable="yes">=</col>
         <col id="2" translatable="yes">$0</col>
       </row>
       <row>
-        <col id="0" translatable="yes">W:S</col>
+        <col id="0" translatable="yes">w:S</col>
         <col id="1" translatable="yes">=</col>
         <col id="2" translatable="yes">$0</col>
       </row>
       <row>
-        <col id="0" translatable="yes">W:U</col>
+        <col id="0" translatable="yes">w:U</col>
         <col id="1" translatable="yes">=</col>
         <col id="2" translatable="yes">$0</col>
       </row>

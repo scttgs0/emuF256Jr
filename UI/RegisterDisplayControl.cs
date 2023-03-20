@@ -16,9 +16,10 @@ namespace FoenixToolkit.UI
 #pragma warning disable CS0649  // never assigned
         [GUI] Box boxRegisters;
         [GUI] RegisterControl<byte> ucRegA;
+        [GUI] RegisterControl<byte> ucRegB;
         [GUI] RegisterControl<ushort> ucRegPC;
-        [GUI] RegisterControl<byte> ucRegX;
-        [GUI] RegisterControl<byte> ucRegY;
+        [GUI] RegisterControl<ushort> ucRegX;
+        [GUI] RegisterControl<ushort> ucRegY;
         [GUI] RegisterControl<ushort> ucRegS;
         [GUI] RegisterControl<byte> ucRegFlags;
 #pragma warning restore CS0649
@@ -32,6 +33,8 @@ namespace FoenixToolkit.UI
 
             ucRegA = new() { Caption = "A", Margin = 4 };
             boxRegisters.Add(ucRegA);
+            ucRegB = new() { Caption = "B", Margin = 4 };
+            boxRegisters.Add(ucRegB);
             ucRegX = new() { Caption = "X", Margin = 4 };
             boxRegisters.Add(ucRegX);
             ucRegY = new() { Caption = "Y", Margin = 4 };
