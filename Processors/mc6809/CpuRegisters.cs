@@ -27,12 +27,12 @@ namespace FoenixCore.Processor.mc6809
         /// <summary>
         /// X Index Regiser
         /// </summary>
-        public Register<byte> X = new();
+        public Register<ushort> X = new();
 
         /// <summary>
         /// Y Index Register
         /// </summary>
-        public Register<byte> Y = new();
+        public Register<ushort> Y = new();
 
         /// <summary>
         /// Processor Status Register
@@ -45,7 +45,7 @@ namespace FoenixCore.Processor.mc6809
         public RegisterStackPointer Stack = new();
 
         /// <summary>
-        /// Wait state. When Wait is true, the CoreCpu will not exeucte instructions. It
+        /// Wait state. When Wait is true, the CoreCpu will not execute instructions. It
         /// will service the IRQ, NMI, and ABORT lines. A hardware interrupt is required
         /// to restart the CoreCpu.
         /// </summary>

@@ -18,6 +18,8 @@ namespace FoenixCore.Processor.mc6809
         const int BANKSIZE = 0x2000;
         const int PAGESIZE = 0x100;
         private readonly OpcodeList opcodes = null;
+        private readonly OpcodeList10 opcodes10 = null;
+        private readonly OpcodeList11 opcodes11 = null;
 
         public OpCode CurrentOpcode = null;
         public uint SignatureBytes = 0;
@@ -75,13 +77,14 @@ namespace FoenixCore.Processor.mc6809
         {
             get
             {
-                int[] snapshot = new int[6];
+                int[] snapshot = new int[7];
                 snapshot[0] = PC;
                 snapshot[1] = A.Value;
-                snapshot[2] = X.Value;
-                snapshot[3] = Y.Value;
-                snapshot[4] = Stack.Value;
-                snapshot[5] = Flags.Value;
+                snapshot[2] = B.Value;
+                snapshot[3] = X.Value;
+                snapshot[4] = Y.Value;
+                snapshot[5] = Stack.Value;
+                snapshot[6] = Flags.Value;
 
                 return snapshot;
             }
@@ -95,6 +98,8 @@ namespace FoenixCore.Processor.mc6809
             Operations operations = new(this);
             operations.SimulatorCommand += Operations_SimulatorCommand;
             opcodes = new OpcodeList(operations, this);
+            opcodes10 = new OpcodeList10(operations, this);
+            opcodes11 = new OpcodeList11(operations, this);
         }
 
         private void Operations_SimulatorCommand(int EventID)
@@ -186,6 +191,7 @@ namespace FoenixCore.Processor.mc6809
 
             Flags.Value = 0;
             A.Value = 0;
+            B.Value = 0;
             X.Value = 0;
             Y.Value = 0;
             Stack.Reset();
