@@ -153,7 +153,7 @@ namespace FoenixCore.Simulator.FileFormat
 
             xmlWriter.WriteRaw("\r");
 
-            // We don't need to scan $FFFF pages, only scan the ones we know are gettings used
+            // We don't need to scan $FFFF pages, only scan the ones we know are getting used
             // Scan each of the banks and pages and save to an XML file
             // If a page is blank, don't export it.
             int RamLength = _kernel.MemMgr.RAM.Length;

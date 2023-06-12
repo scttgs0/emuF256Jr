@@ -46,7 +46,7 @@ namespace FoenixCore.Display
         /// Returns a single row (byte) in the character data. 
         /// </summary>
         /// <param name="CharacterCode">Character code</param>
-        /// <param name="Row">Row in glpyh</param>
+        /// <param name="Row">Row in glyph</param>
         /// <returns></returns>
         public byte Read(int CharacterCode, int Row)
         {
@@ -64,7 +64,7 @@ namespace FoenixCore.Display
         /// <param name="Filename">data file with character glyphs</param>
         /// <param name="Vram">array to store glyph data</param>
         /// <param name="StartAddress">starting address in array</param>
-        /// <param name="newCharSize">Size of glyhphs (8x8 or 8x16)</param>
+        /// <param name="newCharSize">Size of glyphs (8x8 or 8x16)</param>
         public void Load(string Filename, int Offset, MemoryLocations.MemoryRAM Vram, int StartAddress, SizeCodes newCharSize)
         {
             this.StartAddress = StartAddress;
@@ -78,7 +78,7 @@ namespace FoenixCore.Display
             }
             catch (Exception ex)
             {
-                SystemLog.WriteLine(SystemLog.SeverityCodes.Recoverable, "Error in CharacteSet.Load\r\n" + ex.Message + "Filename:" + Filename);
+                SystemLog.WriteLine(SystemLog.SeverityCodes.Recoverable, "Error in CharacterSet.Load\r\n" + ex.Message + "Filename:" + Filename);
             }
         }
     }

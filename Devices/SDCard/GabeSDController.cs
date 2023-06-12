@@ -35,7 +35,7 @@ namespace FoenixCore.Simulator.Devices
         private int blockPtr = 0;
         private int waitCounter = 4;
         private int BOOT_SECTOR_ADDR = 0x29 * 512;
-        private int FAT_OFFSET_START = -1; // must be calcuated based on capacity
+        private int FAT_OFFSET_START = -1; // must be calculated based on capacity
         private int ROOT_OFFSET_START = -1; // must be calculated based on capacity
         private int DATA_OFFSET_START = -1; // must be calculated based on capacity
         private int FAT_SIZE = 0;
@@ -180,7 +180,7 @@ namespace FoenixCore.Simulator.Devices
                                         blockPtr = 0;
                                         int fatPage = (writeAddress - FAT_OFFSET_START) / 512;
                                         Console.WriteLine("Gabe is trying to write to FAT Area! Page: " + fatPage);
-                                        // Compare the last FAT with the writeBlock - based on how many clusters are created, we can determine the filesize
+                                        // Compare the last FAT with the writeBlock - based on how many clusters are created, we can determine the file size
                                         PrepareEmptyFileEntry(fatPage);
                                         writeBlock = new byte[512];
                                     }
@@ -360,7 +360,7 @@ namespace FoenixCore.Simulator.Devices
 
                     Array.Copy(partition, 0, mbr, 446, 16);
 
-                    // If the ISO file didn't have an MBR, ensure that we set the partiton type correctly
+                    // If the ISO file didn't have an MBR, ensure that we set the partition type correctly
                     if (IsoMode)
                     { }
                 }
@@ -430,7 +430,7 @@ namespace FoenixCore.Simulator.Devices
                     else
                         small_sectors = sector_count;
 
-                    logicalSectorSize = sectors_per_cluster * 512; // this is used to calculate clusters off of filesizes
+                    logicalSectorSize = sectors_per_cluster * 512; // this is used to calculate clusters off of file sizes
 
                     // Assign default values to the boot sector
                     boot_sector[0] = 0xEB;

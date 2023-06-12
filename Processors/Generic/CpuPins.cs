@@ -1,9 +1,9 @@
 ﻿namespace FoenixCore.Processor.Generic
 {
     /// <summary>
-    /// Class to encapsulte the state of the CoreCpu 'Control Pins'. This is a made
+    /// Class to encapsulate the state of the CoreCpu 'Control Pins'. This is a made
     /// up term for those pins that control the CoreCpu execution, Reset, IRQ, etc.
-    /// We treat them as a singel register which makes checking to see if any
+    /// We treat them as a single register which makes checking to see if any
     /// one set much faster than if they were individual bool objects.
     /// </summary>
     public class CpuPins
@@ -45,7 +45,7 @@
         public bool VectorPull = false;
 
         /// <summary>
-        /// Helper method to let CoreCpu class know an interrutp pin is high
+        /// Helper method to let CoreCpu class know an interrupt pin is high
         /// </summary>
         public bool InterruptPinActive => RESET || NMI || IRQ || ABORT;
     }

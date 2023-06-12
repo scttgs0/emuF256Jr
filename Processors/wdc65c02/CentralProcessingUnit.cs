@@ -35,7 +35,7 @@ namespace FoenixCore.Processor.wdc65c02
         public byte OpcodeLength;
 
         /// <summary>
-        /// Number of clock cycles used by the currently exeucting instruction
+        /// Number of clock cycles used by the currently executing instruction
         /// </summary>
         public int OpcodeCycles;
 
@@ -261,7 +261,7 @@ namespace FoenixCore.Processor.wdc65c02
         #endregion
 
         /// <summary>
-        /// Change execution to anohter address in the same bank
+        /// Change execution to another address in the same bank
         /// </summary>
         /// <param name="addr"></param>
         public void JumpShort(ushort addr)

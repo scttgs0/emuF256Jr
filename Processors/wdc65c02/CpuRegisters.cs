@@ -14,7 +14,7 @@ namespace FoenixCore.Processor.wdc65c02
         public Register<byte> A = new();
 
         /// <summary>
-        /// X Index Regiser
+        /// X Index Register
         /// </summary>
         public Register<byte> X = new();
 
@@ -34,7 +34,7 @@ namespace FoenixCore.Processor.wdc65c02
         public RegisterStackPointer Stack = new();
 
         /// <summary>
-        /// Wait state. When Wait is true, the CoreCpu will not exeucte instructions. It
+        /// Wait state. When Wait is true, the CoreCpu will not execute instructions. It
         /// will service the IRQ, NMI, and ABORT lines. A hardware interrupt is required 
         /// to restart the CoreCpu.
         /// </summary>

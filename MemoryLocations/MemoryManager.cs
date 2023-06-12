@@ -36,7 +36,7 @@ namespace FoenixCore.MemoryLocations
         public int EndAddress => 0xF_FFFF;
 
         /// <summary>
-        /// Determine whehter the address being read from or written to is an I/O device or a memory cell.
+        /// Determine whether the address being read from or written to is an I/O device or a memory cell.
         /// If the location is an I/O device, return that device. Otherwise, return the memory being referenced.
         /// </summary>
         /// <param name="Address"></param>

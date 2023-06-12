@@ -254,7 +254,7 @@ namespace FoenixCore.Processor.wdc65c02
                 case OpcodeList.TRB_ZeroPage:
                     // reset bits in memory when that bit is 1 in A
                     // AND to get bits that are both 1
-                    // XOR to force thoses off in memory.
+                    // XOR to force those off in memory.
                     int mask = val & cpu.A.Value;
                     cpu.MemMgr.Write(addr, val ^ mask, 1);
                     break;

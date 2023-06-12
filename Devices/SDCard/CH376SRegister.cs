@@ -301,7 +301,7 @@ namespace FoenixCore.Simulator.Devices
             string[] dirs = Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly);
             string[] files = Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly);
 
-            // Add the parent folder only if the inital name is not /*
+            // Add the parent folder only if the initial name is not /*
             if (!path.Equals(SDCardPath))
             {
                 ShortLongFileName slf = new();
