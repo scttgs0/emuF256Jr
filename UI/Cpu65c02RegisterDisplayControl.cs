@@ -20,7 +20,7 @@ namespace FoenixToolkit.UI
 #pragma warning disable CS0649  // never assigned
         [GUI] Label bit0;
         [GUI] Label bit2;
-        //[GUI] ListStore liststoreRegisters;
+        [GUI] ListStore liststoreRegisters;
         //[GUI] TreeView registerGrid;
         [GUI] TreeViewColumn colRegister;
         [GUI] TreeViewColumn colSymbol;
@@ -90,7 +90,21 @@ namespace FoenixToolkit.UI
 
         public void UpdateRegisters()
         {
-            //-- ucRegPC.Value = _cpu.PC.ToString("X6");
+            TreeIter iter;
+            liststoreRegisters.IterChildren(out iter);
+            liststoreRegisters.SetValue(iter, 2, "$"+_cpu.PC.ToString("X4"));
+
+            liststoreRegisters.IterNext(ref iter);
+            liststoreRegisters.SetValue(iter, 2, "$"+_cpu.A.Value.ToString("X2"));
+
+            liststoreRegisters.IterNext(ref iter);
+            liststoreRegisters.SetValue(iter, 2, "$"+_cpu.X.Value.ToString("X2"));
+
+            liststoreRegisters.IterNext(ref iter);
+            liststoreRegisters.SetValue(iter, 2, "$"+_cpu.Y.Value.ToString("X2"));
+
+            liststoreRegisters.IterNext(ref iter);
+            liststoreRegisters.SetValue(iter, 2, "$"+(_cpu.Stack.Value-256).ToString("X2"));
 
             // foreach (object c in boxRegisters.AllChildren)
             // {
